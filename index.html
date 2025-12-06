@@ -2,910 +2,1728 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>QuickTrip - Live Edition</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByeD0iMjAlIiBmaWxsPSIjMGE4NGZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI3MCUiIGZvbnQtZmFtaWx5PSJJbnRlciwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSI3MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmZmZmYiPlE8L3RleHQ+Cjwvc3ZnPg==">
-  
+  <title>QuickTrip Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* --- DARK MODE (Default) --- */
-      --bg-app: #000000;
-      --bg-mesh-1: #1e1b4b;
-      --bg-mesh-2: #0f172a;
-      
-      --glass-surface: rgba(30, 30, 30, 0.60);
-      --glass-surface-active: rgba(50, 50, 50, 0.7);
-      --glass-border: rgba(255, 255, 255, 0.12);
-      
-      --text-main: #ffffff;
-      --text-muted: #98989d;
-      --text-inv: #000000;
-      --input-bg: rgba(255, 255, 255, 0.08);
-
-      --accent-primary: #0a84ff; /* iOS Blue */
-      --success: #30d158;
-      --danger: #ff453a;
-      --warning: #ff9f0a;
-      
-      --map-bg: #1c1c1e;
-      --map-road: #3a3a3c;
-      
-      --radius-screen: 0px; 
-      --radius-card: 22px;
-      --radius-sm: 12px;
+      --bg: #020617;
+      --bg-elevated: rgba(15, 23, 42, 0.96);
+      --bg-soft: rgba(15, 23, 42, 0.8);
+      --accent: #38bdf8;
+      --accent-strong: #0ea5e9;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+      --danger: #fb7185;
+      --success: #22c55e;
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --border-subtle: rgba(148,163,184,0.35);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 40px rgba(15,23,42,0.85);
+      --shadow-strong: 0 30px 80px rgba(0,0,0,0.9);
     }
 
-    /* --- LIGHT MODE VARIABLES --- */
-    body.light-mode {
-      --bg-app: #f2f2f7;
-      --bg-mesh-1: #e5e5ea;
-      --bg-mesh-2: #ffffff;
-      
-      --glass-surface: rgba(255, 255, 255, 0.75);
-      --glass-surface-active: rgba(255, 255, 255, 0.95);
-      --glass-border: rgba(0, 0, 0, 0.05);
-      
-      --text-main: #000000;
-      --text-muted: #8e8e93;
-      --text-inv: #ffffff;
-      --input-bg: rgba(0, 0, 0, 0.08);
-
-      --map-bg: #e5e5ea;
-      --map-road: #ffffff;
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-    
     body {
-      margin: 0; 
-      height: 100vh; /* Full viewport height */
-      width: 100vw; /* Full viewport width */
-      display: block; 
-      background: var(--bg-app); 
-      font-family: "Inter", -apple-system, sans-serif;
-      color: var(--text-main); 
-      overflow: hidden; 
-      transition: background 0.3s;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top, rgba(56,189,248,0.18), transparent 60%),
+        radial-gradient(circle at bottom, rgba(129,140,248,0.25), transparent 65%),
+        #020617;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-main);
     }
 
-    .screen-area {
-      width: 100vw;
-      height: 100vh;
-      background: var(--bg-app);
-      position: relative; 
-      overflow: hidden; 
-      transition: background 0.4s ease;
-    }
-    .screen-bg {
-      position: absolute; inset: 0;
-      background: radial-gradient(circle at 10% 20%, var(--bg-mesh-1) 0%, transparent 40%),
-                  radial-gradient(circle at 90% 80%, var(--bg-mesh-2) 0%, transparent 40%);
-      opacity: 0.6; z-index: 0;
+    .phone {
+      width: 100%;
+      max-width: 420px;
+      height: 90vh;
+      max-height: 830px;
+      border-radius: 34px;
+      padding: 14px;
+      background: radial-gradient(circle at top left, rgba(148,163,184,0.2), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(15,23,42,1), rgba(15,23,42,0.92));
+      box-shadow: var(--shadow-strong);
+      border: 1px solid rgba(148,163,184,0.4);
+      backdrop-filter: blur(24px);
+      position: relative;
+      overflow: hidden;
     }
 
-    /* --- Dynamic Island (MEASURING TRIP) --- */
-    .dynamic-island-area { position: absolute; top: 0; left: 0; right: 0; height: 110px; z-index: 50; padding: 14px 20px 0; background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); }
-    .island-pill {
-      width: 124px; height: 36px; background: #000; margin: 0 auto;
-      border-radius: 20px; display: flex; align-items: center; justify-content: center;
-      transition: width 0.3s cubic-bezier(0.3, 1.3, 0.3, 1), opacity 0.2s;
-      z-index: 60; opacity: 0; 
+    .phone-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 26px;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.96), #020617 68%);
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(15,23,42,0.9);
     }
-    .island-pill.active { width: 220px; padding: 0 16px; justify-content: space-between; opacity: 1; }
 
-    .island-content {
-      font-size: 12px; font-weight: 600; color: var(--success);
-      display: none; align-items: center; gap: 8px; width: 100%;
-    }
-    .island-pill.active .island-content { display: flex; justify-content: space-between; }
-    
-    .header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 0 20px; transition: opacity 0.3s ease, transform 0.3s ease; }
-    .header-row.hidden { opacity: 0; transform: translateY(-10px); pointer-events: none; }
-
-    .status-badge {
-      font-size: 13px; font-weight: 500; background: var(--glass-surface);
-      border: 1px solid var(--glass-border); color: var(--text-main);
-      padding: 6px 14px; border-radius: 99px; backdrop-filter: blur(12px);
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.2s;
-    }
-    .status-badge:active { transform: scale(0.95); }
-
-    /* --- Content --- */
-    .content-scroll { position: absolute; top: 0; bottom: 85px; left: 0; right: 0; overflow-y: auto; padding: 110px 20px 20px; scrollbar-width: none; z-index: 10; }
-    .content-scroll::-webkit-scrollbar { display: none; }
-    
-    /* --- TOASTER Notification --- */
-    .toast-message {
-      position: fixed;
-      top: 100px;
-      left: 50%;
-      transform: translate(-50%, 0);
-      background: rgba(48, 209, 88, 0.95); 
-      color: var(--text-inv);
-      padding: 10px 18px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 1000;
+    /* --- New Dynamic Detection Background Style --- */
+    .detection-overlay {
+      position: absolute;
+      inset: 0;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s, transform 0.3s;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      max-width: 90vw; /* Ensure it fits smaller screens */
-      white-space: nowrap;
+      transition: opacity 300ms ease-out;
+      z-index: 0; /* Behind all content */
+      /* Mimic the dotted, active background from the user's screenshot */
+      background-image:
+        radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.1), transparent 10px),
+        radial-gradient(circle at 90% 90%, rgba(129, 140, 248, 0.1), transparent 10px),
+        radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.08), transparent 8px),
+        radial-gradient(circle at 20% 80%, rgba(129, 140, 248, 0.08), transparent 8px);
+      background-size: 100% 100%;
+      animation: detect-pulse 4s infinite alternate ease-in-out;
     }
-    .toast-message.show {
+
+    .detection-overlay.active {
       opacity: 1;
     }
 
-    /* --- Slider UX Fix (New/Updated) --- */
-    .ios-slider {
-      -webkit-appearance: none;
-      width: 100%; /* FIX: Set to full width */
-      height: 4px; /* Track height */
-      background: var(--input-bg);
-      border-radius: 4px;
-      margin: 10px 0;
+    @keyframes detect-pulse {
+      0% {
+        background-position: 0% 0%;
+        transform: scale(1);
+      }
+      100% {
+        background-position: 100% 100%;
+        transform: scale(1.03);
+      }
     }
-    .ios-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 28px;
-      height: 28px;
-      background: #fff;
+    /* ----------------------------------------------- */
+
+    .status-bar {
+      height: 24px;
+      padding: 8px 18px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-soft);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      position: relative; /* Ensure it stays above the overlay */
+      z-index: 1;
+    }
+
+    .pill-tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15, 23, 42, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.4); 
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(34,197,94,0.8);
+    }
+
+    .top-bar {
+      padding: 2px 18px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative; /* Ensure it stays above the overlay */
+      z-index: 1;
+    }
+
+    .app-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 0.03em;
+    }
+
+    .app-logo {
+      width: 22px;
+      height: 22px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 0, #e0f2fe, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(56,189,248,0.6);
+    }
+
+    .app-logo span {
+      font-size: 12px;
+      font-weight: 800;
+      color: #020617;
+    }
+
+    .app-title-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .top-quick {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .top-chip {
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(148,163,184,0.45);
+      font-size: 11px;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       cursor: pointer;
-      margin-top: -12px; /* Center the thumb on the track */
     }
-    .light-mode .ios-slider::-webkit-slider-thumb {
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(0,0,0,0.1); 
+
+    .top-chip strong {
+      color: var(--text-main);
+      font-weight: 600;
     }
-    /* --- Other Styles (retained) --- */
-    .text-mono { font-family: "JetBrains Mono", monospace; }
-    .text-hand { font-family: "Gochi Hand", cursive; }
-    .text-muted { color: var(--text-muted); }
-    .text-sm { font-size: 14px; }
-    .font-bold { font-weight: 700; }
+
+    .screen-container {
+      position: absolute;
+      inset: 56px 0 74px;
+      padding: 6px 14px 10px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148,163,184,0.8) transparent;
+      position: relative; /* Ensure content is above the overlay */
+      z-index: 1;
+    }
+
+    .screen-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    .screen-container::-webkit-scrollbar-thumb {
+      background: rgba(148,163,184,0.8);
+      border-radius: 999px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 220ms ease-out;
+    }
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+      margin: 6px 2px 10px;
+    }
+
     .card {
-      background: var(--glass-surface); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--glass-border); border-radius: var(--radius-card);
-      padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
-      transition: transform 0.2s, background 0.3s;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(15,23,42,0.94));
+      border: 1px solid rgba(148,163,184,0.4);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
     }
-    .card:active { transform: scale(0.98); background: var(--glass-surface-active); }
-    .trip-section-header {
-      font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 24px; margin-bottom: 8px;
+    .card + .card {
+      margin-top: 12px;
     }
-    .trip-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 10px; transition: transform 0.2s, background 0.3s; }
-    .trip-item:active { transform: scale(0.98); background: var(--glass-surface-active); }
-    .mini-map-preview { width: 60px; height: 60px; border-radius: 14px; background: var(--map-bg); position: relative; overflow: hidden; flex-shrink: 0; }
-    .map-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--map-road) 1px, transparent 1px), linear-gradient(90deg, var(--map-road) 1px, transparent 1px); background-size: 15px 15px; opacity: 0.3; }
-    .map-route { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%, -50%); border: 3px solid var(--accent-primary); border-radius: 99px; border-left-color: transparent; }
-    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; }
-    .setting-row:not(:last-child) { border-bottom: 1px solid var(--glass-border); }
-    .setting-icon-container { width: 34px; height: 34px; background: var(--input-bg); border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 12px; flex-shrink: 0;}
-    .setting-icon-emoji { font-size: 18px; line-height: 1; }
-    .theme-icon-container { position: relative; width: 24px; height: 24px; }
-    .theme-icon { position: absolute; inset: 0; stroke-width: 2; transition: opacity 0.3s, transform 0.5s; }
-    .theme-icon-moon { color: #fcc419; } 
-    .theme-icon-sun { color: #ff9f0a; } 
-    #icon-moon { opacity: 0; }
-    #icon-sun { opacity: 1; }
-    .light-mode #icon-moon { opacity: 1; }
-    .light-mode #icon-sun { opacity: 0; }
-    .toggle-switch { width: 50px; height: 30px; background: rgba(120, 120, 128, 0.2); border-radius: 99px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
-    .toggle-switch::after {
-      content: ''; position: absolute; left: 2px; top: 2px;
-      width: 26px; height: 26px; background: #fff; border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.4); 
-      transition: transform 0.3s cubic-bezier(0.3, 1.3, 0.3, 1);
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
-    .toggle-switch.on { background: var(--success); }
-    .toggle-switch.on::after { transform: translateX(20px); }
-    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .bar-label { width: 80px; font-size: 12px; color: var(--text-muted); }
-    .bar-track { flex: 1; height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
-    .bar-val { width: 40px; text-align: right; font-size: 12px; font-family: var(--font-mono); }
-    .input-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); margin-top: 8px; border: 1px solid transparent; transition: border-color 0.2s; }
-    .input-group:focus-within { border-color: var(--accent-primary); }
-    .input-group span { padding: 14px; color: var(--text-muted); }
-    .input-group input { flex: 1; padding: 14px 0; background: none; border: none; color: var(--text-main); font-size: 16px; outline: none; font-family: var(--font-mono); }
-    .fuel-option-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 16px; }
-    .fuel-option { flex: 1; text-align: center; padding: 8px 12px; border-radius: var(--radius-sm) }
-    .fuel-option.active { background: var(--glass-surface); font-weight: 600; color: var(--accent-primary); }
-    .tab-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; padding: 0 20px 20px; background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(30px); display: flex; justify-content: space-around; align-items: flex-start; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-top: 0.5px solid rgba(255,255,255,0.15); transition: background 0.3s; }
-    body.light-mode .tab-bar { background: rgba(255, 255, 255, 0.85); border-top: 0.5px solid rgba(0,0,0,0.1); }
-    .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; width: 60px; padding-top: 10px;}
-    .tab-btn.active { color: var(--accent-primary); }
-    .tab-btn svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .screen { display: none; animation: fadeUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
-    .screen.active { display: block; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; align-items: flex-end; }
-    .modal-overlay.open { opacity: 1; pointer-events: auto; }
-    .modal-sheet { width: 100%; background: var(--bg-app); border-radius: 36px 36px 0 0; padding: 30px 24px 40px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.3); border-top: 1px solid var(--glass-border); }
-    .modal-overlay.open .modal-sheet { transform: translateY(0); }
-    .modal-handle { width: 40px; height: 5px; background: var(--text-muted); opacity: 0.3; border-radius: 99px; margin: 0 auto 20px; }
-    .btn-action { width: 100%; padding: 16px; background: var(--accent-primary); color: #fff; border: none; border-radius: 18px; font-size: 16px; font-weight: 600; margin-top: 20px; }
-    
-    #modal-permissions .modal-sheet { padding-top: 12px; }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.5);
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    .hero-amount {
+      font-size: 46px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      margin: 14px 0 4px;
+    }
+    .hero-amount span.currency {
+      font-size: 28px;
+      opacity: 0.9;
+      margin-right: 2px;
+    }
+    .hero-caption {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+    .hero-meta {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+    .hero-pill {
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(148,163,184,0.4);
+    }
+
+    .last-trip-card {
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(148,163,184,0.75);
+      background: rgba(15,23,42,0.9);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: background 140ms ease-out, transform 80ms ease-out, box-shadow 140ms ease-out;
+    }
+    .last-trip-card:hover {
+      background: rgba(15,23,42,1);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(15,23,42,0.8);
+    }
+    .last-trip-main {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .last-trip-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .last-trip-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+    .last-trip-amount {
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .chip {
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15,23,42,1);
+      border: 1px solid rgba(148,163,184,0.4);
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+    .chip.primary {
+      background: var(--accent-soft);
+      border-color: rgba(56,189,248,0.75);
+      color: #e0f2fe;
+    }
+
+    /* Trips */
+    .trip-group {
+      margin-bottom: 12px;
+    }
+    .trip-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+      margin: 8px 2px 8px;
+    }
+    .trip-card {
+      border-radius: var(--radius-md);
+      background: rgba(15,23,42,0.97);
+      border: 1px solid rgba(148,163,184,0.45);
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 140ms ease-out, transform 80ms ease-out, box-shadow 160ms ease-out;
+    }
+    .trip-card:hover {
+      background: rgba(15,23,42,1);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(15,23,42,0.8);
+    }
+    .trip-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .trip-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .trip-meta {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+    .trip-cost {
+      font-weight: 600;
+      font-size: 15px;
+      text-align: right;
+    }
+    .trip-tag {
+      font-size: 10px;
+      color: var(--accent);
+      margin-top: 2px;
+      text-align: right;
+    }
+
+    /* Insights */
+    .stat-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .stat-card {
+      flex: 1;
+      border-radius: var(--radius-md);
+      padding: 10px 10px 11px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.95);
+      font-size: 11px;
+    }
+    .stat-label {
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-weight: 600;
+      font-size: 17px;
+    }
+    .stat-change {
+      margin-top: 4px;
+      font-size: 11px;
+    }
+    .stat-change.positive { color: var(--success); }
+    .stat-change.negative { color: var(--danger); }
+
+    .budget-banner {
+      margin-top: 12px;
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      border: 1px solid rgba(234,179,8,0.5);
+      background: linear-gradient(135deg, rgba(202,138,4,0.16), rgba(15,23,42,0.97));
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .budget-progress {
+      margin-top: 8px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      overflow: hidden;
+      position: relative;
+    }
+    .budget-progress-inner {
+      position: absolute;
+      inset: 0;
+      width: 78%;
+      background: linear-gradient(90deg, #22c55e, #eab308, #f97316);
+      box-shadow: 0 0 18px rgba(234,179,8,0.9);
+    }
+
+    .idea-list {
+      margin-top: 10px;
+      list-style: none;
+      padding-left: 0;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+    .idea-list li {
+      margin-bottom: 6px;
+      display: flex;
+      gap: 6px;
+    }
+    .idea-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(148,163,184,0.8);
+      margin-top: 6px;
+    }
+
+    /* Settings */
+    .settings-group {
+      margin-bottom: 16px;
+    }
+    .settings-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+    .settings-row {
+      padding: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    .settings-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .settings-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.6);
+      cursor: pointer;
+      transition: background 160ms ease-out, border-color 160ms ease-out;
+    }
+    .switch-thumb {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+      transition: transform 180ms ease-out;
+    }
+    .switch.on {
+      background: rgba(56,189,248,0.35);
+      border-color: rgba(56,189,248,0.85);
+    }
+    .switch.on .switch-thumb {
+      transform: translateX(15px);
+    }
+
+    .transport-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .transport-chip {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      font-size: 11px;
+      cursor: pointer;
+      background: rgba(15,23,42,0.95);
+      color: var(--text-soft);
+    }
+    .transport-chip.active {
+      background: rgba(56,189,248,0.15);
+      border-color: rgba(56,189,248,0.85);
+      color: #e0f2fe;
+    }
+
+    .link-button {
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .link-button:hover {
+      text-decoration: underline;
+    }
+
+    /* Onboarding */
+    .onboarding {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 4px;
+    }
+    .on-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .on-subtitle {
+      font-size: 13px;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .field-group {
+      margin-top: 8px;
+    }
+    .field-label {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .field-prefix {
+      font-size: 14px;
+      color: var(--text-soft);
+    }
+    .input-shell {
+      flex: 1;
+      position: relative;
+    }
+    .input {
+      width: 100%;
+      border-radius: var(--radius-pill);
+      padding: 9px 12px;
+      border: 1px solid rgba(148,163,184,0.55);
+      background: rgba(15,23,42,0.96);
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 140ms ease-out, box-shadow 140ms ease-out, background 140ms ease-out;
+    }
+    .input:focus {
+      border-color: rgba(56,189,248,0.85);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.5);
+      background: rgba(15,23,42,1);
+    }
+    .input-helper {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 11px 16px;
+      margin-top: 14px;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #020617;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 18px 40px rgba(8,47,73,0.9);
+      transition: transform 80ms ease-out, box-shadow 80ms ease-out, filter 120ms ease-out;
+    }
+    .primary-btn:hover { filter: brightness(1.04); }
+    .primary-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 9px 24px rgba(8,47,73,0.8);
+    }
+
+    /* Bottom nav */
+    .tab-bar {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 14px;
+      height: 54px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(148,163,184,0.6);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.9);
+      padding: 0 6px;
+      z-index: 10;
+    }
+    .tab-btn {
+      flex: 1;
+      border-radius: 999px;
+      padding: 7px 2px;
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      transition: background 140ms ease-out, color 140ms ease-out, transform 80ms ease-out;
+    }
+    .tab-btn span.icon { font-size: 17px; }
+    .tab-btn.active {
+      background: rgba(15,23,42,0.98);
+      color: var(--accent-strong);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.85), 0 0 16px rgba(56,189,248,0.45);
+      transform: translateY(-1px);
+    }
+    .tab-btn-label {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.75), rgba(2,6,23,0.95));
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0 12px 70px;
+      z-index: 20;
+    }
+    .modal-backdrop.active {
+      display: flex;
+      animation: fadeIn 180ms ease-out;
+    }
+    .modal-sheet {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 24px;
+      background: rgba(15,23,42,0.98);
+      border: 1px solid rgba(148,163,184,0.55);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.95);
+      padding: 12px 14px 14px;
+    }
+    .modal-handle {
+      width: 42px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.7);
+      margin: 4px auto 8px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .modal-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .modal-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+    .close-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.65);
+      background: rgba(15,23,42,0.98);
+      color: var(--text-soft);
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .modal-section {
+      margin-top: 8px;
+      font-size: 12px;
+    }
+    .modal-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .modal-label { color: var(--text-soft); }
+    .modal-value { font-weight: 500; }
+    .modal-divider {
+      height: 1px;
+      margin: 8px 0;
+      background: linear-gradient(90deg, transparent, rgba(148,163,184,0.8), transparent);
+    }
+    .toggle-row {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .map-placeholder {
+      width: 100%;
+      height: 120px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,64,175,0.9));
+      border: 1px solid rgba(148,163,184,0.6);
+      margin-top: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+    .map-path {
+      position: absolute;
+      inset: 12px;
+      border-radius: 999px;
+      border: 2px dashed rgba(56,189,248,0.7);
+      opacity: 0.7;
+    }
+    .map-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      position: absolute;
+      background: #22c55e;
+      box-shadow: 0 0 12px rgba(34,197,94,0.9);
+    }
+    .map-dot.end {
+      background: #f97316;
+      box-shadow: 0 0 12px rgba(249,115,22,0.9);
+    }
+
+    /* Toast */
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 82px;
+      transform: translateX(-50%);
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.98);
+      border: 1px solid rgba(56,189,248,0.8);
+      font-size: 11px;
+      color: #e0f2fe;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      z-index: 30;
+      box-shadow: 0 16px 32px rgba(0,0,0,0.8);
+    }
+    .toast.active {
+      display: flex;
+      animation: fadeIn 160ms ease-out;
+    }
+    .toast-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(34,197,94,0.9);
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* Fuel modal specific styles for a better look */
+    .fuel-modal-content {
+      padding-top: 4px;
+    }
+    .station-row, .avg-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    .station-name {
+      color: var(--text-main);
+    }
+    .station-price {
+      font-weight: 500;
+      color: var(--accent-strong);
+    }
+    .avg-row {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(148,163,184,0.4);
+      font-weight: 600;
+      color: var(--text-main);
+    }
   </style>
 </head>
-<body class="">
+<body>
+  <div class="phone">
+    <div class="phone-inner">
+      <div class="detection-overlay active" id="detectionOverlay"></div>
 
-<div class="screen-area">
-  <div class="screen-bg"></div>
-  
-  <div id="motionToast" class="toast-message"></div>
-  
-  <div class="dynamic-island-area">
-    <div class="island-pill" id="dynamicPill">
-      <div class="island-content">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div style="width:8px;height:8px;background:var(--success);border-radius:50%;box-shadow:0 0 8px var(--success);"></div>
-          <span id="islandStatusText">TRIP IN PROGRESS</span>
+      <div class="status-bar">
+        <div class="pill-tag">
+          <div class="pill-dot"></div>
+          <span id="statusText">Auto-detecting car trips</span>
         </div>
-        <span class="text-mono" id="recTimer">00:00</span>
-      </div>
-    </div>
-    
-    <div class="header-row" id="headerRow">
-      <div class="status-badge" onclick="openCarModal()">
-        <span id="headerCarName">Audi A3</span> 
-        <span style="opacity:0.5">•</span> 
-        <span class="text-mono" id="headerMPG">44</span> <span style="font-size:10px;opacity:0.7">MPG</span>
-      </div>
-      <div class="status-badge" onclick="openFuelModal()">
-        <span>⛽</span> <span class="text-mono" id="headerFuelPrice">£1.27/L</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="content-scroll">
-    
-    <div id="screen-today" class="screen active">
-      <div style="text-align:center; padding: 20px 0;">
-        <div style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Estimated Spend</div>
-        <div style="font-size:76px; line-height:1; position:relative; display:inline-block;" class="text-hand">
-          <span style="font-size:30px; position:absolute; top:10px; left:-20px; color:var(--text-muted); font-family:var(--font-ui);">£</span>
-          <span id="todayTotal">0.00</span>
-        </div>
+        <span>QuickTrip • Demo</span>
       </div>
 
-      <div class="card" style="border:1px dashed var(--glass-border); background:rgba(120,120,128,0.05);">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-          <span class="text-sm text-muted">LAST TRIP</span>
-          <span class="text-mono font-bold" id="lastTripCost">£--</span>
-        </div>
-        <div class="text-sm" id="lastTripTitle">No recent trips</div>
-      </div>
-      
-      <div class="card" style="text-align:center; padding: 40px 20px;">
-          <div style="font-size:24px; color:var(--text-muted); margin-bottom:10px;">Waiting for a trip...</div>
-          <div class="text-sm text-muted">Automatic trip detection requires **Auto-Detect** to be enabled in Settings.</div>
-      </div>
-      
-    </div>
-
-    <div id="screen-trips" class="screen">
-      <h2 style="font-size:22px; margin-bottom:16px;">History</h2>
-      <div id="tripsList">
-        </div>
-    </div>
-
-    <div id="screen-insights" class="screen">
-      <h2 style="font-size:22px; margin-bottom:16px;">Insights</h2>
-      
-      <div class="card" onclick="openBudgetModal()">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-          <span class="text-muted text-sm">Monthly Budget</span>
-          <span class="text-sm font-bold" style="color:var(--accent-primary);">Edit</span>
-        </div>
-        
-        <div style="display:flex; align-items:baseline; gap:6px;">
-          <span class="text-hand" style="font-size:32px;" id="insightSpent">£0</span>
-          <span class="text-muted">/ £<span id="insightLimit">200</span></span>
-        </div>
-        
-        <div style="margin-top:10px; height:8px; background:var(--glass-border); border-radius:4px; overflow:hidden;">
-          <div id="budgetBar" style="width:0%; height:100%;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 style="margin-top:0; font-size:16px; margin-bottom:16px;">Cost Breakdown</h3>
-        <div class="bar-row">
-          <div class="bar-label">Commute</div>
-          <div class="bar-track"><div class="bar-fill" style="width:57%; background:#0a84ff;"></div></div>
-          <div class="bar-val">£120</div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label">School Run</div>
-          <div class="bar-track"><div class="bar-fill" style="width:21%; background:#ff9f0a;"></div></div>
-          <div class="bar-val">£45</div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label">Other</div>
-          <div class="bar-track"><div class="bar-fill" style="width:22%; background:#30d158;"></div></div>
-          <div class="bar-val">£45</div>
-        </div>
-      </div>
-    </div>
-
-    <div id="screen-settings" class="screen">
-      <h2 style="font-size:22px; margin-bottom:16px;">Settings</h2>
-      
-      <div class="card" onclick="openCarModal()">
-        <div class="setting-row" style="border:none;">
-          <div class="setting-icon-container" style="background:var(--accent-primary);"><span class="setting-icon-emoji">🚗</span></div>
-          <div style="flex:1;">
-            <div class="font-bold">Car Profile</div>
-            <div class="text-sm text-muted" id="settingsCarDetail">Audi A3 • 44 MPG</div>
+      <div class="top-bar">
+        <div class="app-title">
+          <div class="app-title-main">
+            <div class="app-logo"><span>QT</span></div>
+            <span>QuickTrip</span>
           </div>
-          <span style="color:var(--text-muted)">›</span>
+          <div class="app-title-sub" id="subtitleText">Fuel cost, automatically.</div>
+        </div>
+        <div class="top-quick">
+          <div class="top-chip" id="chipMpg"><span>MPG</span> <strong id="chipMpgValue">44.2</strong></div>
+          <div class="top-chip" id="chipFuel">
+            <span>Fuel</span>
+            <strong id="chipFuelValue">£1.27/L</strong>
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="setting-row" onclick="this.querySelector('.toggle-switch').classList.toggle('on'); saveDetectionSetting(this.querySelector('.toggle-switch'))">
-          <div class="setting-icon-container"><span class="setting-icon-emoji">🧭</span></div>
-          <div style="flex:1;">
-            <div class="text-sm font-bold">Auto-Detect Trips</div>
-            <div style="font-size:11px;" class="text-muted" id="detectionStatus">Motion & GPS sensors</div>
+      <div class="screen-container">
+        <div class="screen active" id="screenOnboarding">
+          <div class="onboarding">
+            <div>
+              <div class="on-title">Set up your car</div>
+              <div class="on-subtitle">
+                We’ll use your MPG, motion sensors and live fuel prices within about 5 miles
+                to track real-world driving costs automatically.
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="field-group">
+                <div class="field-label">Your MPG</div>
+                <div class="field-row">
+                  <div class="input-shell">
+                    <input class="input" id="inputMpg" type="number" min="10" max="90" step="0.1" value="44.2" />
+                  </div>
+                </div>
+                <div class="input-helper">
+                  <span>Estimate from your car’s official figures.</span>
+                  <span class="link-button" id="btnSuggestMpg">Suggest MPG</span>
+                </div>
+              </div>
+
+              <div class="field-group" style="margin-top:14px;">
+                <div class="field-label">Fuel price</div>
+                <div class="field-row">
+                  <div class="field-prefix">£</div>
+                  <div class="input-shell">
+                    <input class="input" id="inputFuelPrice" type="number" min="0.5" max="3" step="0.01" value="1.27" />
+                  </div>
+                  <div style="font-size:11px;color:var(--text-soft);margin-right:4px;">per L</div>
+                </div>
+                <div class="input-helper">
+                  <span>We’ll automatically update this from nearby stations.</span>
+                  <span style="font-size:11px;color:var(--accent);">Auto refresh • On</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:6px;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Automatic trip detection</div>
+                  <div class="card-subtitle">
+                    Uses GPS + motion sensors to only count car journeys. Train, tube and walking are ignored.
+                  </div>
+                </div>
+                <div class="badge">Preview</div>
+              </div>
+              <div class="chip-row">
+                <div class="chip primary">Car rides detected in background</div>
+                <div class="chip">Train &amp; bus ignored</div>
+                <div class="chip">No manual start/stop required</div>
+              </div>
+            </div>
+
+            <button class="primary-btn" id="btnStartDemo">Start demo</button>
           </div>
-          <div class="toggle-switch" id="detectionToggle"></div>
         </div>
-        
-        <div class="setting-row" onclick="toggleTheme(this.querySelector('.toggle-switch'))" style="border-bottom:none;">
-          <div class="setting-icon-container">
-            <div class="theme-icon-container">
-              <svg id="icon-moon" class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 0 0 0 21 12.79z"></path>
-              </svg>
-              <svg id="icon-sun" class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-              </svg>
+
+        <div class="screen" id="screenToday">
+          <div class="section-label">Today</div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Estimated fuel spend</div>
+                <div class="card-subtitle" id="todaySubtitle">Across all car journeys detected today.</div>
+              </div>
+              <div class="badge mono" id="todayTripsBadge">3 trips</div>
+            </div>
+            <div class="hero-amount"><span class="currency">£</span><span id="todayAmount">25.13</span></div>
+            <div class="hero-caption" id="todayCaption">42.5 miles • Avg £1.27/L • 1h 13m driving</div>
+            <div class="hero-meta">
+              <div class="hero-pill mono" id="metaPerMile">£0.59 / mile</div>
+              <div class="hero-pill mono" id="metaPerTrip">£8.38 / trip</div>
+            </div>
+            <div class="last-trip-card" id="lastTripCard">
+              <div class="last-trip-main">
+                <div class="last-trip-title" id="lastTripTitle">Last trip</div>
+                <div class="last-trip-sub" id="lastTripSub">16:40 • 9.3 miles • 23 min</div>
+              </div>
+              <div class="last-trip-amount mono" id="lastTripAmount">£5.03</div>
             </div>
           </div>
-          <div style="flex:1;">
-            <div class="text-sm font-bold">Dark Mode</div>
-            <div style="font-size:11px;" class="text-muted">Appearance</div>
+
+          <div class="card" style="margin-top:14px;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Live driving session</div>
+                <div class="card-subtitle">Use this button to simulate a new detected car trip.</div>
+              </div>
+              <div class="badge">Simulation</div>
+            </div>
+            <div class="chip-row">
+              <div class="chip"><span class="mono" id="simState">Idle • waiting for motion</span></div>
+            </div>
+            <button class="primary-btn" id="btnSimulateTrip" style="margin-top:12px;padding:10px 12px;font-size:13px;">
+              Simulate new car trip
+            </button>
           </div>
-          <div class="toggle-switch" id="themeToggle"></div>
+        </div>
+
+        <div class="screen" id="screenTrips">
+          <div class="section-label">Trips</div>
+          <div id="tripsList"></div>
+        </div>
+
+        <div class="screen" id="screenInsights">
+          <div class="section-label">Insights</div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">This month</div>
+                <div class="card-subtitle">Estimated fuel cost for car journeys only.</div>
+              </div>
+              <div class="badge">Summary</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-card">
+                <div class="stat-label">Total fuel spend</div>
+                <div class="stat-value mono" id="insightsTotal">£210</div>
+                <div class="stat-change positive" id="insightsChange">+£18 vs last month</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Distance driven</div>
+                <div class="stat-value mono" id="insightsMiles">612 mi</div>
+                <div class="stat-change" style="color:var(--text-soft);" id="insightsTrips">24 trips</div>
+              </div>
+            </div>
+
+            <div class="budget-banner">
+              <div>
+                <div><strong>£210</strong> of <span class="mono">£250</span> fuel budget used</div>
+                <div style="font-size:11px;color:var(--text-soft);">You’re at 84% of your monthly target.</div>
+                <div class="budget-progress">
+                  <div class="budget-progress-inner"></div>
+                </div>
+              </div>
+              <div style="font-size:11px;text-align:right;">
+                <div>Approx. <strong>£40</strong> left</div>
+                <div style="color:var(--accent);margin-top:4px;">Edit budget (coming soon)</div>
+              </div>
+            </div>
+
+            <ul class="idea-list">
+              <li>
+                <div class="idea-dot"></div>
+                <div>Leaving 10 min earlier and avoiding peak traffic could save around <strong>£15/month</strong>.</div>
+              </li>
+              <li>
+                <div class="idea-dot"></div>
+                <div>Combining errands into one loop would cut about <strong>18 miles</strong> per week for your pattern.</div>
+              </li>
+              <li>
+                <div class="idea-dot"></div>
+                <div>Sharing regular school runs with a neighbour could halve those trip costs.</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="screen" id="screenSettings">
+          <div class="section-label">Settings</div>
+          <div class="card">
+            <div class="settings-group">
+              <div class="settings-title">Car profile</div>
+              <div class="settings-row">
+                <div class="settings-left">
+                  <span>Primary car</span>
+                  <span class="settings-sub" id="settingsCarLabel">Demo car • 44.2 MPG</span>
+                </div>
+                <span class="link-button">Change</span>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-title">Fuel price source</div>
+              <div class="settings-row">
+                <div class="settings-left">
+                  <span>Nearby stations</span>
+                  <span class="settings-sub">Average pump price within ~5 miles.</span>
+                </div>
+                <div class="switch on" id="switchAutoFuel">
+                  <div class="switch-thumb"></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-left">
+                  <span>Custom price</span>
+                  <span class="settings-sub">Override with your own fixed price.</span>
+                </div>
+                <div class="field-row" style="max-width:120px;">
+                  <div class="field-prefix">£</div>
+                  <div class="input-shell">
+                    <input class="input" id="settingsFuelInput" type="number" value="1.27" step="0.01" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-title">Trip detection</div>
+              <div class="settings-row">
+                <div class="settings-left">
+                  <span>Auto-detect car trips</span>
+                  <span class="settings-sub">Use motion + GPS to track drives in the background.</span>
+                </div>
+                <div class="switch on" id="switchAutoDetect">
+                  <div class="switch-thumb"></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-left">
+                  <span>Only when using CarPlay</span>
+                  <span class="settings-sub">Helpful if you’re privacy-conscious.</span>
+                </div>
+                <div class="switch" id="switchCarPlay">
+                  <div class="switch-thumb"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-title">Transport filters</div>
+              <div class="transport-chips">
+                <div class="transport-chip active">Car</div>
+                <div class="transport-chip">Train</div>
+                <div class="transport-chip">Bus</div>
+                <div class="transport-chip">Bike</div>
+                <div class="transport-chip">Walking</div>
+              </div>
+              <div style="margin-top:6px;font-size:11px;color:var(--text-soft);">
+                In this demo, only car trips contribute to costs and stats.
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <div class="settings-title">Data</div>
+              <div class="settings-row">
+                <div class="settings-left">
+                  <span>Export trip history</span>
+                  <span class="settings-sub">Download a CSV of all detected trips.</span>
+                </div>
+                <span class="link-button">Export (mock)</span>
+              </div>
+              <div class="settings-row">
+                <div class="settings-left">
+                  <span>Reset demo data</span>
+                  <span class="settings-sub">Start over with fresh sample trips.</span>
+                </div>
+                <span class="link-button" id="btnResetDemo">Reset</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    
-  </div> <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('today', this)">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-      <span style="font-size:10px; font-weight:600;">Today</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('trips', this)">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
-      <span style="font-size:10px; font-weight:600;">Trips</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('insights', this)">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-      <span style="font-size:10px; font-weight:600;">Insights</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('settings', this)">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      <span style="font-size:10px; font-weight:600;">Settings</span>
-    </button>
-  </div>
 
-</div>
-
-<div class="modal-overlay" id="modal-permissions">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div style="text-align:center;">
-        <span style="font-size:48px; display:block; margin-bottom:10px;">📍</span>
-        <h3 style="margin-top:0;">Enable Trip Detection</h3>
-    </div>
-    <p class="text-sm text-muted">To automatically detect your car trips, we need permission to access your device's location and motion sensors when using the app.</p>
-    <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main);">
-        <li>**Location (GPS):** Required for route and distance calculation.</li>
-        <li>**Motion/Accelerometer:** Required to start/stop tracking based on driving movement.</li>
-    </ul>
-    <p class="text-sm text-muted">Tap "Enable" to trigger the browser's permission prompts.</p>
-    <button class="btn-action" onclick="grantPermissions()">Enable Tracking</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-car-edit" onclick="if(event.target===this) closeModal('modal-car-edit')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3>Edit Car Profile</h3>
-    <label class="text-sm text-muted">Car Name</label>
-    <div class="input-group"><input type="text" id="inputCarName" value="Audi A3"></div>
-    <div style="margin-top:20px;">
-      <div style="display:flex; justify-content:space-between;">
-        <label class="text-sm text-muted">Efficiency (MPG)</label>
-        <span class="text-mono font-bold" id="labelMPG">44</span>
+      <div class="tab-bar">
+        <button class="tab-btn active" data-target="Today">
+          <span class="icon">🏠</span>
+          <span class="tab-btn-label">Today</span>
+        </button>
+        <button class="tab-btn" data-target="Trips">
+          <span class="icon">🧭</span>
+          <span class="tab-btn-label">Trips</span>
+        </button>
+        <button class="tab-btn" data-target="Insights">
+          <span class="icon">📊</span>
+          <span class="tab-btn-label">Insights</span>
+        </button>
+        <button class="tab-btn" data-target="Settings">
+          <span class="icon">⚙️</span>
+          <span class="tab-btn-label">Settings</span>
+        </button>
       </div>
-      <input type="range" id="sliderMPG" class="ios-slider" min="10" max="80" value="44" oninput="updateCarPreview(this.value)">
-    </div>
-    <button class="btn-action" onclick="saveCar()">Save Changes</button>
-  </div>
-</div>
 
-<div class="modal-overlay" id="modal-budget" onclick="if(event.target===this) closeModal('modal-budget')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3>Monthly Budget</h3>
-    <p class="text-sm text-muted">Set a target to track your fuel spending.</p>
-    <div style="text-align:center; padding:20px 0;">
-      <span style="font-size:48px;" class="text-hand">£<span id="labelBudget">200</span></span>
-    </div>
-    <input type="range" id="sliderBudget" class="ios-slider" min="50" max="500" step="10" value="200" oninput="updateBudgetPreview(this.value)">
-    <button class="btn-action" onclick="saveBudget()">Set Budget</button>
-  </div>
-</div>
+      <div class="modal-backdrop" id="tripModal">
+        <div class="modal-sheet">
+          <div class="modal-handle"></div>
+          <div class="modal-header">
+            <div>
+              <div class="modal-title" id="modalTripTitle">Home → Office</div>
+              <div class="modal-sub" id="modalTripSubtitle">Today • 16:40 • 9.3 miles • 23 min</div>
+            </div>
+            <button class="close-btn" data-close="tripModal">×</button>
+          </div>
 
-<div class="modal-overlay" id="modal-fuel-price" onclick="if(event.target===this) closeModal('modal-fuel-price')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3>Fuel Price Source</h3>
-    <p class="text-sm text-muted">Choose how QuickTrip calculates your trip costs.</p>
-    <div class="fuel-option-group">
-      <div id="option-live" class="fuel-option active" onclick="setFuelSource('live')">Live Stations (Avg)</div>
-      <div id="option-fixed" class="fuel-option" onclick="setFuelSource('fixed')">Fixed Price</div>
-    </div>
-    <div id="live-detail">
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span class="text-sm text-muted">Local Average (5 mile radius)</span>
-        <span class="text-mono font-bold" style="color:var(--accent-primary);">£1.27/L</span>
+          <div class="map-placeholder">
+            <div class="map-path"></div>
+            <div class="map-dot" style="top:22px;left:32px;"></div>
+            <div class="map-dot end" style="bottom:18px;right:30px;"></div>
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-row">
+              <span class="modal-label">Distance</span>
+              <span class="modal-value mono" id="modalDistance">9.3 mi</span>
+            </div>
+            <div class="modal-row">
+              <span class="modal-label">Time</span>
+              <span class="modal-value mono" id="modalTime">23 min</span>
+            </div>
+            <div class="modal-row">
+              <span class="modal-label">Fuel used (est.)</span>
+              <span class="modal-value mono" id="modalFuel">0.67 L</span>
+            </div>
+            <div class="modal-row">
+              <span class="modal-label">Fuel price (local avg)</span>
+              <span class="modal-value mono" id="modalFuelPrice">£1.27/L</span>
+            </div>
+            <div class="modal-row">
+              <span class="modal-label">Trip cost</span>
+              <span class="modal-value mono" id="modalCost">£5.03</span>
+            </div>
+          </div>
+
+          <div class="modal-divider"></div>
+
+          <div class="modal-section">
+            <div class="modal-row">
+              <span class="modal-label">Compare with Uber/taxi</span>
+              <span class="modal-value mono" id="modalUber">~£11–13</span>
+            </div>
+            <div class="modal-row">
+              <span class="modal-label">Per passenger (x2)</span>
+              <span class="modal-value mono" id="modalSplit">£2.52</span>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <span>Exclude this trip from stats</span>
+            <div class="switch" id="switchExcludeTrip">
+              <div class="switch-thumb"></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="text-sm text-muted" style="border-top:1px solid var(--glass-border); padding-top:10px;">
-        Data from Shell (£1.30), BP (£1.28), Esso (£1.23).
+
+      <div class="modal-backdrop" id="fuelModal">
+        <div class="modal-sheet">
+          <div class="modal-handle"></div>
+          <div class="modal-header">
+            <div>
+              <div class="modal-title">How we estimate fuel price</div>
+              <div class="modal-sub">Demo of nearby stations within roughly 5 miles.</div>
+            </div>
+            <button class="close-btn" data-close="fuelModal">×</button>
+          </div>
+          <div class="modal-section fuel-modal-content">
+            <p style="margin-top:0;">
+              In the real app we’d pull the latest publicly available pump prices around your route and
+              calculate a rolling average for your fuel type.
+            </p>
+            <div class="station-row">
+              <span class="station-name">Shell – High Road</span>
+              <span class="station-price mono">£1.30/L</span>
+            </div>
+            <div class="station-row">
+              <span class="station-name">BP – Ringway</span>
+              <span class="station-price mono">£1.28/L</span>
+            </div>
+            <div class="station-row">
+              <span class="station-name">Tesco Extra</span>
+              <span class="station-price mono">£1.24/L</span>
+            </div>
+            <div class="avg-row">
+              <span>Weighted local average</span>
+              <span class="mono">£1.27/L</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">
+        <div class="toast-dot"></div>
+        <span id="toastText">New trip detected • £3.40 added</span>
       </div>
     </div>
-    <div id="fixed-input" style="display:none;">
-      <label class="text-sm text-muted">Enter Price per Litre</label>
-      <div class="input-group">
-        <span>£</span>
-        <input type="number" id="inputFixedPrice" value="1.27" min="0.5" step="0.01">
-        <span>/L</span>
-      </div>
-    </div>
-    <button class="btn-action" onclick="saveFuelSettings()">Apply</button>
   </div>
-</div>
 
-<script>
-  // --- STATE & PERSISTENCE (Local Storage Implementation) ---
-  const DEFAULT_STATE = {
-    carName: "Audi A3",
-    mpg: 44,
-    budget: 200,
-    fuelPrice: 1.27,
-    fuelSource: 'live',
-    trips: [], 
-    permissionsGranted: false,
-    detectionEnabled: true,
-    isLightMode: false,
-  };
-  
-  let state = {};
+  <script>
+    // --- Simple app state ---
+    const state = {
+      mpg: 44.2,
+      fuelPrice: 1.27,
+      autoFuel: true,
+      detectionActive: true, // NEW state variable to control overlay
+      trips: [
+        {
+          id: 1,
+          title: "Home → Office",
+          subtitle: "Today • 08:12",
+          distance: 11.4,
+          minutes: 28,
+          cost: 6.12,
+          dayGroup: "Today",
+          excluded: false
+        },
+        {
+          id: 2,
+          title: "Office → Gym",
+          subtitle: "Today • 17:05",
+          distance: 7.3,
+          minutes: 19,
+          cost: 4.01,
+          dayGroup: "Today",
+          excluded: false
+        },
+        {
+          id: 3,
+          title: "Gym → Home",
+          subtitle: "Today • 18:02",
+          distance: 9.3,
+          minutes: 23,
+          cost: 5.03,
+          dayGroup: "Today",
+          excluded: false
+        },
+        {
+          id: 4,
+          title: "Home → Supermarket",
+          subtitle: "Yesterday • 19:14",
+          distance: 4.1,
+          minutes: 11,
+          cost: 2.01,
+          dayGroup: "Yesterday",
+          excluded: false
+        }
+      ],
+      activeTripId: null
+    };
 
-  // --- MOTION DETECTION VARIABLES (NEW) ---
-  let isDetectingMotion = false;
-  const MOTION_THRESHOLD = 15; // m/s^2, acceleration threshold for a shake
-  const MOVING_CAR_THRESHOLD = 5000; // 5 seconds of sustained motion to suggest 'Moving Car'
-  let lastSignificantMotionTime = 0;
-  let lastToastStatus = '';
-  let toastTimeout = null;
-  let lastToastTime = 0; // The time the toast was LAST SHOWN (used for quick shake debounce)
-
-
-  function loadStateFromLocalStorage() {
-    try {
-      const serializedState = localStorage.getItem('quicktripState');
-      let savedState = serializedState ? JSON.parse(serializedState) : {};
-      if (savedState.trips) {
-        savedState.trips = savedState.trips.map(t => ({
-          ...t,
-          date: new Date(t.date)
-        }));
-      }
-      state = { ...DEFAULT_STATE, ...savedState };
-    } catch (err) {
-      console.error("Error loading state, using defaults:", err);
-      state = DEFAULT_STATE;
+    // --- Helpers ---
+    function formatMoney(value) {
+      return value.toFixed(2);
     }
-  }
 
-  function saveStateToLocalStorage() {
-    try {
-      const stateToSave = { ...state };
-      const serializedState = JSON.stringify(stateToSave);
-      localStorage.setItem('quicktripState', serializedState);
-    } catch (err) {
-      console.error("Error saving state:", err);
-    }
-  }
-  
-  // --- INITIALIZATION ---
-  document.addEventListener('DOMContentLoaded', () => {
-    loadStateFromLocalStorage();
-    if (state.isLightMode) {
-      document.body.classList.add('light-mode');
-      document.getElementById('themeToggle').classList.add('on');
-    }
-    
-    updateUI();
-    checkAndRequestPermissions();
-    initMotionDetection(); // Start motion detection if permissions are already granted
-  });
-
-  // --- MOTION DETECTION LOGIC (UPDATED FOR REPEATED TOAST) ---
-
-  function initMotionDetection() {
-    if (state.detectionEnabled && state.permissionsGranted && !isDetectingMotion) {
-      if (window.DeviceMotionEvent) {
-        window.addEventListener('devicemotion', handleMotion);
-        isDetectingMotion = true;
-        console.log('DeviceMotion listener started.');
+    // NEW: Function to update the background overlay based on state
+    function updateDetectionOverlay() {
+      const overlay = document.getElementById("detectionOverlay");
+      if (state.detectionActive) {
+        overlay.classList.add("active");
       } else {
-        console.warn('DeviceMotionEvent not supported on this browser.');
-        updateMotionStatus('Motion not supported on this device', 3000);
+        overlay.classList.remove("active");
       }
-    } else if (isDetectingMotion && (!state.detectionEnabled || !state.permissionsGranted)) {
-      window.removeEventListener('devicemotion', handleMotion);
-      isDetectingMotion = false;
-      console.log('DeviceMotion listener stopped.');
     }
-  }
 
-  function handleMotion(event) {
-    const { x, y, z } = event.accelerationIncludingGravity;
-    // Calculate total magnitude of acceleration
-    const magnitude = Math.sqrt(x * x + y * y + z * z);
-    const now = Date.now();
+    function recalcTodaySummary() {
+      const todayTrips = state.trips.filter(t => t.dayGroup === "Today" && !t.excluded);
+      const total = todayTrips.reduce((sum, t) => sum + t.cost, 0);
+      const miles = todayTrips.reduce((sum, t) => sum + t.distance, 0);
+      const minutes = todayTrips.reduce((sum, t) => sum + t.minutes, 0);
+      const perMile = miles ? total / miles : 0;
+      const perTrip = todayTrips.length ? total / todayTrips.length : 0;
 
-    // 1. Check for significant motion (Shaking)
-    if (magnitude > MOTION_THRESHOLD) {
-      lastSignificantMotionTime = now;
-      
-      // FIX: Show 'Shaking' every time, but apply a quick 500ms debounce
-      if (now - lastToastTime > 500) { 
-        updateMotionStatus('Shaking');
-        // lastToastTime is updated inside updateMotionStatus
-        lastToastStatus = 'Shaking'; // Update internal status
+      document.getElementById("todayAmount").textContent = formatMoney(total);
+      document.getElementById("todayTripsBadge").textContent = todayTrips.length + " trips";
+      document.getElementById("todayCaption").textContent =
+        miles.toFixed(1) + " miles • Avg £" + state.fuelPrice.toFixed(2) + "/L • " + minutes + " min driving";
+      document.getElementById("metaPerMile").textContent = "£" + formatMoney(perMile) + " / mile";
+      document.getElementById("metaPerTrip").textContent = todayTrips.length
+        ? "£" + formatMoney(perTrip) + " / trip"
+        : "No trips yet";
+
+      const lastTrip = todayTrips[todayTrips.length - 1];
+      if (lastTrip) {
+        document.getElementById("lastTripTitle").textContent = lastTrip.title;
+        document.getElementById("lastTripSub").textContent =
+          lastTrip.subtitle.replace("Today • ", "") +
+          " • " +
+          lastTrip.distance.toFixed(1) +
+          " miles • " +
+          lastTrip.minutes +
+          " min";
+        document.getElementById("lastTripAmount").textContent = "£" + formatMoney(lastTrip.cost);
+      }
+    }
+
+    function renderTripsList() {
+      const container = document.getElementById("tripsList");
+      container.innerHTML = "";
+      const groups = {};
+      state.trips.forEach(trip => {
+        if (!groups[trip.dayGroup]) groups[trip.dayGroup] = [];
+        groups[trip.dayGroup].push(trip);
+      });
+
+      Object.keys(groups).forEach(group => {
+        const groupDiv = document.createElement("div");
+        groupDiv.className = "trip-group";
+        const title = document.createElement("div");
+        title.className = "trip-group-title";
+        title.textContent = group;
+        groupDiv.appendChild(title);
+
+        groups[group].forEach(trip => {
+          const card = document.createElement("div");
+          card.className = "trip-card";
+          card.dataset.tripId = trip.id;
+
+          const main = document.createElement("div");
+          main.className = "trip-main";
+          const tTitle = document.createElement("div");
+          tTitle.className = "trip-title";
+          tTitle.textContent = trip.title;
+          const tMeta = document.createElement("div");
+          tMeta.className = "trip-meta";
+          tMeta.textContent =
+            trip.subtitle +
+            " • " +
+            trip.distance.toFixed(1) +
+            " mi • " +
+            trip.minutes +
+            " min";
+          main.appendChild(tTitle);
+          main.appendChild(tMeta);
+
+          const right = document.createElement("div");
+          right.style.display = "flex";
+          right.style.flexDirection = "column";
+          right.style.alignItems = "flex-end";
+          const cost = document.createElement("div");
+          cost.className = "trip-cost mono";
+          cost.textContent = "£" + formatMoney(trip.cost);
+          const tag = document.createElement("div");
+          tag.className = "trip-tag";
+          tag.textContent = trip.excluded ? "Excluded from stats" : "Included in stats";
+          right.appendChild(cost);
+          right.appendChild(tag);
+
+          card.appendChild(main);
+          card.appendChild(right);
+          card.addEventListener("click", () => openTripModal(trip.id));
+
+          groupDiv.appendChild(card);
+        });
+
+        container.appendChild(groupDiv);
+      });
+    }
+
+    function openTripModal(id) {
+      const trip = state.trips.find(t => t.id === id);
+      if (!trip) return;
+      state.activeTripId = id;
+      document.getElementById("modalTripTitle").textContent = trip.title;
+      document.getElementById("modalTripSubtitle").textContent =
+        trip.subtitle + " • " + trip.distance.toFixed(1) + " miles • " + trip.minutes + " min";
+      document.getElementById("modalDistance").textContent = trip.distance.toFixed(1) + " mi";
+      document.getElementById("modalTime").textContent = trip.minutes + " min";
+      const litres = trip.distance / (state.mpg * 0.621371) * 4.54609; // rough demo
+      document.getElementById("modalFuel").textContent = litres.toFixed(2) + " L";
+      document.getElementById("modalFuelPrice").textContent = "£" + state.fuelPrice.toFixed(2) + "/L";
+      document.getElementById("modalCost").textContent = "£" + formatMoney(trip.cost);
+
+      const uberLow = (trip.cost * 2.1).toFixed(0);
+      const uberHigh = (trip.cost * 2.6).toFixed(0);
+      document.getElementById("modalUber").textContent = "~£" + uberLow + "–" + uberHigh;
+      document.getElementById("modalSplit").textContent = "£" + formatMoney(trip.cost / 2);
+
+      const switchExclude = document.getElementById("switchExcludeTrip");
+      if (trip.excluded) {
+        switchExclude.classList.add("on");
+      } else {
+        switchExclude.classList.remove("on");
       }
 
-      // 2. Check for sustained motion (Simulated 'Moving Car' after 5 seconds of continuous motion)
-      // This is independent of the 'Shaking' toast debounce
-      if (now - lastSignificantMotionTime >= MOVING_CAR_THRESHOLD) {
-        if (lastToastStatus !== 'Moving Car') {
-          updateMotionStatus('Moving Car', 5000);
-          lastToastStatus = 'Moving Car';
+      document.getElementById("tripModal").classList.add("active");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("active");
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toastText").textContent = text;
+      toast.classList.add("active");
+      setTimeout(() => toast.classList.remove("active"), 2200);
+    }
+
+    function simulateTrip() {
+      const id = state.trips.length + 1;
+      const distance = 4 + Math.random() * 10;
+      const minutes = 10 + Math.round(Math.random() * 20);
+      const cost = distance * 0.55 + Math.random(); // approximate demo cost
+      const trip = {
+        id,
+        title: "Simulated trip " + id,
+        subtitle: "Today • " + (15 + id) + ":0" + (id % 6),
+        distance,
+        minutes,
+        cost,
+        dayGroup: "Today",
+        excluded: false
+      };
+      state.trips.push(trip);
+      document.getElementById("simState").textContent = "Car motion detected • trip saved";
+
+      // NEW: Temporary activation of the detection overlay for the simulated trip
+      const overlay = document.getElementById("detectionOverlay");
+      overlay.classList.add("active-sim");
+      setTimeout(() => {
+        overlay.classList.remove("active-sim");
+        // Re-apply based on detection switch, in case it was toggled off during simulation
+        if (document.getElementById("switchAutoDetect").classList.contains("on")) {
+          overlay.classList.add("active");
         }
-      }
-    } else {
-      // If motion has settled (or is light movement) and more than 5s since last major shake,
-      // reset the status internally.
-       if (now - lastSignificantMotionTime > 5000 && lastToastStatus !== 'Steady') {
-           lastToastStatus = 'Steady'; 
-       }
-    }
-  }
+      }, 3000);
 
-  function updateMotionStatus(status, duration = 3000) {
-    const toastEl = document.getElementById('motionToast');
-    clearTimeout(toastTimeout);
-    
-    let statusText = `Detecting motion: ${status}`;
-    
-    if (status === 'Moving Car') {
-        toastEl.style.backgroundColor = 'var(--accent-primary)';
-    } else if (status === 'Shaking') {
-        toastEl.style.backgroundColor = 'var(--warning)';
-    } else {
-        toastEl.style.backgroundColor = 'var(--success)';
-    }
-    toastEl.textContent = statusText;
-    
-    toastEl.classList.add('show');
-    
-    // Only update lastToastTime for the 'Shaking' status to enforce the 500ms debounce
-    // This allows the 'Shaking' status to immediately interrupt 'Moving Car' status.
-    if (status === 'Shaking') {
-        lastToastTime = Date.now(); 
-    }
-    
-    toastTimeout = setTimeout(() => {
-      toastEl.classList.remove('show');
-    }, duration);
-  }
-
-
-  // --- PERMISSION LOGIC ---
-  function checkAndRequestPermissions() {
-      if (!state.permissionsGranted) {
-          document.getElementById('modal-permissions').classList.add('open');
-      }
-  }
-
-  function grantPermissions() {
-    // 1. Ask for Geolocation (GPS)
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => { console.log("GPS permission granted."); },
-        (err) => { console.error("GPS permission denied:", err.message); }
-      );
+      showToast("New trip detected • £" + formatMoney(cost) + " added");
+      recalcTodaySummary();
+      renderTripsList();
     }
 
-    // 2. Ask for DeviceMotion/Orientation (iOS Safari requirement)
-    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      DeviceMotionEvent.requestPermission().then(response => {
-        if (response === 'granted') {
-           updateMotionStatus('Motion Sensor Granted!', 2000);
-           state.permissionsGranted = true;
-           saveStateToLocalStorage();
-           initMotionDetection(); // Start the listener
-        } else {
-           updateMotionStatus('Motion Sensor Denied. Detection compromised.', 4000);
+    function resetDemo() {
+      state.trips = [
+        {
+          id: 1,
+          title: "Home → Office",
+          subtitle: "Today • 08:12",
+          distance: 11.4,
+          minutes: 28,
+          cost: 6.12,
+          dayGroup: "Today",
+          excluded: false
+        },
+        {
+          id: 2,
+          title: "Office → Gym",
+          subtitle: "Today • 17:05",
+          distance: 7.3,
+          minutes: 19,
+          cost: 4.01,
+          dayGroup: "Today",
+          excluded: false
+        },
+        {
+          id: 3,
+          title: "Gym → Home",
+          subtitle: "Today • 18:02",
+          distance: 9.3,
+          minutes: 23,
+          cost: 5.03,
+          dayGroup: "Today",
+          excluded: false
+        },
+        {
+          id: 4,
+          title: "Home → Supermarket",
+          subtitle: "Yesterday • 19:14",
+          distance: 4.1,
+          minutes: 11,
+          cost: 2.01,
+          dayGroup: "Yesterday",
+          excluded: false
         }
-      }).catch(console.error);
-    } else {
-      // For non-iOS/non-explicit permission browsers, assume granted for basic functionality
-      state.permissionsGranted = true;
-      saveStateToLocalStorage();
-      initMotionDetection();
+      ];
+      recalcTodaySummary();
+      renderTripsList();
+      document.getElementById("simState").textContent = "Idle • waiting for motion";
+      showToast("Demo data reset");
+      // Ensure overlay state is correct after reset (assuming Auto-detect is still ON)
+      state.detectionActive = true;
+      document.getElementById("switchAutoDetect").classList.add("on"); // Ensure switch is ON visually
+      updateDetectionOverlay();
     }
 
-    closeModal('modal-permissions');
-    updateUI();
-  }
-  
-  // --- NAVIGATION ---
-  function switchTab(tabId, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + tabId).classList.add('active');
-    
-    const header = document.getElementById('headerRow');
-    if(tabId === 'settings') {
-      header.classList.add('hidden');
-    } else {
-      header.classList.remove('hidden');
-    }
-  }
+    // --- Event wiring ---
+    window.addEventListener("DOMContentLoaded", () => {
+      recalcTodaySummary();
+      renderTripsList();
+      updateDetectionOverlay(); // Initial call to set the overlay state
 
-  // --- THEME ---
-  function toggleTheme(el) {
-    el.classList.toggle('on');
-    document.body.classList.toggle('light-mode');
-    
-    state.isLightMode = document.body.classList.contains('light-mode');
-    saveStateToLocalStorage(); 
-    
-    const isLightMode = state.isLightMode;
-    const iconMoon = document.getElementById('icon-moon');
-    const iconSun = document.getElementById('icon-sun');
+      // Tabs
+      const tabButtons = document.querySelectorAll(".tab-btn");
+      tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const target = btn.dataset.target;
+          document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+          document.getElementById("screen" + target).classList.add("active");
+          if (target !== "Onboarding") {
+            document.getElementById("subtitleText").textContent =
+              target === "Today"
+                ? "Fuel cost, automatically."
+                : target === "Trips"
+                ? "Tap any trip for full cost breakdown."
+                : target === "Insights"
+                ? "Spot patterns, budgets and savings ideas."
+                : "Fine-tune detection, fuel and privacy.";
+          }
+        });
+      });
 
-    if (isLightMode) {
-        iconMoon.style.opacity = 1;
-        iconSun.style.opacity = 0;
-    } else {
-        iconMoon.style.opacity = 0;
-        iconSun.style.opacity = 1;
-    }
-  }
+      // Start demo button
+      document.getElementById("btnStartDemo").addEventListener("click", () => {
+        const mpgInput = parseFloat(document.getElementById("inputMpg").value) || state.mpg;
+        const fuelInput = parseFloat(document.getElementById("inputFuelPrice").value) || state.fuelPrice;
+        state.mpg = mpgInput;
+        state.fuelPrice = fuelInput;
+        document.getElementById("chipMpgValue").textContent = mpgInput.toFixed(1);
+        document.getElementById("chipFuelValue").textContent = "£" + fuelInput.toFixed(2) + "/L";
+        document.getElementById("settingsCarLabel").textContent = "Demo car • " + mpgInput.toFixed(1) + " MPG";
+        document.getElementById("settingsFuelInput").value = fuelInput.toFixed(2);
 
-  // --- UTILITY: Date Formatting for Grouping ---
-  function getGroupHeader(date) {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+        recalcTodaySummary();
+        renderTripsList();
 
-    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const y = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+        // switch to Today tab
+        document.querySelector('.tab-btn[data-target="Today"]').click();
+        document.getElementById("screenOnboarding").classList.remove("active");
+        document.getElementById("screenToday").classList.add("active");
+        showToast("Demo ready • live data mocked for preview");
+        // Ensure detection is active when starting the demo
+        state.detectionActive = true;
+        updateDetectionOverlay();
+      });
 
-    if (d.getTime() === t.getTime()) {
-      return "Today";
-    } else if (d.getTime() === y.getTime()) {
-      return "Yesterday";
-    } else {
-      const options = { weekday: 'long', month: 'short', day: 'numeric' };
-      return date.toLocaleDateString('en-US', options);
-    }
-  }
+      // MPG suggest
+      document.getElementById("btnSuggestMpg").addEventListener("click", () => {
+        document.getElementById("inputMpg").value = 44.2;
+        showToast("Using a typical hatchback MPG for demo");
+      });
 
-  // --- UI UPDATER ---
-  function updateUI() {
-    // Header & Settings
-    document.getElementById('headerCarName').innerText = state.carName;
-    document.getElementById('headerMPG').innerText = state.mpg;
-    document.getElementById('settingsCarDetail').innerText = `${state.carName} • ${state.mpg} MPG`;
-    document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L`;
-    
-    // Detection Toggle State
-    const detectionToggle = document.getElementById('detectionToggle');
-    if (state.detectionEnabled) {
-        detectionToggle.classList.add('on');
-        document.getElementById('detectionStatus').innerText = state.permissionsGranted ? "Motion & GPS sensors active" : "Waiting for permissions";
-    } else {
-        detectionToggle.classList.remove('on');
-        document.getElementById('detectionStatus').innerText = "Detection is manually paused";
-    }
+      // Simulate trip
+      document.getElementById("btnSimulateTrip").addEventListener("click", simulateTrip);
+      document.getElementById("btnResetDemo").addEventListener("click", resetDemo);
 
-    // Today Calculation
-    const todayCost = state.trips
-      .filter(t => (new Date() - t.date) < 24 * 60 * 60 * 1000)
-      .reduce((acc, t) => acc + t.cost, 0);
-    document.getElementById('todayTotal').innerText = todayCost.toFixed(2);
+      // Last trip click
+      document.getElementById("lastTripCard").addEventListener("click", () => {
+        const todayTrips = state.trips.filter(t => t.dayGroup === "Today" && !t.excluded);
+        if (todayTrips.length) openTripModal(todayTrips[todayTrips.length - 1].id);
+      });
 
-    // Last Trip
-    if(state.trips.length > 0) {
-      const recent = [...state.trips].sort((a, b) => b.date.getTime() - a.date.getTime())[0];
-      document.getElementById('lastTripCost').innerText = `£${recent.cost.toFixed(2)}`;
-      document.getElementById('lastTripTitle').innerText = `${recent.title} (${timeAgo(recent.date)})`;
-    } else {
-      document.getElementById('lastTripCost').innerText = `£0.00`;
-      document.getElementById('lastTripTitle').innerText = `No recorded trips`;
-    }
+      // Exclude trip toggle
+      document.getElementById("switchExcludeTrip").addEventListener("click", () => {
+        const el = document.getElementById("switchExcludeTrip");
+        el.classList.toggle("on");
+        const trip = state.trips.find(t => t.id === state.activeTripId);
+        if (trip) {
+          trip.excluded = el.classList.contains("on");
+          recalcTodaySummary();
+          renderTripsList();
+          showToast(trip.excluded ? "Trip excluded from stats" : "Trip added back into stats");
+        }
+      });
 
-    // Insights
-    const totalSpent = state.trips.reduce((acc, t) => acc + t.cost, 0);
-    document.getElementById('insightSpent').innerText = `£${Math.floor(totalSpent)}`;
-    document.getElementById('insightLimit').innerText = state.budget;
-    
-    const pct = Math.min((totalSpent / state.budget) * 100, 100);
-    const budgetBar = document.getElementById('budgetBar');
-    budgetBar.style.width = pct + "%";
-    budgetBar.style.background = pct > 90 ? "var(--danger)" : pct > 75 ? "var(--warning)" : "var(--success)";
+      // Settings switches
+      document.getElementById("switchAutoDetect").addEventListener("click", (e) => {
+        e.currentTarget.classList.toggle("on");
+        const enabled = e.currentTarget.classList.contains("on");
+        state.detectionActive = enabled; // Update state
+        updateDetectionOverlay(); // Update visual overlay
 
-    renderTrips();
-  }
-  
-  function saveDetectionSetting(toggleEl) {
-    state.detectionEnabled = toggleEl.classList.contains('on');
-    saveStateToLocalStorage();
-    initMotionDetection(); // Start/stop listener based on new setting
-    updateUI(); 
-  }
+        document.getElementById("statusText").textContent = enabled
+          ? "Auto-detecting car trips"
+          : "Detection paused";
+      });
+      document.getElementById("switchAutoFuel").addEventListener("click", (e) => {
+        e.currentTarget.classList.toggle("on");
+        state.autoFuel = e.currentTarget.classList.contains("on");
+        showToast(state.autoFuel ? "Auto fuel pricing enabled" : "Using fixed price only");
+      });
+      document.getElementById("switchCarPlay").addEventListener("click", (e) => {
+        e.currentTarget.classList.toggle("on");
+        showToast("CarPlay-only mode is just visual in this demo");
+      });
 
-  // --- RENDER TRIPS (UPDATED for empty state) ---
-  function renderTrips() {
-    const list = document.getElementById('tripsList');
-    list.innerHTML = "";
-    
-    if(state.trips.length === 0) {
-      list.innerHTML = `
-        <div class="card" style="text-align:center; padding: 40px 20px;">
-            <div style="font-size:20px; color:var(--text-muted); margin-bottom:10px;">No Trips Recorded Yet</div>
-            <div class="text-sm text-muted">Please ensure Auto-Detect is enabled in Settings, then use a car to drive and calculate the cost of your trips.</div>
-        </div>
-      `;
-      return;
-    }
-    
-    state.trips.sort((a, b) => b.date.getTime() - a.date.getTime());
+      document.getElementById("settingsFuelInput").addEventListener("change", (e) => {
+        const v = parseFloat(e.target.value);
+        if (!isNaN(v)) {
+          state.fuelPrice = v;
+          document.getElementById("chipFuelValue").textContent = "£" + v.toFixed(2) + "/L";
+          recalcTodaySummary();
+        }
+      });
 
-    let currentDateGroup = null;
+      // Fuel modal
+      document.getElementById("chipFuel").addEventListener("click", () => {
+        document.getElementById("fuelModal").classList.add("active");
+      });
 
-    state.trips.forEach(t => {
-      const header = getGroupHeader(t.date);
-
-      if (header !== currentDateGroup) {
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'trip-section-header';
-        headerDiv.textContent = header;
-        list.appendChild(headerDiv);
-        currentDateGroup = header;
-      }
-
-      const rotate = (t.id * 55) % 360; 
-      
-      const div = document.createElement('div');
-      div.className = 'trip-item';
-      div.innerHTML = `
-        <div class="mini-map-preview">
-          <div class="map-grid"></div>
-          <div class="map-route" style="transform: translate(-50%, -50%) rotate(${rotate}deg);"></div>
-        </div>
-        <div style="flex:1;">
-          <div style="font-weight:600; font-size:15px;">${t.title}</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-            ${t.dist} mi • ${t.date.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}
-          </div>
-        </div>
-        <div class="text-mono font-bold">£${t.cost.toFixed(2)}</div>
-      `;
-      list.appendChild(div);
+      // Modal close buttons
+      document.querySelectorAll(".close-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          closeModal(btn.dataset.close);
+        });
+      });
     });
-  }
-
-
-  function timeAgo(date) {
-    const mins = Math.floor((new Date() - date) / 60000);
-    if(mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    return `${hrs}h ago`;
-  }
-
-  // --- MODALS (Car, Budget, Fuel) ---
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-  
-  function openCarModal() {
-    document.getElementById('inputCarName').value = state.carName;
-    document.getElementById('sliderMPG').value = state.mpg;
-    document.getElementById('labelMPG').innerText = state.mpg;
-    document.getElementById('modal-car-edit').classList.add('open');
-  }
-  function updateCarPreview(val) { document.getElementById('labelMPG').innerText = val; }
-  function saveCar() {
-    state.carName = document.getElementById('inputCarName').value;
-    state.mpg = parseInt(document.getElementById('sliderMPG').value);
-    saveStateToLocalStorage();
-    closeModal('modal-car-edit');
-    updateUI();
-  }
-
-  function openBudgetModal() {
-    document.getElementById('sliderBudget').value = state.budget;
-    document.getElementById('labelBudget').innerText = state.budget;
-    document.getElementById('modal-budget').classList.add('open');
-  }
-  function updateBudgetPreview(val) { document.getElementById('labelBudget').innerText = val; }
-  function saveBudget() {
-    state.budget = parseInt(document.getElementById('sliderBudget').value);
-    saveStateToLocalStorage();
-    closeModal('modal-budget');
-    updateUI();
-  }
-
-  function openFuelModal() {
-    setFuelSource(state.fuelSource);
-    document.getElementById('inputFixedPrice').value = state.fuelPrice.toFixed(2);
-    document.getElementById('modal-fuel-price').classList.add('open');
-  }
-
-  function setFuelSource(source) {
-    document.getElementById('option-live').classList.remove('active');
-    document.getElementById('option-fixed').classList.remove('active');
-    document.getElementById('live-detail').style.display = 'none';
-    document.getElementById('fixed-input').style.display = 'none';
-
-    if (source === 'live') {
-      document.getElementById('option-live').classList.add('active');
-      document.getElementById('live-detail').style.display = 'block';
-      state.fuelSource = 'live';
-    } else {
-      document.getElementById('option-fixed').classList.add('active');
-      document.getElementById('fixed-input').style.display = 'block';
-      state.fuelSource = 'fixed';
-    }
-  }
-
-  function saveFuelSettings() {
-    if (state.fuelSource === 'fixed') {
-      const fixedPrice = parseFloat(document.getElementById('inputFixedPrice').value);
-      if (!isNaN(fixedPrice) && fixedPrice > 0) {
-        state.fuelPrice = fixedPrice;
-      }
-    } else {
-      state.fuelPrice = 1.27; 
-    }
-    saveStateToLocalStorage();
-    closeModal('modal-fuel-price');
-    updateUI();
-  }
-</script>
+  </script>
 </body>
 </html>
