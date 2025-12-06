@@ -38,6 +38,11 @@
       --radius-screen: 0px; 
       --radius-card: 22px;
       --radius-sm: 12px;
+
+      /* Dot Mesh C Colors */
+      --dotmesh-dot-color: #aef5d6;
+      --dotmesh-glow-color-1: 16, 163, 127;
+      --dotmesh-glow-color-2: 16, 163, 127;
     }
 
     /* --- LIGHT MODE VARIABLES --- */
@@ -57,6 +62,11 @@
 
       --map-bg: #e5e5ea;
       --map-road: #ffffff;
+
+      /* Dot Mesh C Colors (Adjusted for light mode visibility) */
+      --dotmesh-dot-color: #0d7945;
+      --dotmesh-glow-color-1: 13, 121, 69;
+      --dotmesh-glow-color-2: 13, 121, 69;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -90,7 +100,7 @@
       opacity: 0.6; z-index: 0;
     }
     
-    /* --- Dot Mesh Pattern Layer --- */
+    /* --- Dot Mesh Pattern Layer (Existing, but unused in new motion effect) --- */
     .mesh-pattern {
       position: absolute; inset: 0;
       background-size: 20px 20px; /* Adjust size for density */
@@ -129,6 +139,44 @@
         mix-blend-mode: color-dodge; /* More intense glowing effect */
         opacity: 1;
     }
+
+    /* --- NEW DOT MESH C STYLES (Corner Effect) --- */
+    .dotmesh-canvas {
+      position: fixed; inset: 0; 
+      pointer-events: none;
+      z-index: 100; /* Above all content, but below toast/modals */
+      opacity: 0; /* Initially hidden */
+      transition: opacity 0.3s ease-out;
+    }
+
+    .screen-area.motion-active .dotmesh-canvas {
+        opacity: 1; /* Visible on motion detection */
+    }
+    
+    .dot {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: var(--dotmesh-dot-color);
+      opacity: 0.15;
+      animation: flicker 1.8s infinite ease-in-out;
+      border-radius: 50%; /* Make them circles */
+    }
+    @keyframes flicker {
+      0% {opacity:0.1;}
+      50% {opacity:0.6;}
+      100% {opacity:0.1;}
+    }
+    .dotmesh-glow {
+      position:absolute;
+      inset:0;
+      /* Using background gradients with variables for the corner glow effect */
+      background: radial-gradient(circle at top left, rgba(var(--dotmesh-glow-color-1), 0.35), transparent 40%),
+                  radial-gradient(circle at top right, rgba(var(--dotmesh-glow-color-2), 0.35), transparent 40%),
+                  radial-gradient(circle at bottom right, rgba(var(--dotmesh-glow-color-1), 0.25), transparent 50%),
+                  radial-gradient(circle at bottom left, rgba(var(--dotmesh-glow-color-2), 0.25), transparent 50%);
+      pointer-events:none;
+    }
+    /* --- END DOT MESH C STYLES --- */
 
     /* --- Dynamic Island (MEASURING TRIP) --- */
     .dynamic-island-area { position: absolute; top: 0; left: 0; right: 0; height: 110px; z-index: 50; padding: 14px 20px 0; background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); }
@@ -288,6 +336,11 @@
     <div class="mesh-pattern">
       <div class="mesh-anim-layer"></div>
     </div>
+  </div>
+  
+  <div class="dotmesh-canvas">
+    <div class="dotmesh-glow"></div>
+    <div id="cornerMesh"></div>
   </div>
   
   <div id="motionToast" class="toast-message"></div>
@@ -552,6 +605,7 @@
   let lastSignificantMotionTime = 0;
   let lastToastStatus = '';
   let toastTimeout = null;
+  let meshAnimationTimeout = null;
   let lastToastTime = 0; 
 
 
@@ -582,6 +636,61 @@
     }
   }
   
+  // --- NEW DOT MESH C ANIMATION LOGIC ---
+  let dots = [];
+  const DOT_COUNT = 80; // Reduced for corner effect
+
+  function initCornerMesh() {
+    const meshEl = document.getElementById("cornerMesh");
+    meshEl.innerHTML = ""; // Clear existing dots
+    dots = [];
+    
+    // Create dots with random positions and velocities
+    for(let i = 0; i < DOT_COUNT; i++){
+      const d = document.createElement("div");
+      d.className = "dot";
+      
+      // Calculate random position within the viewport
+      let x = Math.random() * window.innerWidth;
+      let y = Math.random() * window.innerHeight;
+      
+      d.style.left = x + 'px';
+      d.style.top = y + 'px';
+      d.style.animationDelay = (Math.random() * 2) + "s";
+      
+      meshEl.appendChild(d);
+      
+      // Store dot properties for drift animation
+      dots.push({
+        el: d, 
+        x, 
+        y, 
+        dx: (Math.random() - 0.5) * 0.15, 
+        dy: (Math.random() - 0.5) * 0.15
+      });
+    }
+
+    animateCornerMesh(); // Start the drift animation loop
+  }
+
+  function animateCornerMesh() {
+    // Only animate if the mesh is visible (i.e., motion-active is set)
+    if (screenArea.classList.contains('motion-active')) {
+        for(const p of dots){
+            p.x += p.dx;
+            p.y += p.dy;
+            
+            // Bounce off edges
+            if(p.x < 0 || p.x > window.innerWidth) p.dx *= -1;
+            if(p.y < 0 || p.y > window.innerHeight) p.dy *= -1;
+            
+            p.el.style.left = p.x + 'px';
+            p.el.style.top = p.y + 'px';
+        }
+    }
+    meshAnimationTimeout = requestAnimationFrame(animateCornerMesh);
+  }
+  
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
     loadStateFromLocalStorage();
@@ -591,6 +700,7 @@
     }
     
     updateDotPattern(); // Initialize dot pattern with correct theme color
+    initCornerMesh(); // Initialize the new corner mesh
     updateUI();
     checkAndRequestPermissions();
     initMotionDetection(); 
@@ -611,6 +721,9 @@
     const meshPatternEl = document.querySelector('.mesh-pattern');
     meshPatternEl.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodedSvg}")`;
     meshPatternEl.style.opacity = opacityLevel;
+    
+    // Re-initialize the corner mesh on theme change to update dot colors
+    initCornerMesh();
   }
   // --- END NEW: Dot Pattern Fix ---
 
@@ -657,6 +770,8 @@
       }
     } else {
        if (now - lastSignificantMotionTime > 5000 && lastToastStatus !== 'Steady') {
+           // If we are steady for a while, clear the active status
+           screenArea.classList.remove('motion-active');
            lastToastStatus = 'Steady'; 
        }
     }
@@ -679,7 +794,7 @@
     
     toastEl.classList.add('show');
     
-    // NEW: Activate dynamic background effect
+    // Activate dynamic background effect and corner mesh
     screenArea.classList.add('motion-active');
     
     if (status === 'Shaking') {
@@ -688,7 +803,10 @@
     
     toastTimeout = setTimeout(() => {
       toastEl.classList.remove('show');
-      screenArea.classList.remove('motion-active'); // Deactivate dynamic background effect
+      // Only remove 'motion-active' if the status is not 'Moving Car' or 'Shaking' immediately after a toast
+      if (status !== 'Moving Car' && status !== 'Shaking') {
+        screenArea.classList.remove('motion-active'); 
+      }
     }, duration);
   }
 
