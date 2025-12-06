@@ -85,7 +85,7 @@
       overflow: hidden; 
       transition: background 0.3s;
       /* Enable edge-to-edge support for mobile devices */
-      padding-top: env(safe-area-inset-top, 0px);
+      /* REMOVED: padding-top: env(safe-area-inset-top, 0px); */
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
     
@@ -195,7 +195,7 @@
         padding-top: var(--header-offset); /* Push down by status bar height */
         padding-left: env(safe-area-inset-left, 20px);
         padding-right: env(safe-area-inset-right, 20px);
-        background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); 
+        /* REMOVED: background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); */
     }
     .island-pill {
       width: 124px; height: 36px; background: #000; margin: 0 auto;
@@ -310,7 +310,7 @@
     .trip-section-header {
       font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 24px; margin-bottom: 8px;
     }
-    .trip-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 10px; transition: transform 0.2s, background 0.3s; }
+    .trip-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 10px; transition: transform 0.2s, background 0.3s; cursor: pointer; }
     .trip-item:active { transform: scale(0.98); background: var(--glass-surface-active); }
     .mini-map-preview { width: 60px; height: 60px; border-radius: 14px; background: var(--map-bg); position: relative; overflow: hidden; flex-shrink: 0; }
     .map-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--map-road) 1px, transparent 1px), linear-gradient(90deg, var(--map-road) 1px, transparent 1px); background-size: 15px 15px; opacity: 0.3; }
@@ -415,6 +415,27 @@
         stroke: var(--text-main);
         stroke-width: 2; 
     }
+
+    /* NEW: Trip Detail Map/Summary */
+    .trip-detail-map {
+      width: 100%; height: 180px; background: var(--map-bg); 
+      border-radius: var(--radius-card); position: relative; overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .trip-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .stat-box {
+      background: var(--input-bg);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+    .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    .stat-value { font-size: 18px; font-weight: 600; }
   </style>
 </head>
 <body class="">
@@ -728,6 +749,51 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-trip-detail" onclick="if(event.target===this) closeModal('modal-trip-detail')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3 id="tripDetailTitle">Trip Detail</h3>
+    
+    <div class="trip-detail-map">
+        <div class="map-grid"></div>
+        <div class="map-route" id="tripDetailRoute" style="transform: translate(-50%, -50%) rotate(45deg);"></div>
+    </div>
+    
+    <div class="trip-stats-grid">
+        <div class="stat-box">
+            <div class="stat-label">COST</div>
+            <div class="stat-value text-mono" id="tripDetailCost">£0.00</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">DISTANCE</div>
+            <div class="stat-value text-mono" id="tripDetailDist">0.0 mi</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">DURATION</div>
+            <div class="stat-value text-mono" id="tripDetailDuration">0m</div>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 0;">
+      <div class="setting-row" style="padding-top:0;">
+        <div class="setting-icon-container" style="background:var(--warning);"><span class="setting-icon-emoji">🗓️</span></div>
+        <div style="flex:1;">
+          <div class="font-bold">Date & Time</div>
+          <div class="text-sm text-muted" id="tripDetailDate">--</div>
+        </div>
+      </div>
+      <div class="setting-row" style="border-bottom:none;">
+        <div class="setting-icon-container" style="background:var(--success);"><span class="setting-icon-emoji">⛽</span></div>
+        <div style="flex:1;">
+          <div class="font-bold">Fuel Efficiency</div>
+          <div class="text-sm text-muted" id="tripDetailMPG">-- MPG</div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
 <script>
   // --- STATE & PERSISTENCE (Local Storage Implementation) ---
   const DEFAULT_STATE = {
@@ -778,7 +844,9 @@
       if (savedState.trips) {
         savedState.trips = savedState.trips.map(t => ({
           ...t,
-          date: new Date(t.date)
+          date: new Date(t.date),
+          // NEW: Ensure all trips have a duration property for the detail modal
+          duration: t.duration || 0, // default to 0 if missing
         }));
       }
       state = { ...DEFAULT_STATE, ...savedState };
@@ -1038,6 +1106,22 @@
       startManualTrip();
     }
   }
+  
+  // Utility function to format time duration
+  function formatDuration(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+        return `${minutes}m`;
+    } else {
+        return `<1m`;
+    }
+  }
 
   function startManualTrip() {
     // 1. Check permissions
@@ -1121,6 +1205,7 @@
       title: 'Manual Trip',
       dist: finalDistance.toFixed(1), 
       cost: cost,
+      duration: durationMs // NEW: Save duration in milliseconds
     };
     state.trips.push(newTrip);
     
@@ -1305,6 +1390,28 @@
       return date.toLocaleDateString('en-US', options);
     }
   }
+  
+  // --- NEW: Function to open Trip Detail Modal ---
+  function openTripDetail(tripId) {
+      const trip = state.trips.find(t => t.id === tripId);
+      if (!trip) return;
+
+      const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      
+      document.getElementById('tripDetailTitle').textContent = trip.title;
+      document.getElementById('tripDetailCost').textContent = `£${trip.cost.toFixed(2)}`;
+      document.getElementById('tripDetailDist').textContent = `${parseFloat(trip.dist).toFixed(1)} mi`;
+      document.getElementById('tripDetailDuration').textContent = formatDuration(trip.duration);
+      document.getElementById('tripDetailDate').textContent = trip.date.toLocaleDateString('en-US', dateOptions);
+      document.getElementById('tripDetailMPG').textContent = `${state.mpg} MPG`;
+      
+      // Update map rotation for visual variety based on ID
+      const rotate = (trip.id * 55) % 360; 
+      document.getElementById('tripDetailRoute').style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
+
+      document.getElementById('modal-trip-detail').classList.add('open');
+  }
+
 
   // --- UI UPDATER ---
   async function updateUI() {
@@ -1398,7 +1505,7 @@
     updateUI(); 
   }
 
-  // --- RENDER TRIPS (UPDATED for empty state) ---
+  // --- RENDER TRIPS (UPDATED to include onclick handler) ---
   function renderTrips() {
     const list = document.getElementById('tripsList');
     list.innerHTML = "";
@@ -1432,6 +1539,8 @@
       
       const div = document.createElement('div');
       div.className = 'trip-item';
+      // ADDED: onclick handler to open the trip detail modal
+      div.setAttribute('onclick', `openTripDetail(${t.id})`);
       div.innerHTML = `
         <div class="mini-map-preview">
           <div class="map-grid"></div>
