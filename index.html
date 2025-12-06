@@ -133,14 +133,14 @@
       100% { transform: translate(50px, 30px) scale(1.1); } /* Subtle translation and scale */
     }
     
-    /* --- NEW: Motion Active State --- */
+    /* --- Motion Active State --- */
     .screen-area.motion-active .mesh-anim-layer {
         animation-duration: 20s; /* Speed up the animation */
         mix-blend-mode: color-dodge; /* More intense glowing effect */
         opacity: 1;
     }
 
-    /* --- NEW DOT MESH C STYLES (Corner Effect) --- */
+    /* --- Dot Mesh C STYLES (Corner Effect) --- */
     .dotmesh-canvas {
       position: fixed; inset: 0; 
       pointer-events: none;
@@ -326,6 +326,12 @@
     .modal-handle { width: 40px; height: 5px; background: var(--text-muted); opacity: 0.3; border-radius: 99px; margin: 0 auto 20px; }
     .btn-action { width: 100%; padding: 16px; background: var(--accent-primary); color: #fff; border: none; border-radius: 18px; font-size: 16px; font-weight: 600; margin-top: 20px; }
     
+    /* NEW: Style for Stop Trip button */
+    .btn-action.stop-active {
+        background: var(--danger); 
+        transition: background 0.3s ease;
+    }
+    
     #modal-permissions .modal-sheet { padding-top: 12px; }
   </style>
 </head>
@@ -387,12 +393,16 @@
         <div class="text-sm" id="lastTripTitle">No recent trips</div>
       </div>
       
-      <div class="card" style="text-align:center; padding: 40px 20px;">
+      <div class="card" id="waitingCard" style="text-align:center; padding: 40px 20px;">
           <div style="font-size:24px; color:var(--text-muted); margin-bottom:10px;">Waiting for a trip...</div>
           <div class="text-sm text-muted">Automatic trip detection requires **Auto-Detect** to be enabled in Settings.</div>
       </div>
+
+      <button class="btn-action" id="manualTripButton" onclick="toggleManualTrip()" style="margin-top: 20px;">
+          Start trip manually
+      </button>
       
-    </div>
+      <div style="height: 60px;"></div> </div>
 
     <div id="screen-trips" class="screen">
       <h2 style="font-size:22px; margin-bottom:16px;">History</h2>
@@ -598,7 +608,7 @@
   let state = {};
   const screenArea = document.querySelector('.screen-area'); // Get the element once
 
-  // --- MOTION DETECTION VARIABLES (NEW) ---
+  // --- MOTION DETECTION VARIABLES ---
   let isDetectingMotion = false;
   const MOTION_THRESHOLD = 15; // m/s^2, acceleration threshold for a shake
   const MOVING_CAR_THRESHOLD = 5000; // 5 seconds of sustained motion to suggest 'Moving Car'
@@ -607,6 +617,14 @@
   let toastTimeout = null;
   let meshAnimationTimeout = null;
   let lastToastTime = 0; 
+  
+  // --- MANUAL TRIP STATE (NEW) ---
+  let isManualTripActive = false;
+  let manualTripStartTime = 0;
+  let tripTimerInterval = null;
+  let geolocationWatchId = null;
+  let tripDistance = 0;
+  let lastPosition = null;
 
 
   function loadStateFromLocalStorage() {
@@ -636,7 +654,7 @@
     }
   }
   
-  // --- NEW DOT MESH C ANIMATION LOGIC ---
+  // --- DOT MESH C ANIMATION LOGIC ---
   let dots = [];
   const DOT_COUNT = 80; // Reduced for corner effect
 
@@ -706,7 +724,7 @@
     initMotionDetection(); 
   });
   
-  // --- NEW: Function to fix the dynamic dot pattern background ---
+  // --- Function to fix the dynamic dot pattern background ---
   function updateDotPattern() {
     const isLight = document.body.classList.contains('light-mode');
     
@@ -725,10 +743,8 @@
     // Re-initialize the corner mesh on theme change to update dot colors
     initCornerMesh();
   }
-  // --- END NEW: Dot Pattern Fix ---
 
-
-  // --- MOTION DETECTION LOGIC (UPDATED FOR REPEATED TOAST) ---
+  // --- MOTION DETECTION LOGIC (UPDATED FOR MANUAL CHECK) ---
 
   function initMotionDetection() {
     if (state.detectionEnabled && state.permissionsGranted && !isDetectingMotion) {
@@ -748,6 +764,8 @@
   }
 
   function handleMotion(event) {
+    if (isManualTripActive) return; // NEW: Prevent auto-detect interference during manual trip
+
     const { x, y, z } = event.accelerationIncludingGravity;
     const magnitude = Math.sqrt(x * x + y * y + z * z);
     const now = Date.now();
@@ -781,35 +799,185 @@
     const toastEl = document.getElementById('motionToast');
     clearTimeout(toastTimeout);
     
-    let statusText = `Detecting motion: ${status}`;
+    let statusText = status; // Keeping this simple for new feature clarity
     
-    if (status === 'Moving Car') {
-        toastEl.style.backgroundColor = 'var(--accent-primary)';
-    } else if (status === 'Shaking') {
+    if (status.includes('Shaking')) {
         toastEl.style.backgroundColor = 'var(--warning)';
+        statusText = `Detecting motion: ${status}`;
+    } else if (status.includes('Moving Car')) {
+        toastEl.style.backgroundColor = 'var(--accent-primary)';
+        statusText = `Detecting motion: ${status}`;
+    } else if (status.includes('Trip Ended')) {
+        toastEl.style.backgroundColor = 'var(--success)';
+    } else if (status.includes('Permission')) {
+        toastEl.style.backgroundColor = 'var(--danger)';
     } else {
         toastEl.style.backgroundColor = 'var(--success)';
+        statusText = `Motion Detected: ${status}`;
     }
+    
     toastEl.textContent = statusText;
     
     toastEl.classList.add('show');
     
     // Activate dynamic background effect and corner mesh
-    screenArea.classList.add('motion-active');
+    if (status.includes('Shaking') || status.includes('Moving Car') || status.includes('Trip Started')) {
+      screenArea.classList.add('motion-active');
+    }
     
-    if (status === 'Shaking') {
+    if (status.includes('Shaking')) {
         lastToastTime = Date.now(); 
     }
     
     toastTimeout = setTimeout(() => {
       toastEl.classList.remove('show');
-      // Only remove 'motion-active' if the status is not 'Moving Car' or 'Shaking' immediately after a toast
       if (status !== 'Moving Car' && status !== 'Shaking') {
         screenArea.classList.remove('motion-active'); 
       }
     }, duration);
   }
 
+
+  // --- MANUAL TRIP FUNCTIONS (NEW) ---
+
+  function toggleManualTrip() {
+    if (isManualTripActive) {
+      stopManualTrip();
+    } else {
+      startManualTrip();
+    }
+  }
+
+  function startManualTrip() {
+    // 1. Check permissions 
+    if (!state.permissionsGranted) {
+        updateMotionStatus('Permission Required: Enable GPS and Motion first.', 5000);
+        document.getElementById('modal-permissions').classList.add('open');
+        return;
+    }
+
+    isManualTripActive = true;
+    manualTripStartTime = Date.now();
+    tripDistance = 0;
+    lastPosition = null;
+
+    // 2. Start GPS Tracking
+    // Note: The watchPosition callback will only fire when the position changes significantly.
+    geolocationWatchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const currentPosition = {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        };
+        
+        if (lastPosition) {
+          const dist = calculateDistance(lastPosition, currentPosition); 
+          tripDistance += dist;
+        }
+        lastPosition = currentPosition;
+      },
+      (error) => {
+        console.error("GPS error:", error);
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+    
+    // 3. Update UI
+    const button = document.getElementById('manualTripButton');
+    button.textContent = 'Stop trip';
+    button.classList.add('stop-active');
+    document.getElementById('waitingCard').style.display = 'none';
+    
+    // Activate dot mesh animation and show toast
+    screenArea.classList.add('motion-active'); 
+    updateMotionStatus('Trip Started Manually!', 2000);
+    
+    // 4. Start Timer and Dynamic Island
+    updateTripTimer(); 
+    tripTimerInterval = setInterval(updateTripTimer, 1000);
+    document.getElementById('dynamicPill').classList.add('active');
+    document.getElementById('islandStatusText').textContent = 'TRIP IN PROCESS';
+  }
+
+  function stopManualTrip() {
+    isManualTripActive = false;
+
+    // 1. Stop Timer & GPS
+    clearInterval(tripTimerInterval);
+    if (geolocationWatchId !== null) {
+      navigator.geolocation.clearWatch(geolocationWatchId);
+    }
+
+    // 2. Update UI
+    screenArea.classList.remove('motion-active'); 
+    document.getElementById('dynamicPill').classList.remove('active');
+
+    const button = document.getElementById('manualTripButton');
+    button.textContent = 'Start trip manually';
+    button.classList.remove('stop-active');
+    document.getElementById('waitingCard').style.display = 'block';
+
+    // 3. Calculate Trip Data
+    const durationMs = Date.now() - manualTripStartTime;
+    const durationMins = durationMs / (1000 * 60);
+
+    // If no distance was recorded (e.g. device was stationary), simulate a minimum of 1 mile or 0.1 miles/min
+    let finalDistance = tripDistance > 0 ? tripDistance : Math.max(1.0, durationMins * 0.1); 
+    if (finalDistance < 0.1) finalDistance = 0.1;
+
+    const cost = calculateTripCost(finalDistance); 
+
+    // 4. Record Trip
+    const newTrip = {
+      id: state.trips.length + 1,
+      date: new Date(manualTripStartTime),
+      title: 'Manual Trip',
+      dist: finalDistance.toFixed(1), 
+      cost: cost,
+    };
+    state.trips.push(newTrip);
+    
+    // Show a success toaster
+    updateMotionStatus(`Trip Ended. Cost: £${cost.toFixed(2)}.`, 5000);
+
+    // 5. Save and Refresh
+    saveStateToLocalStorage();
+    updateUI();
+  }
+
+  function updateTripTimer() {
+    if (!isManualTripActive) return;
+    
+    const durationMs = Date.now() - manualTripStartTime;
+    const totalSeconds = Math.floor(durationMs / 1000);
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+    const seconds = String(totalSeconds % 60).padStart(2, '0');
+    
+    document.getElementById('recTimer').textContent = `${minutes}:${seconds}`;
+  }
+
+  // Haversine formula for distance calculation (in miles)
+  function calculateDistance(p1, p2) {
+    const R = 3958.8; // Radius of Earth in miles
+    const lat1 = p1.lat * (Math.PI / 180);
+    const lat2 = p2.lat * (Math.PI / 180);
+    const deltaLat = (p2.lat - p1.lat) * (Math.PI / 180);
+    const deltaLon = (p2.lon - p1.lon) * (Math.PI / 180);
+
+    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+              Math.cos(lat1) * Math.cos(lat2) *
+              Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distance in miles
+  }
+
+  function calculateTripCost(distanceMiles) {
+    const litersPerGallon = 4.54609;
+    const milesPerLiter = state.mpg / litersPerGallon;
+    const fuelUsedLiters = distanceMiles / milesPerLiter;
+    return fuelUsedLiters * state.fuelPrice;
+  }
 
   // --- PERMISSION LOGIC ---
   function checkAndRequestPermissions() {
@@ -872,7 +1040,7 @@
     
     state.isLightMode = document.body.classList.contains('light-mode');
     saveStateToLocalStorage(); 
-    updateDotPattern(); // FIX: Call to update dot pattern color
+    updateDotPattern(); 
     
     const isLightMode = state.isLightMode;
     const iconMoon = document.getElementById('icon-moon');
@@ -935,7 +1103,7 @@
     if(state.trips.length > 0) {
       const recent = [...state.trips].sort((a, b) => b.date.getTime() - a.date.getTime())[0];
       document.getElementById('lastTripCost').innerText = `£${recent.cost.toFixed(2)}`;
-      document.getElementById('lastTripTitle').innerText = `${recent.title} (${timeAgo(recent.date)})`;
+      document.getElementById('lastTripTitle').innerText = `${recent.title} (${recent.dist} mi) - ${timeAgo(recent.date)}`;
     } else {
       document.getElementById('lastTripCost').innerText = `£0.00`;
       document.getElementById('lastTripTitle').innerText = `No recorded trips`;
