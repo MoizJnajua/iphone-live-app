@@ -5,7 +5,7 @@
   <title>QuickTrip - Live Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByeD0iMjAlIiBmaWxsPSIjMGE4NGZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI3MCUiIGZvbnQtZmFtaWx5PSJJbnRlciwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSI3MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmZmZmYiPlE8L3RleHQ+Cjwvc3ZnPg==">
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByeD0iMjAlIiBmaWxsPSIjMGE4NGZmIi8+CiAgPHRleHQgeD0iNTAlIiIgeT0iNzAlIiBmb250LWZhbWlseT0iSW50ZXIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIwIiBmb250LXdlaWdodD0iNzAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmZmZmIj5RPC90ZXh0Pjwvc3ZnPg==">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,6 @@
       --glass-surface: rgba(30, 30, 30, 0.60);
       --glass-surface-active: rgba(50, 50, 50, 0.7);
       --glass-border: rgba(255, 255, 255, 0.12);
-      
       --text-main: #ffffff;
       --text-muted: #98989d;
       --text-inv: #000000;
@@ -34,7 +33,6 @@
       
       --map-bg: #1c1c1e;
       --map-road: #3a3a3c;
-      
       --radius-screen: 0px; 
       --radius-card: 22px;
       --radius-sm: 12px;
@@ -54,7 +52,6 @@
       --glass-surface: rgba(255, 255, 255, 0.75);
       --glass-surface-active: rgba(255, 255, 255, 0.95);
       --glass-border: rgba(0, 0, 0, 0.05);
-      
       --text-main: #000000;
       --text-muted: #8e8e93;
       --text-inv: #ffffff;
@@ -62,7 +59,6 @@
 
       --map-bg: #e5e5ea;
       --map-road: #ffffff;
-
       /* Dot Mesh C Colors (Adjusted for light mode visibility) */
       --dotmesh-dot-color: #0d7945;
       --dotmesh-glow-color-1: 13, 121, 69;
@@ -73,7 +69,7 @@
     
     body {
       margin: 0; 
-      height: 100vh; 
+      height: 100vh;
       width: 100vw; 
       display: block; 
       background: var(--bg-app); 
@@ -87,14 +83,15 @@
       width: 100vw;
       height: 100vh;
       background: var(--bg-app);
-      position: relative; 
+      position: relative;
       overflow: hidden; 
       transition: background 0.4s ease;
     }
     
     /* Existing background gradient */
     .screen-bg {
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0;
       background: radial-gradient(circle at 10% 20%, var(--bg-mesh-1) 0%, transparent 40%),
                   radial-gradient(circle at 90% 80%, var(--bg-mesh-2) 0%, transparent 40%);
       opacity: 0.6; z-index: 0;
@@ -102,23 +99,26 @@
     
     /* --- Dot Mesh Pattern Layer (Existing, but unused in new motion effect) --- */
     .mesh-pattern {
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0;
       background-size: 20px 20px; /* Adjust size for density */
-      opacity: 1; 
+      opacity: 1;
       /* The background-image and opacity are set by JavaScript for theme compatibility */
     }
     
     /* Animation layer for a dynamic feel using CSS blend-mode */
     .mesh-anim-layer {
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0;
       /* Subtle gradient for the movement effect */
-      background: linear-gradient(135deg, rgba(var(--bg-mesh-1-rgb), 0.5) 0%, rgba(var(--bg-mesh-2-rgb), 0.5) 100%); 
+      background: linear-gradient(135deg, rgba(var(--bg-mesh-1-rgb), 0.5) 0%, rgba(var(--bg-mesh-2-rgb), 0.5) 100%);
       mix-blend-mode: overlay; 
       animation: mesh-shift 40s linear infinite alternate; /* Default slow animation */
       opacity: 0.9;
       transition: animation-duration 0.5s, mix-blend-mode 0.5s;
       
-      /* Setting fallback RGB values for blend gradient. These are pulled from the colors in :root */
+      /* Setting fallback RGB values for blend gradient.
+      These are pulled from the colors in :root */
       --bg-mesh-1-rgb: 30, 27, 75; /* 1e1b4b */
       --bg-mesh-2-rgb: 15, 23, 42; /* 0f172a */
     }
@@ -142,7 +142,8 @@
 
     /* --- Dot Mesh C STYLES (Corner Effect) --- */
     .dotmesh-canvas {
-      position: fixed; inset: 0; 
+      position: fixed;
+      inset: 0; 
       pointer-events: none;
       z-index: 100; /* Above all content, but below toast/modals */
       opacity: 0; /* Initially hidden */
@@ -179,35 +180,43 @@
     /* --- END DOT MESH C STYLES --- */
 
     /* --- Dynamic Island (MEASURING TRIP) --- */
-    .dynamic-island-area { position: absolute; top: 0; left: 0; right: 0; height: 110px; z-index: 50; padding: 14px 20px 0; background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); }
+    .dynamic-island-area { position: absolute;
+      top: 0; left: 0; right: 0; height: 110px; z-index: 50; padding: 14px 20px 0;
+      background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); }
     .island-pill {
-      width: 124px; height: 36px; background: #000; margin: 0 auto;
+      width: 124px;
+      height: 36px; background: #000; margin: 0 auto;
       border-radius: 20px; display: flex; align-items: center; justify-content: center;
       transition: width 0.3s cubic-bezier(0.3, 1.3, 0.3, 1), opacity 0.2s;
-      z-index: 60; opacity: 0; 
+      z-index: 60; opacity: 0;
     }
     .island-pill.active { width: 220px; padding: 0 16px; justify-content: space-between; opacity: 1; }
 
     .island-content {
       font-size: 12px; font-weight: 600; color: var(--success);
-      display: none; align-items: center; gap: 8px; width: 100%;
+      display: none;
+      align-items: center; gap: 8px; width: 100%;
     }
     .island-pill.active .island-content { display: flex; justify-content: space-between; }
     
-    .header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 0 20px; transition: opacity 0.3s ease, transform 0.3s ease; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px;
+      padding: 0 20px; transition: opacity 0.3s ease, transform 0.3s ease; }
     .header-row.hidden { opacity: 0; transform: translateY(-10px); pointer-events: none; }
 
     .status-badge {
       font-size: 13px; font-weight: 500; background: var(--glass-surface);
       border: 1px solid var(--glass-border); color: var(--text-main);
       padding: 6px 14px; border-radius: 99px; backdrop-filter: blur(12px);
-      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      cursor: pointer; display: flex; align-items: center;
+      gap: 6px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.2s;
     }
     .status-badge:active { transform: scale(0.95); }
 
     /* --- Content --- */
-    .content-scroll { position: absolute; top: 0; bottom: 85px; left: 0; right: 0; overflow-y: auto; padding: 110px 20px 20px; scrollbar-width: none; z-index: 10; }
+    .content-scroll { position: absolute; top: 0; bottom: 85px;
+      left: 0; right: 0; overflow-y: auto; padding: 110px 20px 20px; scrollbar-width: none; z-index: 10;
+    }
     .content-scroll::-webkit-scrollbar { display: none; }
     
     /* --- TOASTER Notification --- */
@@ -252,10 +261,10 @@
       border-radius: 50%;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.4); 
       cursor: pointer;
-      margin-top: -12px; 
+      margin-top: -12px;
     }
     .light-mode .ios-slider::-webkit-slider-thumb {
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(0,0,0,0.1); 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(0,0,0,0.1);
     }
     /* --- Other Styles (retained) --- */
     .text-mono { font-family: "JetBrains Mono", monospace; }
@@ -271,68 +280,101 @@
     }
     .card:active { transform: scale(0.98); background: var(--glass-surface-active); }
     .trip-section-header {
-      font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 24px; margin-bottom: 8px;
+      font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 24px; margin-bottom: 8px;
     }
-    .trip-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 10px; transition: transform 0.2s, background 0.3s; }
+    .trip-item { display: flex; align-items: center; gap: 14px; padding: 14px;
+      background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 10px; transition: transform 0.2s, background 0.3s;
+    }
     .trip-item:active { transform: scale(0.98); background: var(--glass-surface-active); }
-    .mini-map-preview { width: 60px; height: 60px; border-radius: 14px; background: var(--map-bg); position: relative; overflow: hidden; flex-shrink: 0; }
-    .map-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--map-road) 1px, transparent 1px), linear-gradient(90deg, var(--map-road) 1px, transparent 1px); background-size: 15px 15px; opacity: 0.3; }
-    .map-route { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%, -50%); border: 3px solid var(--accent-primary); border-radius: 99px; border-left-color: transparent; }
-    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; }
+    .mini-map-preview { width: 60px; height: 60px;
+      border-radius: 14px; background: var(--map-bg); position: relative; overflow: hidden; flex-shrink: 0; }
+    .map-grid { position: absolute; inset: 0;
+      background-image: linear-gradient(var(--map-road) 1px, transparent 1px), linear-gradient(90deg, var(--map-road) 1px, transparent 1px); background-size: 15px 15px; opacity: 0.3;
+    }
+    .map-route { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%, -50%);
+      border: 3px solid var(--accent-primary); border-radius: 99px; border-left-color: transparent; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; cursor: pointer; }
     .setting-row:not(:last-child) { border-bottom: 1px solid var(--glass-border); }
-    .setting-icon-container { width: 34px; height: 34px; background: var(--input-bg); border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 12px; flex-shrink: 0;}
+    .setting-icon-container { width: 34px; height: 34px; background: var(--input-bg); border-radius: 8px; display: flex; justify-content: center; align-items: center;
+      margin-right: 12px; flex-shrink: 0;}
     .setting-icon-emoji { font-size: 18px; line-height: 1; }
     .theme-icon-container { position: relative; width: 24px; height: 24px; }
-    .theme-icon { position: absolute; inset: 0; stroke-width: 2; transition: opacity 0.3s, transform 0.5s; }
+    .theme-icon { position: absolute;
+      inset: 0; stroke-width: 2; transition: opacity 0.3s, transform 0.5s; }
     .theme-icon-moon { color: #fcc419; } 
     .theme-icon-sun { color: #ff9f0a; } 
     #icon-moon { opacity: 0; }
     #icon-sun { opacity: 1; }
     .light-mode #icon-moon { opacity: 1; }
     .light-mode #icon-sun { opacity: 0; }
-    .toggle-switch { width: 50px; height: 30px; background: rgba(120, 120, 128, 0.2); border-radius: 99px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+    .toggle-switch { width: 50px; height: 30px;
+      background: rgba(120, 120, 128, 0.2); border-radius: 99px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+    }
     .toggle-switch::after {
       content: ''; position: absolute; left: 2px; top: 2px;
       width: 26px; height: 26px; background: #fff; border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.4); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.4);
       transition: transform 0.3s cubic-bezier(0.3, 1.3, 0.3, 1);
     }
     .toggle-switch.on { background: var(--success); }
     .toggle-switch.on::after { transform: translateX(20px); }
-    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .bar-row { display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px; }
     .bar-label { width: 80px; font-size: 12px; color: var(--text-muted); }
-    .bar-track { flex: 1; height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; }
+    .bar-track { flex: 1; height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden;
+    }
     .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
     .bar-val { width: 40px; text-align: right; font-size: 12px; font-family: var(--font-mono); }
-    .input-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); margin-top: 8px; border: 1px solid transparent; transition: border-color 0.2s; }
+    .input-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); margin-top: 8px; border: 1px solid transparent;
+      transition: border-color 0.2s; }
     .input-group:focus-within { border-color: var(--accent-primary); }
-    .input-group span { padding: 14px; color: var(--text-muted); }
-    .input-group input { flex: 1; padding: 14px 0; background: none; border: none; color: var(--text-main); font-size: 16px; outline: none; font-family: var(--font-mono); }
-    .fuel-option-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 16px; }
-    .fuel-option { flex: 1; text-align: center; padding: 8px 12px; border-radius: var(--radius-sm) }
-    .fuel-option.active { background: var(--glass-surface); font-weight: 600; color: var(--accent-primary); }
-    .tab-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; padding: 0 20px 20px; background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(30px); display: flex; justify-content: space-around; align-items: flex-start; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-top: 0.5px solid rgba(255,255,255,0.15); transition: background 0.3s; }
-    body.light-mode .tab-bar { background: rgba(255, 255, 255, 0.85); border-top: 0.5px solid rgba(0,0,0,0.1); }
-    .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; width: 60px; padding-top: 10px;}
+    .input-group span { padding: 14px;
+      color: var(--text-muted); }
+    .input-group input { flex: 1; padding: 14px 0; background: none; border: none; color: var(--text-main);
+      font-size: 16px; outline: none; font-family: var(--font-mono); }
+    .fuel-option-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); padding: 4px;
+      margin-bottom: 16px; }
+    .fuel-option { flex: 1; text-align: center; padding: 8px 12px;
+      border-radius: var(--radius-sm) }
+    .fuel-option.active { background: var(--glass-surface); font-weight: 600; color: var(--accent-primary);
+    }
+    .tab-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; padding: 0 20px 20px;
+      background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(30px); display: flex; justify-content: space-around; align-items: flex-start; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border-top: 0.5px solid rgba(255,255,255,0.15); transition: background 0.3s; }
+    body.light-mode .tab-bar { background: rgba(255, 255, 255, 0.85);
+      border-top: 0.5px solid rgba(0,0,0,0.1); }
+    .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center;
+      gap: 4px; color: var(--text-muted); cursor: pointer; width: 60px; padding-top: 10px;}
     .tab-btn.active { color: var(--accent-primary); }
     .tab-btn svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2; }
     .screen { display: none; animation: fadeUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
     .screen.active { display: block; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; align-items: flex-end; }
+    @keyframes fadeUp { from { opacity: 0;
+      transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-overlay { position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; align-items: flex-end;
+    }
     .modal-overlay.open { opacity: 1; pointer-events: auto; }
-    .modal-sheet { width: 100%; background: var(--bg-app); border-radius: 36px 36px 0 0; padding: 30px 24px 40px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1); box-shadow: 0 -10px 40px rgba(0,0,0,0.3); border-top: 1px solid var(--glass-border); }
-    .modal-overlay.open .modal-sheet { transform: translateY(0); }
-    .modal-handle { width: 40px; height: 5px; background: var(--text-muted); opacity: 0.3; border-radius: 99px; margin: 0 auto 20px; }
-    .btn-action { width: 100%; padding: 16px; background: var(--accent-primary); color: #fff; border: none; border-radius: 18px; font-size: 16px; font-weight: 600; margin-top: 20px; }
+    .modal-sheet { width: 100%; background: var(--bg-app);
+      border-radius: 36px 36px 0 0; padding: 30px 24px 40px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.3); border-top: 1px solid var(--glass-border); }
+    .modal-overlay.open .modal-sheet { transform: translateY(0);
+    }
+    .modal-handle { width: 40px; height: 5px; background: var(--text-muted); opacity: 0.3; border-radius: 99px; margin: 0 auto 20px;
+    }
+    .btn-action { width: 100%; padding: 16px; background: var(--accent-primary); color: #fff; border: none; border-radius: 18px; font-size: 16px;
+      font-weight: 600; margin-top: 20px; }
     
     /* NEW: Style for Stop Trip button */
     .btn-action.stop-active {
-        background: var(--danger); 
+        background: var(--danger);
         transition: background 0.3s ease;
     }
     
-    #modal-permissions .modal-sheet { padding-top: 12px; }
+    #modal-permissions .modal-sheet { padding-top: 12px;
+    }
   </style>
 </head>
 <body class="">
@@ -377,86 +419,97 @@
   <div class="content-scroll">
     
     <div id="screen-today" class="screen active">
-      <div style="text-align:center; padding: 20px 0;">
-        <div style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Estimated Spend</div>
-        <div style="font-size:76px; line-height:1; position:relative; display:inline-block;" class="text-hand">
-          <span style="font-size:30px; position:absolute; top:10px; left:-20px; color:var(--text-muted); font-family:var(--font-ui);">£</span>
+      <div style="text-align:center;
+        padding: 20px 0;">
+        <div style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted);
+          margin-bottom:6px;">Estimated Spend</div>
+        <div style="font-size:76px; line-height:1; position:relative;
+          display:inline-block;" class="text-hand">
+          <span style="font-size:30px; position:absolute; top:10px; left:-20px; color:var(--text-muted);
+            font-family:var(--font-ui);">£</span>
           <span id="todayTotal">0.00</span>
         </div>
       </div>
 
-      <div class="card" style="border:1px dashed var(--glass-border); background:rgba(120,120,128,0.05);">
-        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+      <div class="card" style="border:1px dashed var(--glass-border);
+        background:rgba(120,120,128,0.05);">
+        <div style="display:flex; justify-content:space-between;
+          margin-bottom:6px;">
           <span class="text-sm text-muted">LAST TRIP</span>
           <span class="text-mono font-bold" id="lastTripCost">£--</span>
         </div>
         <div class="text-sm" id="lastTripTitle">No recent trips</div>
       </div>
       
-      <div class="card" style="text-align:center; padding: 30px 20px; border:1px solid var(--success); background:rgba(48, 209, 88, 0.05);">
-          <span style="font-size:36px; display:block; margin-bottom:10px;">🔒</span>
-          <div style="font-size:16px; font-weight:600; margin-bottom:10px;">On-Device Privacy</div>
-          <div class="text-sm text-muted">This is an on-device app. All calculation, tracking, and information always stay on your phone. We do not save your data anywhere, so once you delete the QuickTrip webapp, the information is not recoverable.</div>
-      </div>
-
-      <div class="card" id="waitingCard" style="text-align:center; padding: 40px 20px;">
-          <div style="font-size:24px; color:var(--text-muted); margin-bottom:10px;">Waiting for a trip...</div>
-          <div class="text-sm text-muted">Automatic trip detection requires **Auto-Detect** to be enabled in Settings.</div>
-      </div>
-
       <button class="btn-action" id="manualTripButton" onclick="toggleManualTrip()" style="margin-top: 20px;">
           Start trip manually
       </button>
       
+      <div id="todayDetectionToggleContainer" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0 12px 0;">
+          <div class="text-sm font-bold" onclick="this.closest('#todayDetectionToggleContainer').querySelector('.toggle-switch').click();">Auto-Detect Trips</div>
+          <div class="toggle-switch" id="todayDetectionToggle" onclick="saveDetectionSetting(this)"></div>
+      </div>
+      
       <div style="height: 60px;"></div> </div>
 
     <div id="screen-trips" class="screen">
-      <h2 style="font-size:22px; margin-bottom:16px;">History</h2>
+      <h2 style="font-size:22px;
+        margin-bottom:16px;">History</h2>
       <div id="tripsList">
-        </div>
+      </div>
     </div>
 
     <div id="screen-insights" class="screen">
-      <h2 style="font-size:22px; margin-bottom:16px;">Insights</h2>
+      <h2 style="font-size:22px;
+        margin-bottom:16px;">Insights</h2>
       
       <div class="card" onclick="openBudgetModal()">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <div style="display:flex;
+          justify-content:space-between; margin-bottom:10px;">
           <span class="text-muted text-sm">Monthly Budget</span>
           <span class="text-sm font-bold" style="color:var(--accent-primary);">Edit</span>
         </div>
         
-        <div style="display:flex; align-items:baseline; gap:6px;">
+        <div style="display:flex;
+          align-items:baseline; gap:6px;">
           <span class="text-hand" style="font-size:32px;" id="insightSpent">£0</span>
           <span class="text-muted">/ £<span id="insightLimit">200</span></span>
         </div>
         
-        <div style="margin-top:10px; height:8px; background:var(--glass-border); border-radius:4px; overflow:hidden;">
-          <div id="budgetBar" style="width:0%; height:100%;"></div>
+        <div style="margin-top:10px;
+          height:8px; background:var(--glass-border); border-radius:4px; overflow:hidden;">
+          <div id="budgetBar" style="width:0%;
+            height:100%;"></div>
         </div>
       </div>
 
       <div class="card">
-        <h3 style="margin-top:0; font-size:16px; margin-bottom:16px;">Cost Breakdown</h3>
+        <h3 style="margin-top:0;
+          font-size:16px; margin-bottom:16px;">Cost Breakdown</h3>
         <div class="bar-row">
           <div class="bar-label">Commute</div>
-          <div class="bar-track"><div class="bar-fill" style="width:57%; background:#0a84ff;"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:57%;
+            background:#0a84ff;"></div></div>
           <div class="bar-val">£120</div>
         </div>
         <div class="bar-row">
           <div class="bar-label">School Run</div>
-          <div class="bar-track"><div class="bar-fill" style="width:21%; background:#ff9f0a;"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:21%;
+            background:#ff9f0a;"></div></div>
           <div class="bar-val">£45</div>
         </div>
         <div class="bar-row">
           <div class="bar-label">Other</div>
-          <div class="bar-track"><div class="bar-fill" style="width:22%; background:#30d158;"></div></div>
+          <div class="bar-track"><div class="bar-fill" style="width:22%;
+            background:#30d158;"></div></div>
           <div class="bar-val">£45</div>
         </div>
       </div>
     </div>
 
     <div id="screen-settings" class="screen">
-      <h2 style="font-size:22px; margin-bottom:16px;">Settings</h2>
+      <h2 style="font-size:22px;
+        margin-bottom:16px;">Settings</h2>
       
       <div class="card" onclick="openCarModal()">
         <div class="setting-row" style="border:none;">
@@ -470,7 +523,8 @@
       </div>
 
       <div class="card">
-        <div class="setting-row" onclick="this.querySelector('.toggle-switch').classList.toggle('on'); saveDetectionSetting(this.querySelector('.toggle-switch'))">
+        <div class="setting-row" onclick="this.querySelector('.toggle-switch').classList.toggle('on');
+          saveDetectionSetting(this.querySelector('.toggle-switch'))">
           <div class="setting-icon-container"><span class="setting-icon-emoji">🧭</span></div>
           <div style="flex:1;">
             <div class="text-sm font-bold">Auto-Detect Trips</div>
@@ -485,6 +539,7 @@
               <svg id="icon-moon" class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 0 0 0 21 12.79z"></path>
               </svg>
+  
               <svg id="icon-sun" class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
               </svg>
@@ -498,8 +553,9 @@
         </div>
       </div>
     </div>
-    
-  </div> <div class="tab-bar">
+  </div>
+
+  <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('today', this)">
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
       <span style="font-size:10px; font-weight:600;">Today</span>
@@ -518,112 +574,122 @@
     </button>
   </div>
 
-</div>
-
-<div class="modal-overlay" id="modal-permissions">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div style="text-align:center;">
-        <span style="font-size:48px; display:block; margin-bottom:10px;">📍</span>
-        <h3 style="margin-top:0;">Enable Trip Detection</h3>
+  <div class="modal-overlay" id="modal-privacy" onclick="if(event.target===this) closeModal('modal-privacy')"> 
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div style="text-align:center; padding: 10px 0 20px;">
+          <span style="font-size:36px; display:block; margin-bottom:10px;">🔒</span>
+          <h3 style="margin:0 0 10px; font-size:18px;">On-Device Privacy</h3>
+          <p class="text-sm text-muted" style="margin:0;">This is an on-device app. All calculation, tracking, and information always stay on your phone. We do not save your data anywhere, so once you delete the QuickTrip webapp, the information is not recoverable.</p>
+      </div>
+      <button class="btn-action" onclick="closeModal('modal-privacy'); state.privacyAcknowledged = true; saveStateToLocalStorage();">
+          I Understand
+      </button>
     </div>
-    <p class="text-sm text-muted">To automatically detect your car trips or manually track your route, we need permission to access your device's location and motion sensors.</p>
-    <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main);">
+  </div>
+
+  <div class="modal-overlay" id="modal-permissions" onclick="if(event.target===this) closeModal('modal-permissions')">
+    <div class="modal-sheet" style="padding-top: 12px;">
+      <div class="modal-handle"></div>
+      <h3 style="margin-bottom: 8px;">Permissions Required</h3>
+      <p class="text-sm text-muted">QuickTrip needs permission to access your device's location and motion sensors.</p>
+      <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main);">
         <li>**Location (GPS):** Required for route and distance calculation.</li>
         <li>**Motion/Accelerometer:** Required to start/stop tracking based on driving movement.</li>
-    </ul>
-    <p class="text-sm text-muted">Tap "Enable" to trigger the browser's permission prompts.</p>
-    <button class="btn-action" onclick="grantPermissions()">Enable Tracking</button>
+      </ul>
+      <p class="text-sm text-muted">Tap "Enable" to trigger the browser's permission prompts.</p>
+      <button class="btn-action" onclick="grantPermissions()">Enable Tracking</button>
+    </div>
   </div>
-</div>
-
-<div class="modal-overlay" id="modal-car-edit" onclick="if(event.target===this) closeModal('modal-car-edit')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3>Edit Car Profile</h3>
-    <label class="text-sm text-muted">Car Name</label>
-    <div class="input-group"><input type="text" id="inputCarName" value="Audi A3"></div>
-    <div style="margin-top:20px;">
-      <div style="display:flex; justify-content:space-between;">
-        <label class="text-sm text-muted">Efficiency (MPG)</label>
-        <span class="text-mono font-bold" id="labelMPG">44</span>
+  
+  <div class="modal-overlay" id="modal-car-edit" onclick="if(event.target===this) closeModal('modal-car-edit')">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <h3>Edit Car Profile</h3>
+      <label class="text-sm text-muted">Car Name</label>
+      <div class="input-group"><input type="text" id="inputCarName" value="Audi A3"></div>
+      <div style="margin-top:20px;">
+        <div style="display:flex; justify-content:space-between;">
+          <label class="text-sm text-muted">Efficiency (MPG)</label>
+          <span class="text-mono font-bold" id="labelMPG">44</span>
+        </div>
+        <input type="range" id="sliderMPG" class="ios-slider" min="10" max="80" value="44" oninput="updateCarPreview(this.value)"> 
       </div>
-      <input type="range" id="sliderMPG" class="ios-slider" min="10" max="80" value="44" oninput="updateCarPreview(this.value)">
+      <button class="btn-action" onclick="saveCar()">Save Changes</button>
     </div>
-    <button class="btn-action" onclick="saveCar()">Save Changes</button>
   </div>
-</div>
-
-<div class="modal-overlay" id="modal-budget" onclick="if(event.target===this) closeModal('modal-budget')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3>Monthly Budget</h3>
-    <p class="text-sm text-muted">Set a target to track your fuel spending.</p>
-    <div style="text-align:center; padding:20px 0;">
-      <span style="font-size:48px;" class="text-hand">£<span id="labelBudget">200</span></span>
+  
+  <div class="modal-overlay" id="modal-budget" onclick="if(event.target===this) closeModal('modal-budget')">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <h3>Monthly Budget</h3>
+      <p class="text-sm text-muted">Set a target to track your fuel spending.</p>
+      <div style="text-align:center;
+        padding:20px 0;">
+        <span style="font-size:48px;" class="text-hand">£<span id="labelBudget">200</span></span>
+      </div>
+      <input type="range" id="sliderBudget" class="ios-slider" min="50" max="500" step="10" value="200" oninput="updateBudgetPreview(this.value)">
+      <button class="btn-action" onclick="saveBudget()">Set Budget</button>
     </div>
-    <input type="range" id="sliderBudget" class="ios-slider" min="50" max="500" step="10" value="200" oninput="updateBudgetPreview(this.value)">
-    <button class="btn-action" onclick="saveBudget()">Set Budget</button>
   </div>
-</div>
 
-<div class="modal-overlay" id="modal-fuel-price" onclick="if(event.target===this) closeModal('modal-fuel-price')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3>Fuel Price Source</h3>
-    <p class="text-sm text-muted">Choose how QuickTrip calculates your trip costs.</p>
-    <div class="fuel-option-group">
-      <div id="option-live" class="fuel-option active" onclick="setFuelSource('live')">Live Stations (Avg)</div>
-      <div id="option-fixed" class="fuel-option" onclick="setFuelSource('fixed')">Fixed Price</div>
-    </div>
-    <div id="live-detail">
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span class="text-sm text-muted">Local Average (5 mile radius)</span>
-        <span class="text-mono font-bold" style="color:var(--accent-primary);">£1.27/L</span>
+  <div class="modal-overlay" id="modal-fuel-price" onclick="if(event.target===this) closeModal('modal-fuel-price')">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <h3>Fuel Price Source</h3>
+      <p class="text-sm text-muted">Choose how QuickTrip calculates your trip costs.</p>
+      <div class="fuel-option-group">
+        <div class="fuel-option active" id="option-fixed" onclick="setFuelSource('fixed')">Fixed Price</div>
+        <div class="fuel-option" id="option-live" onclick="setFuelSource('live')">Live Market Price</div>
       </div>
-      <div class="text-sm text-muted" style="border-top:1px solid var(--glass-border); padding-top:10px;">
-        Data from Shell (£1.30), BP (£1.28), Esso (£1.23).
+      <div id="fixed-input">
+        <label class="text-sm text-muted">Price per Liter (£)</label>
+        <div class="input-group">
+          <span>£</span>
+          <input type="number" step="0.01" min="0.5" id="inputFixedPrice" value="1.50">
+          <span>/L</span>
+        </div>
       </div>
-    </div>
-    <div id="fixed-input" style="display:none;">
-      <label class="text-sm text-muted">Enter Price per Litre</label>
-      <div class="input-group">
-        <span>£</span>
-        <input type="number" id="inputFixedPrice" value="1.27" min="0.5" step="0.01">
-        <span>/L</span>
+      <div id="live-detail" style="display:none; text-align:center; padding: 20px 0;">
+        <div class="text-sm text-muted">Price will be pulled from an external, updated fuel price source.</div>
       </div>
+      <button class="btn-action" onclick="saveFuelSettings()">Save Price</button>
     </div>
-    <button class="btn-action" onclick="saveFuelSettings()">Apply</button>
   </div>
-</div>
 
+</div>
+  
 <script>
-  // --- STATE & PERSISTENCE (Local Storage Implementation) ---
+  // --- STATE ---
+  const MOTION_THRESHOLD = 15.0; // Threshold for significant motion
+  const MOTION_COOLDOWN = 3000; // 3 seconds cooldown after initial shake
+  const TRIP_START_DELAY = 5000; // 5 seconds of sustained motion to start trip
+  const TRIP_END_DELAY = 60000; // 60 seconds of no motion to end trip
+  const screenArea = document.querySelector('.screen-area');
+  
+  let state = {};
+  let lastSignificantMotionTime = 0;
+  let isDetectingMotion = false;
+  let tripStartTimeout = null;
+  let tripEndTimeout = null;
+  let isTripActive = false;
+  let tripStartTime = 0;
+  let lastToastTime = 0;
+  let toastTimeout = null;
+
   const DEFAULT_STATE = {
     carName: "Audi A3",
     mpg: 44,
-    budget: 200,
+    fuelSource: 'fixed',
     fuelPrice: 1.27,
-    fuelSource: 'live',
-    trips: [], 
-    permissionsGranted: false,
-    detectionEnabled: false, // OFF by default as requested
+    budget: 200,
     isLightMode: false,
+    detectionEnabled: true,
+    permissionsGranted: false,
+    trips: [],
+    privacyAcknowledged: false, // NEW: For Change 1
   };
-  
-  let state = {};
-  const screenArea = document.querySelector('.screen-area'); // Get the element once
 
-  // --- MOTION DETECTION VARIABLES ---
-  let isDetectingMotion = false;
-  const MOTION_THRESHOLD = 15; // m/s^2, acceleration threshold for a shake
-  const MOVING_CAR_THRESHOLD = 5000; // 5 seconds of sustained motion to suggest 'Moving Car'
-  let lastSignificantMotionTime = 0;
-  let lastToastStatus = '';
-  let toastTimeout = null;
-  let meshAnimationTimeout = null;
-  let lastToastTime = 0; 
-  
   // --- MANUAL TRIP STATE (NEW) ---
   let isManualTripActive = false;
   let manualTripStartTime = 0;
@@ -632,16 +698,12 @@
   let tripDistance = 0;
   let lastPosition = null;
 
-
   function loadStateFromLocalStorage() {
     try {
       const serializedState = localStorage.getItem('quicktripState');
       let savedState = serializedState ? JSON.parse(serializedState) : {};
       if (savedState.trips) {
-        savedState.trips = savedState.trips.map(t => ({
-          ...t,
-          date: new Date(t.date)
-        }));
+        savedState.trips = savedState.trips.map(t => ({ ...t, date: new Date(t.date) }));
       }
       state = { ...DEFAULT_STATE, ...savedState };
     } catch (err) {
@@ -659,7 +721,7 @@
       console.error("Error saving state:", err);
     }
   }
-  
+
   // --- DOT MESH C ANIMATION LOGIC ---
   let dots = [];
   const DOT_COUNT = 80; // Reduced for corner effect
@@ -668,90 +730,66 @@
     const meshEl = document.getElementById("cornerMesh");
     meshEl.innerHTML = ""; // Clear existing dots
     dots = [];
-    
     // Create dots with random positions and velocities
     for(let i = 0; i < DOT_COUNT; i++){
       const d = document.createElement("div");
       d.className = "dot";
-      
       // Calculate random position within the viewport
       let x = Math.random() * window.innerWidth;
       let y = Math.random() * window.innerHeight;
-      
       d.style.left = x + 'px';
       d.style.top = y + 'px';
       d.style.animationDelay = (Math.random() * 2) + "s";
-      
       meshEl.appendChild(d);
-      
       // Store dot properties for drift animation
-      dots.push({
-        el: d, 
-        x, 
-        y, 
-        dx: (Math.random() - 0.5) * 0.15, 
-        dy: (Math.random() - 0.5) * 0.15
-      });
+      dots.push({ el: d, x, y, dx: (Math.random() - 0.5) * 0.15, dy: (Math.random() - 0.5) * 0.15 });
     }
-
     animateCornerMesh(); // Start the drift animation loop
   }
 
   function animateCornerMesh() {
-    // Only animate if the mesh is visible (i.e., motion-active is set)
-    if (screenArea.classList.contains('motion-active')) {
-        for(const p of dots){
-            p.x += p.dx;
-            p.y += p.dy;
-            
-            // Bounce off edges
-            if(p.x < 0 || p.x > window.innerWidth) p.dx *= -1;
-            if(p.y < 0 || p.y > window.innerHeight) p.dy *= -1;
-            
-            p.el.style.left = p.x + 'px';
-            p.el.style.top = p.y + 'px';
-        }
-    }
-    meshAnimationTimeout = requestAnimationFrame(animateCornerMesh);
-  }
-  
-  // --- INITIALIZATION ---
-  document.addEventListener('DOMContentLoaded', () => {
-    loadStateFromLocalStorage();
-    if (state.isLightMode) {
-      document.body.classList.add('light-mode');
-      document.getElementById('themeToggle').classList.add('on');
+    // Only animate if the mesh is visible (i.e. if motion-active is set)
+    if (!screenArea.classList.contains('motion-active')) {
+      requestAnimationFrame(animateCornerMesh);
+      return;
     }
     
-    updateDotPattern(); // Initialize dot pattern with correct theme color
-    initCornerMesh(); // Initialize the new corner mesh
-    updateUI();
-    // Removed checkAndRequestPermissions() call to prevent modal on startup
-    initMotionDetection(); 
-  });
-  
-  // --- Function to fix the dynamic dot pattern background ---
+    // Apply drift motion to dots
+    dots.forEach(d => {
+      d.x += d.dx;
+      d.y += d.dy;
+
+      // Keep dots contained by wrapping them around the viewport
+      if (d.x > window.innerWidth) d.x = 0;
+      if (d.x < 0) d.x = window.innerWidth;
+      if (d.y > window.innerHeight) d.y = 0;
+      if (d.y < 0) d.y = window.innerHeight;
+
+      d.el.style.left = d.x + 'px';
+      d.el.style.top = d.y + 'px';
+    });
+
+    requestAnimationFrame(animateCornerMesh);
+  }
+
+  // --- DOT PATTERN (BG) ---
   function updateDotPattern() {
     const isLight = document.body.classList.contains('light-mode');
-    
     // Choose solid color for the dots in the SVG, opacity is handled by the wrapper element
     const dotColor = isLight ? 'rgb(0,0,0)' : 'rgb(255,255,255)';
     const opacityLevel = isLight ? '0.05' : '0.04'; // Adjust opacity for better visibility
-    
     // Create the SVG data URI
     const svgContent = `<svg width='2' height='2' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'><circle cx='1' cy='1' r='0.5' fill='${dotColor}'/></svg>`;
     const encodedSvg = encodeURIComponent(svgContent).replace(/'/g, '%27').replace(/"/g, '%22');
-
     const meshPatternEl = document.querySelector('.mesh-pattern');
     meshPatternEl.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodedSvg}")`;
     meshPatternEl.style.opacity = opacityLevel;
-    
+
     // Re-initialize the corner mesh on theme change to update dot colors
     initCornerMesh();
   }
 
   // --- MOTION DETECTION LOGIC (UPDATED FOR MANUAL CHECK) ---
-
   function initMotionDetection() {
     // Only start if detection is enabled AND permissions are granted
     if (state.detectionEnabled && state.permissionsGranted && !isDetectingMotion) {
@@ -782,70 +820,146 @@
     // 1. Check for significant motion (Shaking)
     if (magnitude > MOTION_THRESHOLD) {
       lastSignificantMotionTime = now;
-      
-      if (now - lastToastTime > 500) { 
-        updateMotionStatus('Shaking');
-        lastToastStatus = 'Shaking'; 
-      }
-
-      // 2. Check for sustained motion (Simulated 'Moving Car')
-      if (now - lastSignificantMotionTime >= MOVING_CAR_THRESHOLD) {
-        if (lastToastStatus !== 'Moving Car') {
-          updateMotionStatus('Moving Car', 5000);
-          lastToastStatus = 'Moving Car';
+      if (!isTripActive && !tripStartTimeout) {
+        // Debounce initial shake to avoid repeated toasts
+        if (now - lastToastTime > MOTION_COOLDOWN) {
+          updateMotionStatus('Shaking: Initial detection. Hold steady...', 1500);
         }
+        
+        // Start monitoring for sustained motion
+        tripStartTimeout = setTimeout(startAutoTrip, TRIP_START_DELAY);
+        console.log('Trip start timeout set.');
       }
-    } else {
-       if (now - lastSignificantMotionTime > 5000 && lastToastStatus !== 'Steady') {
-           // If we are steady for a while, clear the active status
-           screenArea.classList.remove('motion-active');
-           lastToastStatus = 'Steady'; 
-       }
+      
+      // Reset trip end timer
+      if (isTripActive && tripEndTimeout) {
+        clearTimeout(tripEndTimeout);
+        tripEndTimeout = null;
+        console.log('Trip end timeout cleared.');
+      }
+    } else if (isTripActive && !tripEndTimeout) {
+      // 2. Check for sustained lack of motion (Trip End)
+      tripEndTimeout = setTimeout(stopAutoTrip, TRIP_END_DELAY);
+      console.log('Trip end timeout set.');
+    }
+
+    // If magnitude is low but we are still in the start detection phase
+    if (!isTripActive && tripStartTimeout && magnitude < 10.0) {
+      clearTimeout(tripStartTimeout);
+      tripStartTimeout = null;
+      screenArea.classList.remove('motion-active');
+      console.log('Trip start timeout cleared due to low motion.');
     }
   }
 
-  function updateMotionStatus(status, duration = 3000) {
-    const toastEl = document.getElementById('motionToast');
-    clearTimeout(toastTimeout);
-    
-    let statusText = status; // Keeping this simple for new feature clarity
-    
-    if (status.includes('Shaking')) {
-        toastEl.style.backgroundColor = 'var(--warning)';
-        statusText = `Detecting motion: ${status}`;
-    } else if (status.includes('Moving Car')) {
-        toastEl.style.backgroundColor = 'var(--accent-primary)';
-        statusText = `Detecting motion: ${status}`;
-    } else if (status.includes('Trip Ended')) {
-        toastEl.style.backgroundColor = 'var(--success)';
-    } else if (status.includes('Permission')) {
-        toastEl.style.backgroundColor = 'var(--danger)';
-    } else {
-        toastEl.style.backgroundColor = 'var(--success)';
-        statusText = `Motion Detected: ${status}`;
+  function startAutoTrip() {
+    if (!isTripActive && Date.now() - lastSignificantMotionTime >= TRIP_START_DELAY) {
+      isTripActive = true;
+      tripStartTime = Date.now();
+      tripDistance = 0;
+      lastPosition = null;
+
+      // Start GPS Tracking
+      geolocationWatchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const currentPosition = { lat: position.coords.latitude, lon: position.coords.longitude };
+          if (lastPosition) {
+            const dist = calculateDistance(lastPosition, currentPosition);
+            tripDistance += dist;
+          }
+          lastPosition = currentPosition;
+        },
+        (error) => { console.error("GPS error:", error); },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+
+      // UI Updates
+      updateMotionStatus('Trip Started Automatically!', 2000);
+      updateTripTimer();
+      tripTimerInterval = setInterval(updateTripTimer, 1000);
+      document.getElementById('dynamicPill').classList.add('active');
+      document.getElementById('headerRow').classList.add('hidden'); // Hide header on trip start
     }
+    tripStartTimeout = null;
+  }
+
+  function stopAutoTrip() {
+    if (!isTripActive) return;
     
+    // 1. Stop GPS Tracking & Timer
+    if (geolocationWatchId !== null) {
+      navigator.geolocation.clearWatch(geolocationWatchId);
+      geolocationWatchId = null;
+    }
+    clearInterval(tripTimerInterval);
+    tripTimerInterval = null;
+    isTripActive = false;
+    tripEndTimeout = null;
+    
+    // 2. Calculate final distance and cost
+    const finalDistance = tripDistance;
+    const cost = calculateTripCost(finalDistance);
+    
+    // 3. Create and save new trip (only if distance > 0.1 mile)
+    if (finalDistance > 0.1) {
+      const newTrip = {
+        id: state.trips.length + 1,
+        date: new Date(tripStartTime),
+        title: 'Auto-Detected Trip',
+        dist: finalDistance.toFixed(1),
+        cost: cost,
+      };
+      state.trips.push(newTrip);
+      updateMotionStatus(`Trip Ended. Cost: £${cost.toFixed(2)}.`, 5000);
+      saveStateToLocalStorage();
+      updateUI();
+    } else {
+      updateMotionStatus('Trip too short to save.', 2000);
+    }
+
+    // 4. Smoothly hide the Dynamic Island and Dot Mesh after a slight delay (0.5s)
+    setTimeout(() => {
+        document.getElementById('dynamicPill').classList.remove('active');
+        screenArea.classList.remove('motion-active');
+        document.getElementById('headerRow').classList.remove('hidden'); // Show header again
+    }, 500);
+  }
+
+  function updateMotionStatus(status, duration) {
+    const toastEl = document.getElementById('motionToast');
+    let statusText = status;
+    
+    // Clear any existing timeout
+    if (toastTimeout) clearTimeout(toastTimeout);
+    
+    // Set colors based on status
+    if (status.includes('Shaking')) {
+      toastEl.style.backgroundColor = 'var(--warning)';
+      statusText = `Detecting motion: ${status.split(':')[1]}`;
+    } else if (status.includes('Moving Car')) {
+      toastEl.style.backgroundColor = 'var(--accent-primary)';
+      statusText = `Detecting motion: ${status.split(':')[1]}`;
+    } else if (status.includes('Trip Ended')) {
+      toastEl.style.backgroundColor = 'var(--success)';
+    } else if (status.includes('Permission')) {
+      toastEl.style.backgroundColor = 'var(--danger)';
+    } else {
+      toastEl.style.backgroundColor = 'var(--success)';
+      statusText = status;
+    }
     toastEl.textContent = statusText;
-    
     toastEl.classList.add('show');
-    
+
     // Activate dynamic background effect and corner mesh
     if (status.includes('Shaking') || status.includes('Moving Car') || status.includes('Trip Started')) {
       screenArea.classList.add('motion-active');
     }
-    
-    if (status.includes('Shaking')) {
-        lastToastTime = Date.now(); 
-    }
-    
-    toastTimeout = setTimeout(() => {
-      toastEl.classList.remove('show');
-    }, duration);
+
+    if (status.includes('Shaking')) { lastToastTime = Date.now(); }
+    toastTimeout = setTimeout(() => { toastEl.classList.remove('show'); }, duration);
   }
 
-
   // --- MANUAL TRIP FUNCTIONS (NEW) ---
-
   function toggleManualTrip() {
     if (isManualTripActive) {
       stopManualTrip();
@@ -857,27 +971,21 @@
   function startManualTrip() {
     // 1. Check permissions (UPDATED LOGIC)
     if (!state.permissionsGranted) {
-        // Open the permissions modal instead of starting the trip
-        document.getElementById('modal-permissions').classList.add('open');
-        return; 
+      // Open the permissions modal instead of starting the trip
+      document.getElementById('modal-permissions').classList.add('open');
+      return;
     }
-
     isManualTripActive = true;
     manualTripStartTime = Date.now();
     tripDistance = 0;
     lastPosition = null;
 
     // 2. Start GPS Tracking
-    // Note: The watchPosition callback will only fire when the position changes significantly.
     geolocationWatchId = navigator.geolocation.watchPosition(
       (position) => {
-        const currentPosition = {
-          lat: position.coords.latitude,
-          lon: position.coords.longitude
-        };
-        
+        const currentPosition = { lat: position.coords.latitude, lon: position.coords.longitude };
         if (lastPosition) {
-          const dist = calculateDistance(lastPosition, currentPosition); 
+          const dist = calculateDistance(lastPosition, currentPosition);
           tripDistance += dist;
         }
         lastPosition = currentPosition;
@@ -887,81 +995,76 @@
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
-    
+
     // 3. Update UI
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Stop trip';
     button.classList.add('stop-active');
-    document.getElementById('waitingCard').style.display = 'none';
-    
+    // REMOVED: document.getElementById('waitingCard').style.display = 'none';
+
     // Activate dot mesh animation and show toast
-    screenArea.classList.add('motion-active'); 
+    screenArea.classList.add('motion-active');
     updateMotionStatus('Trip Started Manually!', 2000);
-    
+
     // 4. Start Timer and Dynamic Island
-    updateTripTimer(); 
+    updateTripTimer();
     tripTimerInterval = setInterval(updateTripTimer, 1000);
     document.getElementById('dynamicPill').classList.add('active');
-    document.getElementById('islandStatusText').textContent = 'TRIP IN PROCESS';
+    document.getElementById('headerRow').classList.add('hidden'); // Hide header on trip start
+    updateUI(); // NEW: Call updateUI to hide the Auto-Detect toggle
   }
 
   function stopManualTrip() {
-    isManualTripActive = false;
-
-    // 1. Stop Timer & GPS
-    clearInterval(tripTimerInterval);
+    // 1. Stop GPS Tracking & Timer
     if (geolocationWatchId !== null) {
       navigator.geolocation.clearWatch(geolocationWatchId);
+      geolocationWatchId = null;
     }
+    clearInterval(tripTimerInterval);
+    tripTimerInterval = null;
+    isManualTripActive = false;
 
-    // 2. Update button UI immediately
+    // 2. Update UI
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Start trip manually';
     button.classList.remove('stop-active');
-    document.getElementById('waitingCard').style.display = 'block';
+    // document.getElementById('waitingCard').style.display = 'block'; // Not needed anymore
+    document.getElementById('headerRow').classList.remove('hidden'); // Show header again
 
-    // 3. Calculate Trip Data
-    const durationMs = Date.now() - manualTripStartTime;
-    const durationMins = durationMs / (1000 * 60);
+    // 3. Calculate final distance and cost
+    const finalDistance = tripDistance;
+    const cost = calculateTripCost(finalDistance);
 
-    // If no distance was recorded (e.g. device was stationary), simulate a minimum of 1 mile or 0.1 miles/min
-    let finalDistance = tripDistance > 0 ? tripDistance : Math.max(1.0, durationMins * 0.1); 
-    if (finalDistance < 0.1) finalDistance = 0.1;
-
-    const cost = calculateTripCost(finalDistance); 
-
-    // 4. Record Trip
+    // 4. Create and save new trip
     const newTrip = {
       id: state.trips.length + 1,
       date: new Date(manualTripStartTime),
       title: 'Manual Trip',
-      dist: finalDistance.toFixed(1), 
+      dist: finalDistance.toFixed(1),
       cost: cost,
     };
     state.trips.push(newTrip);
-    
+
     // Show a success toaster
     updateMotionStatus(`Trip Ended. Cost: £${cost.toFixed(2)}.`, 5000);
 
     // 5. Save and Refresh
     saveStateToLocalStorage();
     updateUI();
-    
+
     // 6. NEW: Smoothly hide the Dynamic Island and Dot Mesh after a slight delay (0.5s)
     setTimeout(() => {
-        document.getElementById('dynamicPill').classList.remove('active');
-        screenArea.classList.remove('motion-active'); 
-    }, 500); 
+      document.getElementById('dynamicPill').classList.remove('active');
+      screenArea.classList.remove('motion-active');
+    }, 500);
   }
 
   function updateTripTimer() {
-    if (!isManualTripActive) return;
-    
-    const durationMs = Date.now() - manualTripStartTime;
+    if (!isManualTripActive && !isTripActive) return;
+    const durationMs = Date.now() - (isManualTripActive ? manualTripStartTime : tripStartTime);
     const totalSeconds = Math.floor(durationMs / 1000);
     const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
     const seconds = String(totalSeconds % 60).padStart(2, '0');
-    
     document.getElementById('recTimer').textContent = `${minutes}:${seconds}`;
   }
 
@@ -972,12 +1075,8 @@
     const lat2 = p2.lat * (Math.PI / 180);
     const deltaLat = (p2.lat - p1.lat) * (Math.PI / 180);
     const deltaLon = (p2.lon - p1.lon) * (Math.PI / 180);
-
-    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-              Math.cos(lat1) * Math.cos(lat2) *
-              Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
     return R * c; // Distance in miles
   }
 
@@ -993,50 +1092,61 @@
     // 1. Ask for Geolocation (GPS)
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => { console.log("GPS permission granted."); },
-        (err) => { console.error("GPS permission denied:", err.message); }
-      );
-    }
-
-    // 2. Ask for DeviceMotion/Orientation (iOS Safari requirement)
-    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      DeviceMotionEvent.requestPermission().then(response => {
-        if (response === 'granted') {
-           updateMotionStatus('Motion Sensor Granted!', 2000);
-           state.permissionsGranted = true;
-           saveStateToLocalStorage();
-           initMotionDetection(); 
-           // If permission was granted, and detection was meant to be on, turn it on now.
-           if (state.detectionEnabled) {
-               document.getElementById('detectionToggle').classList.add('on');
-           }
-        } else {
-           updateMotionStatus('Motion Sensor Denied. Detection compromised.', 4000);
+        (position) => {
+          // 2. Ask for Motion (Accelerometer)
+          if (window.DeviceMotionEvent && DeviceMotionEvent.requestPermission) {
+            DeviceMotionEvent.requestPermission()
+              .then(permissionState => {
+                if (permissionState === 'granted') {
+                  state.permissionsGranted = true;
+                  updateMotionStatus('Permissions Granted!', 3000);
+                } else {
+                  state.permissionsGranted = false;
+                  updateMotionStatus('Motion Permission Denied!', 5000);
+                }
+                saveStateToLocalStorage();
+                closeModal('modal-permissions');
+                initMotionDetection();
+                updateUI();
+              })
+              .catch(error => {
+                console.error("Motion permission error:", error);
+                updateMotionStatus('Error requesting Motion permission.', 5000);
+              });
+          } else {
+            // Assume motion is implicitly available or not required if requestPermission is not available
+            state.permissionsGranted = true;
+            updateMotionStatus('Permissions Granted!', 3000);
+            saveStateToLocalStorage();
+            closeModal('modal-permissions');
+            initMotionDetection();
+            updateUI();
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          updateMotionStatus('Geolocation Permission Denied!', 5000);
+          state.permissionsGranted = false;
+          saveStateToLocalStorage();
+          closeModal('modal-permissions');
+          updateUI();
         }
-        updateUI();
-      }).catch(console.error);
+      );
     } else {
-      state.permissionsGranted = true;
-      saveStateToLocalStorage();
-      initMotionDetection();
-      // If permission was granted, and detection was meant to be on, turn it on now.
-      if (state.detectionEnabled) {
-          document.getElementById('detectionToggle').classList.add('on');
-      }
-      updateUI();
+      updateMotionStatus('Geolocation not supported on this device.', 5000);
     }
-
-    closeModal('modal-permissions');
   }
-  
-  // --- NAVIGATION ---
+
+  // --- MODAL & TAB FUNCTIONS ---
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
   function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + tabId).classList.add('active');
-    
     const header = document.getElementById('headerRow');
     if(tabId === 'settings') {
       header.classList.add('hidden');
@@ -1049,21 +1159,18 @@
   function toggleTheme(el) {
     el.classList.toggle('on');
     document.body.classList.toggle('light-mode');
-    
     state.isLightMode = document.body.classList.contains('light-mode');
-    saveStateToLocalStorage(); 
-    updateDotPattern(); 
-    
+    saveStateToLocalStorage();
+    updateDotPattern();
     const isLightMode = state.isLightMode;
     const iconMoon = document.getElementById('icon-moon');
     const iconSun = document.getElementById('icon-sun');
-
     if (isLightMode) {
-        iconMoon.style.opacity = 1;
-        iconSun.style.opacity = 0;
+      iconMoon.style.opacity = 1;
+      iconSun.style.opacity = 0;
     } else {
-        iconMoon.style.opacity = 0;
-        iconSun.style.opacity = 1;
+      iconMoon.style.opacity = 0;
+      iconSun.style.opacity = 1;
     }
   }
 
@@ -1072,7 +1179,6 @@
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const y = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
@@ -1094,15 +1200,30 @@
     document.getElementById('headerMPG').innerText = state.mpg;
     document.getElementById('settingsCarDetail').innerText = `${state.carName} • ${state.mpg} MPG`;
     document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L`;
-    
-    // Detection Toggle State
+
+    // Detection Toggle State (Settings Page)
     const detectionToggle = document.getElementById('detectionToggle');
     if (state.detectionEnabled) {
-        detectionToggle.classList.add('on');
-        document.getElementById('detectionStatus').innerText = state.permissionsGranted ? "Motion & GPS sensors active" : "Waiting for permissions";
+      detectionToggle.classList.add('on');
+      document.getElementById('detectionStatus').innerText = state.permissionsGranted ? "Motion & GPS sensors active" : "Waiting for permissions";
     } else {
-        detectionToggle.classList.remove('on');
-        document.getElementById('detectionStatus').innerText = "Detection is manually paused";
+      detectionToggle.classList.remove('on');
+      document.getElementById('detectionStatus').innerText = "Detection is manually paused";
+    }
+
+    // NEW: Today Toggle State & Visibility (for Change 3)
+    const todayToggleContainer = document.getElementById('todayDetectionToggleContainer');
+    const todayDetectionToggle = document.getElementById('todayDetectionToggle');
+
+    if (isManualTripActive) { 
+        todayToggleContainer.style.display = 'none'; // Hide when manual trip is active
+    } else {
+        todayToggleContainer.style.display = 'flex'; // Show otherwise
+        if (state.detectionEnabled) {
+            todayDetectionToggle.classList.add('on');
+        } else {
+            todayDetectionToggle.classList.remove('on');
+        }
     }
 
     // Today Calculation
@@ -1112,122 +1233,51 @@
     document.getElementById('todayTotal').innerText = todayCost.toFixed(2);
 
     // Last Trip
-    if(state.trips.length > 0) {
-      const recent = [...state.trips].sort((a, b) => b.date.getTime() - a.date.getTime())[0];
-      document.getElementById('lastTripCost').innerText = `£${recent.cost.toFixed(2)}`;
-      document.getElementById('lastTripTitle').innerText = `${recent.title} (${recent.dist} mi) - ${timeAgo(recent.date)}`;
-    } else {
-      document.getElementById('lastTripCost').innerText = `£0.00`;
-      document.getElementById('lastTripTitle').innerText = `No recorded trips`;
+    if (state.trips.length > 0) {
+      const lastTrip = state.trips[state.trips.length - 1];
+      document.getElementById('lastTripCost').innerText = `£${lastTrip.cost.toFixed(2)}`;
+      document.getElementById('lastTripTitle').innerText = `${lastTrip.title} (${lastTrip.dist} mi)`;
     }
 
     // Insights
-    const totalSpent = state.trips.reduce((acc, t) => acc + t.cost, 0);
-    document.getElementById('insightSpent').innerText = `£${Math.floor(totalSpent)}`;
+    const monthlyCost = state.trips
+      .filter(t => t.date.getMonth() === new Date().getMonth() && t.date.getFullYear() === new Date().getFullYear())
+      .reduce((acc, t) => acc + t.cost, 0);
+
+    document.getElementById('insightSpent').innerText = monthlyCost.toFixed(0);
     document.getElementById('insightLimit').innerText = state.budget;
-    
-    const pct = Math.min((totalSpent / state.budget) * 100, 100);
     const budgetBar = document.getElementById('budgetBar');
-    budgetBar.style.width = pct + "%";
-    budgetBar.style.background = pct > 90 ? "var(--danger)" : pct > 75 ? "var(--warning)" : "var(--success)";
+    const percentage = Math.min((monthlyCost / state.budget) * 100, 100);
+    budgetBar.style.width = percentage + '%';
+    budgetBar.style.backgroundColor = percentage > 80 ? 'var(--danger)' : 'var(--accent-primary)';
+
+    // Theme Toggle State
+    const themeToggle = document.getElementById('themeToggle');
+    if (state.isLightMode) {
+      document.body.classList.add('light-mode');
+      themeToggle.classList.add('on');
+    } else {
+      document.body.classList.remove('light-mode');
+      themeToggle.classList.remove('on');
+    }
 
     renderTrips();
   }
-  
-  function saveDetectionSetting(toggleEl) {
-    // The toggle has already been flipped by the inline onclick handler.
-    const isNowOn = toggleEl.classList.contains('on');
-    
-    // Case 1: Toggling ON without permissions
-    if (isNowOn && !state.permissionsGranted) {
-        // Revert the visual toggle and the internal state
-        toggleEl.classList.remove('on');
-        state.detectionEnabled = false; // It failed to turn on
-        
-        // Open the permission modal
-        document.getElementById('modal-permissions').classList.add('open');
-        updateUI(); 
-        return;
-    }
 
-    // Case 2: Toggling OFF (isNowOn is false) OR Toggling ON with permissions (isNowOn is true)
-    state.detectionEnabled = isNowOn;
-    saveStateToLocalStorage();
-    initMotionDetection(); 
-    updateUI(); 
-  }
-
-  // --- RENDER TRIPS (UPDATED for empty state) ---
-  function renderTrips() {
-    const list = document.getElementById('tripsList');
-    list.innerHTML = "";
-    
-    if(state.trips.length === 0) {
-      list.innerHTML = `
-        <div class="card" style="text-align:center; padding: 40px 20px;">
-            <div style="font-size:20px; color:var(--text-muted); margin-bottom:10px;">No Trips Recorded Yet</div>
-            <div class="text-sm text-muted">Please ensure Auto-Detect is enabled in Settings, then use a car to drive and calculate the cost of your trips.</div>
-        </div>
-      `;
-      return;
-    }
-    
-    state.trips.sort((a, b) => b.date.getTime() - a.date.getTime());
-
-    let currentDateGroup = null;
-
-    state.trips.forEach(t => {
-      const header = getGroupHeader(t.date);
-
-      if (header !== currentDateGroup) {
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'trip-section-header';
-        headerDiv.textContent = header;
-        list.appendChild(headerDiv);
-        currentDateGroup = header;
-      }
-
-      const rotate = (t.id * 55) % 360; 
-      
-      const div = document.createElement('div');
-      div.className = 'trip-item';
-      div.innerHTML = `
-        <div class="mini-map-preview">
-          <div class="map-grid"></div>
-          <div class="map-route" style="transform: translate(-50%, -50%) rotate(${rotate}deg);"></div>
-        </div>
-        <div style="flex:1;">
-          <div style="font-weight:600; font-size:15px;">${t.title}</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-            ${t.dist} mi • ${t.date.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}
-          </div>
-        </div>
-        <div class="text-mono font-bold">£${t.cost.toFixed(2)}</div>
-      `;
-      list.appendChild(div);
-    });
-  }
-
-
-  function timeAgo(date) {
-    const mins = Math.floor((new Date() - date) / 60000);
-    if(mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    return `${hrs}h ago`;
-  }
-
-  // --- MODALS (Car, Budget, Fuel) ---
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-  
+  // --- SETTINGS LOGIC ---
   function openCarModal() {
     document.getElementById('inputCarName').value = state.carName;
     document.getElementById('sliderMPG').value = state.mpg;
-    document.getElementById('labelMPG').innerText = state.mpg;
+    updateCarPreview(state.mpg);
     document.getElementById('modal-car-edit').classList.add('open');
   }
-  function updateCarPreview(val) { document.getElementById('labelMPG').innerText = val; }
+
+  function updateCarPreview(mpg) {
+    document.getElementById('labelMPG').innerText = mpg;
+  }
+
   function saveCar() {
-    state.carName = document.getElementById('inputCarName').value;
+    state.carName = document.getElementById('inputCarName').value || DEFAULT_STATE.carName;
     state.mpg = parseInt(document.getElementById('sliderMPG').value);
     saveStateToLocalStorage();
     closeModal('modal-car-edit');
@@ -1236,10 +1286,14 @@
 
   function openBudgetModal() {
     document.getElementById('sliderBudget').value = state.budget;
-    document.getElementById('labelBudget').innerText = state.budget;
+    updateBudgetPreview(state.budget);
     document.getElementById('modal-budget').classList.add('open');
   }
-  function updateBudgetPreview(val) { document.getElementById('labelBudget').innerText = val; }
+
+  function updateBudgetPreview(budget) {
+    document.getElementById('labelBudget').innerText = budget;
+  }
+
   function saveBudget() {
     state.budget = parseInt(document.getElementById('sliderBudget').value);
     saveStateToLocalStorage();
@@ -1277,12 +1331,96 @@
         state.fuelPrice = fixedPrice;
       }
     } else {
+      // Hardcoded placeholder for "live" price for this demo
       state.fuelPrice = 1.27; 
     }
     saveStateToLocalStorage();
     closeModal('modal-fuel-price');
     updateUI();
   }
+
+  function saveDetectionSetting(toggleEl) {
+    const isNowOn = toggleEl.classList.contains('on');
+
+    // Case 1: Toggling ON without permissions
+    if (isNowOn && !state.permissionsGranted) {
+      // Revert the visual toggle and the internal state
+      toggleEl.classList.remove('on');
+      state.detectionEnabled = false; // It failed to turn on
+      // Open the permission modal
+      document.getElementById('modal-permissions').classList.add('open');
+      updateUI();
+      return;
+    }
+    
+    // Case 2: Toggling OFF (isNowOn is false) OR Toggling ON with permissions (isNowOn is true)
+    state.detectionEnabled = isNowOn;
+    saveStateToLocalStorage();
+    initMotionDetection();
+    updateUI();
+  }
+
+  // --- RENDER TRIPS (UPDATED for empty state) ---
+  function renderTrips() {
+    const list = document.getElementById('tripsList');
+    list.innerHTML = "";
+    
+    if(state.trips.length === 0) {
+      list.innerHTML = `
+        <div class="card" style="text-align:center; padding: 40px 20px;">
+          <div style="font-size:20px; color:var(--text-muted); margin-bottom:10px;">No Trips Recorded Yet</div>
+          <div class="text-sm text-muted">Please ensure Auto-Detect is enabled in Settings, then use a car to drive and calculate the cost of your trips.</div>
+        </div>
+      `;
+      return;
+    }
+
+    state.trips.sort((a, b) => b.date.getTime() - a.date.getTime());
+    let currentDateGroup = null;
+
+    state.trips.forEach(t => {
+      const header = getGroupHeader(t.date);
+      if (header !== currentDateGroup) {
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'trip-section-header';
+        headerDiv.textContent = header;
+        list.appendChild(headerDiv);
+        currentDateGroup = header;
+      }
+
+      const rotation = Math.floor(Math.random() * 90) - 45; // Random angle for map route
+      const tripDiv = document.createElement('div');
+      tripDiv.className = 'trip-item';
+      tripDiv.innerHTML = `
+        <div class="mini-map-preview">
+          <div class="map-grid"></div>
+          <div class="map-route" style="border-left-color: var(--accent-primary); transform: translate(-50%, -50%) rotate(${rotation}deg);"></div>
+        </div>
+        <div style="flex:1;">
+          <div class="font-bold">${t.title}</div>
+          <div class="text-sm text-muted">${t.dist} miles • ${t.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+        </div>
+        <div class="text-mono font-bold" style="font-size:16px;">£${t.cost.toFixed(2)}</div>
+      `;
+      list.appendChild(tripDiv);
+    });
+  }
+
+  // --- INITIALIZATION ---
+  function init() {
+    loadStateFromLocalStorage();
+    updateDotPattern();
+    initMotionDetection();
+    updateUI();
+    
+    // NEW: Show Privacy Modal on First Launch (for Change 1)
+    if (!state.privacyAcknowledged) {
+        document.getElementById('modal-privacy').classList.add('open');
+    }
+  }
+
+  init();
+
 </script>
 </body>
 </html>
