@@ -333,6 +333,20 @@
     }
     
     #modal-permissions .modal-sheet { padding-top: 12px; }
+
+    /* NEW: Style for Auto-Detect Section */
+    .auto-detect-section {
+        margin-top: 24px;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .auto-detect-section.hidden {
+        opacity: 0;
+        height: 0;
+        margin-top: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
   </style>
 </head>
 <body class="">
@@ -369,7 +383,7 @@
         <span class="text-mono" id="headerMPG">44</span> <span style="font-size:10px;opacity:0.7">MPG</span>
       </div>
       <div class="status-badge" onclick="openFuelModal()">
-        <span>⛽</span> <span class="text-mono" id="headerFuelPrice">£1.55/L (P)</span>
+        <span>⛽</span> <span class="text-mono" id="headerFuelPrice">£1.27/L</span>
       </div>
     </div>
   </div>
@@ -393,20 +407,22 @@
         <div class="text-sm" id="lastTripTitle">No recent trips</div>
       </div>
       
-      <div class="card" style="text-align:center; padding: 30px 20px; border:1px solid var(--success); background:rgba(48, 209, 88, 0.05);">
-          <span style="font-size:36px; display:block; margin-bottom:10px;">🔒</span>
-          <div style="font-size:16px; font-weight:600; margin-bottom:10px;">On-Device Privacy</div>
-          <div class="text-sm text-muted">This is an on-device app. All calculation, tracking, and information always stay on your phone. We do not save your data anywhere, so once you delete the QuickTrip webapp, the information is not recoverable.</div>
-      </div>
-
-      <div class="card" id="waitingCard" style="text-align:center; padding: 40px 20px;">
-          <div style="font-size:24px; color:var(--text-muted); margin-bottom:10px;">Waiting for a trip...</div>
-          <div class="text-sm text-muted">Automatic trip detection requires **Auto-Detect** to be enabled in Settings.</div>
-      </div>
-
       <button class="btn-action" id="manualTripButton" onclick="toggleManualTrip()" style="margin-top: 20px;">
           Start trip manually
       </button>
+      
+      <div class="auto-detect-section" id="autoDetectSection">
+        <div class="card">
+            <div class="setting-row" onclick="this.querySelector('.toggle-switch').classList.toggle('on'); saveDetectionSetting(this.querySelector('.toggle-switch'))" style="border-bottom:none; padding:0;">
+              <div class="setting-icon-container"><span class="setting-icon-emoji">🧭</span></div>
+              <div style="flex:1;">
+                <div class="text-sm font-bold">Auto-Detect Trips</div>
+                <div style="font-size:11px;" class="text-muted" id="detectionStatusToday">Motion & GPS sensors</div>
+              </div>
+              <div class="toggle-switch" id="detectionToggleToday"></div>
+            </div>
+        </div>
+      </div>
       
       <div style="height: 60px;"></div> </div>
 
@@ -468,15 +484,15 @@
           <span style="color:var(--text-muted)">›</span>
         </div>
       </div>
-
+      
       <div class="card">
-        <div class="setting-row" onclick="this.querySelector('.toggle-switch').classList.toggle('on'); saveDetectionSetting(this.querySelector('.toggle-switch'))">
-          <div class="setting-icon-container"><span class="setting-icon-emoji">🧭</span></div>
+        <div class="setting-row" onclick="openPrivacyModal()">
+          <div class="setting-icon-container" style="background:var(--success);"><span class="setting-icon-emoji">🔒</span></div>
           <div style="flex:1;">
-            <div class="text-sm font-bold">Auto-Detect Trips</div>
-            <div style="font-size:11px;" class="text-muted" id="detectionStatus">Motion & GPS sensors</div>
+            <div class="text-sm font-bold">On-Device Privacy</div>
+            <div style="font-size:11px;" class="text-muted">Security and Data Policy</div>
           </div>
-          <div class="toggle-switch" id="detectionToggle"></div>
+          <span style="color:var(--text-muted)">›</span>
         </div>
         
         <div class="setting-row" onclick="toggleTheme(this.querySelector('.toggle-switch'))" style="border-bottom:none;">
@@ -518,6 +534,18 @@
     </button>
   </div>
 
+</div>
+
+<div class="modal-overlay" id="modal-privacy" onclick="if(event.target===this) closeModal('modal-privacy')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;">
+        <span style="font-size:48px; display:block; margin-bottom:10px;">🔒</span>
+        <h3 style="margin-top:0;">On-Device Privacy</h3>
+    </div>
+    <div class="text-sm text-muted">This is an on-device app. All calculation, tracking, and information always stay on your phone. We do not save your data anywhere, so once you delete the QuickTrip webapp, the information is not recoverable.</div>
+    <button class="btn-action" onclick="closeModal('modal-privacy')">Got it!</button>
+  </div>
 </div>
 
 <div class="modal-overlay" id="modal-permissions">
@@ -572,32 +600,24 @@
     <div class="modal-handle"></div>
     <h3>Fuel Price Source</h3>
     <p class="text-sm text-muted">Choose how QuickTrip calculates your trip costs.</p>
-    
-    <label class="text-sm text-muted" style="margin-top:0; display:block;">Fuel Type</label>
-    <div class="fuel-option-group">
-      <div id="option-petrol" class="fuel-option active" onclick="setFuelType('Petrol')">Petrol</div>
-      <div id="option-diesel" class="fuel-option" onclick="setFuelType('Diesel')">Diesel</div>
-    </div>
-    
     <div class="fuel-option-group">
       <div id="option-live" class="fuel-option active" onclick="setFuelSource('live')">Live Stations (Avg)</div>
       <div id="option-fixed" class="fuel-option" onclick="setFuelSource('fixed')">Fixed Price</div>
     </div>
-    
     <div id="live-detail">
       <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span class="text-sm text-muted" id="liveAverageLabel">Local Average (<span id="liveRadius">5</span> mi radius)</span>
-        <span class="text-mono font-bold" style="color:var(--accent-primary);" id="livePriceDisplay">£--.--/L</span>
+        <span class="text-sm text-muted">Local Average (5 mile radius)</span>
+        <span class="text-mono font-bold" style="color:var(--accent-primary);">£1.27/L</span>
       </div>
       <div class="text-sm text-muted" style="border-top:1px solid var(--glass-border); padding-top:10px;">
-        <span id="liveSourceDetail">Fetching current prices...</span>
+        Data from Shell (£1.30), BP (£1.28), Esso (£1.23).
       </div>
     </div>
     <div id="fixed-input" style="display:none;">
       <label class="text-sm text-muted">Enter Price per Litre</label>
       <div class="input-group">
         <span>£</span>
-        <input type="number" id="inputFixedPrice" value="1.55" min="0.5" step="0.01">
+        <input type="number" id="inputFixedPrice" value="1.27" min="0.5" step="0.01">
         <span>/L</span>
       </div>
     </div>
@@ -611,28 +631,17 @@
     carName: "Audi A3",
     mpg: 44,
     budget: 200,
-    fuelPrice: 1.55, // Updated default price
+    fuelPrice: 1.27,
     fuelSource: 'live',
-    fuelType: 'Petrol', // NEW: Default fuel type
     trips: [], 
     permissionsGranted: false,
-    detectionEnabled: false, 
+    detectionEnabled: false, // OFF by default as requested
     isLightMode: false,
+    privacySeen: false, // NEW: Track if the privacy modal has been shown
   };
   
-  // NEW: Mock Data for Simulation (Near London, UK)
-  // *** IN A REAL APP: REPLACE THIS MOCK DATA WITH A REAL API FETCH ***
-  const MOCK_GPS_COORDS = { lat: 51.5074, lon: -0.1278 }; 
-  const MOCK_FUEL_STATIONS = [
-    { name: "Shell (MOCK)", lat: 51.515, lon: -0.135, pricePetrol: 1.559, priceDiesel: 1.609 },
-    { name: "BP (MOCK)", lat: 51.505, lon: -0.115, pricePetrol: 1.539, priceDiesel: 1.589 },
-    { name: "Esso (MOCK)", lat: 51.520, lon: -0.140, pricePetrol: 1.579, priceDiesel: 1.629 },
-    { name: "Tesco (MOCK)", lat: 51.510, lon: -0.120, pricePetrol: 1.529, priceDiesel: 1.579 },
-    { name: "Sainsbury's (MOCK)", lat: 51.490, lon: -0.100, pricePetrol: 1.589, priceDiesel: 1.639 },
-  ];
-  
   let state = {};
-  const screenArea = document.querySelector('.screen-area'); 
+  const screenArea = document.querySelector('.screen-area'); // Get the element once
 
   // --- MOTION DETECTION VARIABLES ---
   let isDetectingMotion = false;
@@ -746,8 +755,14 @@
     updateDotPattern(); // Initialize dot pattern with correct theme color
     initCornerMesh(); // Initialize the new corner mesh
     updateUI();
-    // Removed checkAndRequestPermissions() call to prevent modal on startup
     initMotionDetection(); 
+    
+    // NEW: Show privacy modal if it hasn't been seen
+    if (!state.privacySeen) {
+        openPrivacyModal();
+        state.privacySeen = true;
+        saveStateToLocalStorage();
+    }
   });
   
   // --- Function to fix the dynamic dot pattern background ---
@@ -864,7 +879,7 @@
   }
 
 
-  // --- MANUAL TRIP FUNCTIONS (NEW) ---
+  // --- MANUAL TRIP FUNCTIONS (UPDATED FOR TOGGLE) ---
 
   function toggleManualTrip() {
     if (isManualTripActive) {
@@ -912,7 +927,7 @@
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Stop trip';
     button.classList.add('stop-active');
-    document.getElementById('waitingCard').style.display = 'none';
+    document.getElementById('autoDetectSection').classList.add('hidden'); // NEW: Hide auto-detect toggle
     
     // Activate dot mesh animation and show toast
     screenArea.classList.add('motion-active'); 
@@ -938,7 +953,7 @@
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Start trip manually';
     button.classList.remove('stop-active');
-    document.getElementById('waitingCard').style.display = 'block';
+    document.getElementById('autoDetectSection').classList.remove('hidden'); // NEW: Show auto-detect toggle
 
     // 3. Calculate Trip Data
     const durationMs = Date.now() - manualTripStartTime;
@@ -1008,66 +1023,6 @@
     return fuelUsedLiters * state.fuelPrice;
   }
 
-  // --- NEW FUEL PRICE LOGIC ---
-
-  /**
-   * Fetches (Mocks) live fuel prices, calculates the average of the 3 nearest,
-   * and updates the modal UI elements.
-   * @param {string} fuelType - 'Petrol' or 'Diesel'
-   */
-  async function fetchAndCalculateLiveAverage(fuelType) {
-    const livePriceDisplay = document.getElementById('livePriceDisplay');
-    const liveSourceDetail = document.getElementById('liveSourceDetail');
-    livePriceDisplay.textContent = '£--.--/L';
-    liveSourceDetail.textContent = 'Calculating nearest stations...';
-    
-    // ------------------------------------------------------------------------------------------
-    // NOTE: In a production app, the following block is where you would get the real GPS
-    // and replace the MOCK_FUEL_STATIONS fetch with real API calls to public retailer data.
-    // ------------------------------------------------------------------------------------------
-    let currentLat = MOCK_GPS_COORDS.lat;
-    let currentLon = MOCK_GPS_COORDS.lon;
-    const fetchedStations = MOCK_FUEL_STATIONS;
-    // ------------------------------------------------------------------------------------------
-
-    // 1. Determine which price key to use
-    const fuelPriceKey = fuelType === 'Petrol' ? 'pricePetrol' : 'priceDiesel';
-    
-    // 2. Calculate Distances and Prepare Data
-    const stationsWithDistance = fetchedStations.map(station => {
-      const distance = calculateDistance({lat: currentLat, lon: currentLon}, {lat: station.lat, lon: station.lon});
-      return {
-        ...station,
-        distance,
-        price: station[fuelPriceKey]
-      };
-    });
-
-    // 3. Sort and Select the 3 Nearest Stations (within a 5-mile radius)
-    stationsWithDistance.sort((a, b) => a.distance - b.distance);
-    const nearestStations = stationsWithDistance
-      .filter(s => s.distance <= 5)
-      .slice(0, 3); 
-
-    // 4. Calculate Average Price
-    if (nearestStations.length === 0) {
-      livePriceDisplay.textContent = '£N/A';
-      liveSourceDetail.textContent = `No ${fuelType} stations found within 5 miles of mock location.`;
-      return 0; 
-    }
-
-    const totalPrice = nearestStations.reduce((sum, s) => sum + s.price, 0);
-    const averagePrice = totalPrice / nearestStations.length;
-
-    // 5. Update Modal UI
-    const detailText = nearestStations.map(s => `${s.name} (£${s.price.toFixed(3)})`).join(', ');
-    
-    livePriceDisplay.textContent = `£${averagePrice.toFixed(2)}/L`;
-    liveSourceDetail.textContent = `Data from ${detailText}. Avg calculated from ${nearestStations.length} station(s).`;
-    
-    return averagePrice;
-  }
-
   // --- PERMISSION LOGIC ---
   function grantPermissions() {
     // 1. Ask for Geolocation (GPS)
@@ -1088,7 +1043,7 @@
            initMotionDetection(); 
            // If permission was granted, and detection was meant to be on, turn it on now.
            if (state.detectionEnabled) {
-               document.getElementById('detectionToggle').classList.add('on');
+               document.getElementById('detectionToggleToday').classList.add('on');
            }
         } else {
            updateMotionStatus('Motion Sensor Denied. Detection compromised.', 4000);
@@ -1101,7 +1056,7 @@
       initMotionDetection();
       // If permission was granted, and detection was meant to be on, turn it on now.
       if (state.detectionEnabled) {
-          document.getElementById('detectionToggle').classList.add('on');
+          document.getElementById('detectionToggleToday').classList.add('on');
       }
       updateUI();
     }
@@ -1173,17 +1128,26 @@
     document.getElementById('headerCarName').innerText = state.carName;
     document.getElementById('headerMPG').innerText = state.mpg;
     document.getElementById('settingsCarDetail').innerText = `${state.carName} • ${state.mpg} MPG`;
-    // UPDATED: Include fuel type in header display
-    document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L (${state.fuelType.charAt(0)})`; // P or D
+    document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L`;
     
-    // Detection Toggle State
-    const detectionToggle = document.getElementById('detectionToggle');
-    if (state.detectionEnabled) {
-        detectionToggle.classList.add('on');
-        document.getElementById('detectionStatus').innerText = state.permissionsGranted ? "Motion & GPS sensors active" : "Waiting for permissions";
+    // Detection Toggle State (Updated to use the new ID)
+    const detectionToggleToday = document.getElementById('detectionToggleToday');
+    const autoDetectSection = document.getElementById('autoDetectSection');
+    
+    // Check if a manual trip is active (Hides the section)
+    if (isManualTripActive) {
+        autoDetectSection.classList.add('hidden');
     } else {
-        detectionToggle.classList.remove('on');
-        document.getElementById('detectionStatus').innerText = "Detection is manually paused";
+        autoDetectSection.classList.remove('hidden');
+    }
+    
+    // Update the visual toggle and status text
+    if (state.detectionEnabled) {
+        detectionToggleToday.classList.add('on');
+        document.getElementById('detectionStatusToday').innerText = state.permissionsGranted ? "Motion & GPS sensors active" : "Waiting for permissions";
+    } else {
+        detectionToggleToday.classList.remove('on');
+        document.getElementById('detectionStatusToday').innerText = "Detection is manually paused";
     }
 
     // Today Calculation
@@ -1247,7 +1211,7 @@
       list.innerHTML = `
         <div class="card" style="text-align:center; padding: 40px 20px;">
             <div style="font-size:20px; color:var(--text-muted); margin-bottom:10px;">No Trips Recorded Yet</div>
-            <div class="text-sm text-muted">Please ensure Auto-Detect is enabled in Settings, then use a car to drive and calculate the cost of your trips.</div>
+            <div class="text-sm text-muted">Please ensure Auto-Detect is enabled on the Today tab, then use a car to drive and calculate the cost of your trips.</div>
         </div>
       `;
       return;
@@ -1297,9 +1261,13 @@
     return `${hrs}h ago`;
   }
 
-  // --- MODALS (Car, Budget, Fuel) ---
+  // --- MODALS (Car, Budget, Fuel, Privacy) ---
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
   
+  function openPrivacyModal() {
+      document.getElementById('modal-privacy').classList.add('open');
+  }
+
   function openCarModal() {
     document.getElementById('inputCarName').value = state.carName;
     document.getElementById('sliderMPG').value = state.mpg;
@@ -1328,36 +1296,9 @@
     updateUI();
   }
 
-  // NEW: Handler for Petrol/Diesel selection
-  function setFuelType(type) {
-    document.getElementById('option-petrol').classList.remove('active');
-    document.getElementById('option-diesel').classList.remove('active');
-    
-    if (type === 'Petrol') {
-      document.getElementById('option-petrol').classList.add('active');
-    } else {
-      document.getElementById('option-diesel').classList.add('active');
-    }
-    
-    state.fuelType = type;
-    
-    // If live source is active, re-calculate the average immediately
-    if (state.fuelSource === 'live') {
-      fetchAndCalculateLiveAverage(state.fuelType);
-    }
-  }
-
   function openFuelModal() {
-    // 1. Initialize Fuel Type selector visuals
-    setFuelType(state.fuelType);
-    
-    // 2. Initialize Source selector and trigger data fetch if needed
     setFuelSource(state.fuelSource);
-    
-    // 3. Set the fixed price input value
     document.getElementById('inputFixedPrice').value = state.fuelPrice.toFixed(2);
-    
-    // 4. Open the modal
     document.getElementById('modal-fuel-price').classList.add('open');
   }
 
@@ -1371,10 +1312,6 @@
       document.getElementById('option-live').classList.add('active');
       document.getElementById('live-detail').style.display = 'block';
       state.fuelSource = 'live';
-      
-      // NEW: When switching to LIVE, trigger the fetch
-      fetchAndCalculateLiveAverage(state.fuelType);
-      
     } else {
       document.getElementById('option-fixed').classList.add('active');
       document.getElementById('fixed-input').style.display = 'block';
@@ -1382,27 +1319,15 @@
     }
   }
 
-  async function saveFuelSettings() {
-    let newPrice;
-    
+  function saveFuelSettings() {
     if (state.fuelSource === 'fixed') {
       const fixedPrice = parseFloat(document.getElementById('inputFixedPrice').value);
       if (!isNaN(fixedPrice) && fixedPrice > 0) {
-        newPrice = fixedPrice;
+        state.fuelPrice = fixedPrice;
       }
     } else {
-      // NEW: Recalculate and use the live average as the final price
-      newPrice = await fetchAndCalculateLiveAverage(state.fuelType);
+      state.fuelPrice = 1.27; 
     }
-    
-    if (newPrice > 0) {
-        state.fuelPrice = newPrice;
-        updateMotionStatus(`Fuel Price set: £${newPrice.toFixed(2)}/L (${state.fuelType})`, 2500);
-    } else {
-        // If live price calculation failed to find anything (newPrice === 0), keep the old price and notify.
-        updateMotionStatus(`Could not find Live Price for ${state.fuelType}. Keeping old value.`, 3000);
-    }
-    
     saveStateToLocalStorage();
     closeModal('modal-fuel-price');
     updateUI();
