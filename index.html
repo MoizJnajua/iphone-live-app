@@ -356,7 +356,7 @@
       <div class="island-content">
         <div style="display:flex;align-items:center;gap:6px;">
           <div style="width:8px;height:8px;background:var(--success);border-radius:50%;box-shadow:0 0 8px var(--success);"></div>
-          <span id="islandStatusText">TRIP IN PROGRESS</span>
+          <span id="islandStatusText">TRIP IN PROCESS</span>
         </div>
         <span class="text-mono" id="recTimer">00:00</span>
       </div>
@@ -831,9 +831,8 @@
     
     toastTimeout = setTimeout(() => {
       toastEl.classList.remove('show');
-      if (status !== 'Moving Car' && status !== 'Shaking') {
-        screenArea.classList.remove('motion-active'); 
-      }
+      // FIX: Removed the logic that prematurely removes 'motion-active' here, 
+      // as it was breaking the manual trip animation persistence.
     }, duration);
   }
 
@@ -908,10 +907,7 @@
       navigator.geolocation.clearWatch(geolocationWatchId);
     }
 
-    // 2. Update UI
-    screenArea.classList.remove('motion-active'); 
-    document.getElementById('dynamicPill').classList.remove('active');
-
+    // 2. Update button UI immediately
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Start trip manually';
     button.classList.remove('stop-active');
@@ -943,6 +939,12 @@
     // 5. Save and Refresh
     saveStateToLocalStorage();
     updateUI();
+    
+    // 6. NEW: Smoothly hide the Dynamic Island and Dot Mesh after a slight delay (0.5s)
+    setTimeout(() => {
+        document.getElementById('dynamicPill').classList.remove('active');
+        screenArea.classList.remove('motion-active'); 
+    }, 500); 
   }
 
   function updateTripTimer() {
