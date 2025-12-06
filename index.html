@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QuickTrip - Live Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      color: #333;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    header h1 {
+      font-family: 'Gochi Hand', cursive;
+      font-size: 48px;
+      margin: 0;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    header p {
+      font-size: 18px;
+      color: #fff;
+      margin-top: 10px;
+    }
+    .feature {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .feature img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .feature h2 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .feature p {
+      font-size: 16px;
+      color: #555;
+      text-align: center;
+    }
+    @media (min-width: 768px) {
+      .feature {
+        flex-direction: row;
+      }
+      .feature:nth-child(even) {
+        flex-direction: row-reverse;
+      }
+      .feature img {
+        margin-right: 20px;
+        margin-left: 0;
+      }
+      .feature:nth-child(even) img {
+        margin-left: 20px;
+        margin-right: 0;
+      }
+      .feature div {
+        max-width: 600px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>QuickTrip - Live Edition</h1>
+      <p>Your ultimate travel companion, now live and interactive!</p>
+    </header>
+
+    <section class="feature">
+      <img src="https://i.imgur.com/Rgyygz4.png" alt="Intuitive Interface">
+      <div>
+        <h2>Intuitive Interface</h2>
+        <p>Navigate your travels with ease using our clean and user-friendly interface. Plan, schedule, and embark on your next adventure with just a few taps.</p>
+      </div>
+    </section>
+
+    <section class="feature">
+      <img src="https://i.imgur.com/wi1Y6Zi.png" alt="Real-time Updates">
+      <div>
+        <h2>Real-time Updates</h2>
+        <p>Stay updated with live travel information, ensuring you never miss a beat on your journey. From flight times to local events, everything is at your fingertips.</p>
+      </div>
+    </section>
+
+    <section class="feature">
+      <img src="https://i.imgur.com/WVQyfXa.png" alt="Seamless Integration">
+      <div>
+        <h2>Seamless Integration</h2>
+        <p>Connect with your favorite travel services effortlessly. QuickTrip integrates with booking platforms, maps, and social media to provide a unified travel experience.</p>
+      </div>
+    </section>
+
+    <section class="feature">
+      <img src="https://i.imgur.com/nFy5fXk.png" alt="Personalized Recommendations">
+      <div>
+        <h2>Personalized Recommendations</h2>
+        <p>Discover hidden gems and personalized travel suggestions tailored to your preferences. QuickTrip learns from your habits to offer the best travel advice.</p>
+      </div>
+    </section>
+
+    <section class="feature">
+      <img src="https://i.imgur.com/5f5Q9iP.png" alt="Secure and Reliable">
+      <div>
+        <h2>Secure and Reliable</h2>
+        <p>Your data is protected with industry-standard security protocols. Travel with peace of mind knowing your information is safe with QuickTrip.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
