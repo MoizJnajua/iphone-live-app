@@ -333,6 +333,44 @@
       font-family:"JetBrains Mono", monospace;
     }
 
+    /* Info button + fuel station rows */
+    .info-button {
+      background: none;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .info-button:active {
+      transform: scale(0.95);
+      background: rgba(255,255,255,0.08);
+    }
+    body.light-mode .info-button:active {
+      background: rgba(0,0,0,0.06);
+    }
+
+    .fuel-station-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .fuel-station-row:last-child {
+      border-bottom: none;
+    }
+    .fuel-station-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
     /* --- Other Styles --- */
     .text-mono { font-family: "JetBrains Mono", monospace; }
     .text-hand { font-family: "Gochi Hand", cursive; }
@@ -794,12 +832,13 @@
       <div id="option-fixed" class="fuel-option" onclick="setFuelSource('fixed')">Fixed Price</div>
     </div>
     <div id="live-detail">
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <span class="text-sm text-muted">Local Average (<span id="live-radius">5</span> mile radius)</span>
         <span class="text-mono font-bold" style="color:var(--accent-primary);" id="live-price-display">£1.27/L</span>
       </div>
-      <div class="text-sm text-muted" style="border-top:1px solid var(--glass-border); padding-top:10px;">
-        <span id="live-station-detail">Data from Shell (£1.30), BP (£1.28), Esso (£1.23).</span>
+      <div class="text-sm text-muted" style="border-top:1px solid var(--glass-border); padding-top:10px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <span id="live-station-detail">Data from nearby stations.</span>
+        <button class="info-button" type="button" onclick="openFuelStationsModal()">ℹ️</button>
       </div>
     </div>
     <div id="fixed-input" style="display:none;">
@@ -811,6 +850,19 @@
       </div>
     </div>
     <button class="btn-action" onclick="saveFuelSettings()">Apply</button>
+  </div>
+</div>
+
+<!-- NEW: Fuel stations detail drawer -->
+<div class="modal-overlay" id="modal-fuel-stations" onclick="if(event.target===this) closeModal('modal-fuel-stations')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3 style="margin-top:0;">Stations used for live price</h3>
+    <p class="text-sm text-muted" id="fuelStationSummaryText">
+      Based on the nearest 3 fuel stations to your current location.
+    </p>
+    <div id="fuelStationsList"></div>
+    <button class="btn-action" onclick="closeModal('modal-fuel-stations')">Close</button>
   </div>
 </div>
 
@@ -873,8 +925,17 @@
     isLightMode: false,
     privacySeen: false,
     installPromptSeen: false,
+    // Live fuel cache (for stable behaviour when location doesn't change)
+    liveFuelPrice: 1.27,
+    liveFuelStations: [],
+    liveFuelLat: null,
+    liveFuelLon: null,
+    liveFuelUpdatedAt: null
   };
   
+  const DEFAULT_LOCATION = { lat: 51.5074, lon: -0.1278 }; // Fallback: central London
+  const LIVE_LOCATION_DISTANCE_THRESHOLD_MILES = 0.25;
+
   let state = {};
   const screenArea = document.querySelector('.screen-area'); 
 
@@ -916,7 +977,7 @@
       state = { ...DEFAULT_STATE, ...savedState };
     } catch (err) {
       console.error("Error loading state, using defaults:", err);
-      state = DEFAULT_STATE;
+      state = { ...DEFAULT_STATE };
     }
   }
 
@@ -1290,29 +1351,115 @@
     return fuelUsedLiters * state.fuelPrice;
   }
   
-  async function fetchLiveFuelPrice() {
-      if (!state.permissionsGranted) {
-          return { price: 1.27, detail: "Cannot get live price: Permissions missing." };
-      }
-      
-      const lat = lastPosition ? lastPosition.lat : 51.5074;
-      const lon = lastPosition ? lastPosition.lon : 0.1278;
-      
-      const seed = Math.floor(lat * 100) + Math.floor(lon * 100);
-      const basePrice = 1.20 + (seed % 100) / 1000;
-      const price = basePrice + Math.random() * 0.10;
+  // --- DETERMINISTIC "LIVE" FUEL PRICING (per location + day) ---
+  function hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
 
-      const stations = [
-          { name: "Shell", p: price + 0.03 },
-          { name: "BP", p: price + 0.01 },
-          { name: "Esso", p: price - 0.04 }
-      ];
-      
-      const detail = stations.map(s => `${s.name} (£${s.p.toFixed(2)})`).join(', ');
+  function generateFakePostcode(lat, lon, index) {
+    const base = hashString(`${lat.toFixed(3)}|${lon.toFixed(3)}|${index}`);
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const area1 = letters[base % 26];
+    const area2 = letters[(base >> 3) % 26];
+    const district = (base % 20) + 1;
+    const sector = (base >> 5) % 10;
+    const unit1 = letters[(base >> 7) % 26];
+    const unit2 = letters[(base >> 11) % 26];
+    return `${area1}${area2}${district} ${sector}${unit1}${unit2}`;
+  }
+
+  function generateFuelData(lat, lon) {
+    const brands = ['Shell', 'BP', 'Esso', 'Tesco', 'Sainsbury\'s', 'Morrisons'];
+    const dateKey = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const seedBase = hashString(`${lat.toFixed(3)}|${lon.toFixed(3)}|${dateKey}`);
+
+    const basePrice = 1.20 + (Math.abs(lat) % 0.05) + (Math.abs(lon) % 0.03); // around 1.20–1.28
+    function offset(idx) {
+      const n = (seedBase + idx * 37) % 1000;
+      return (n / 10000) - 0.03; // -0.03 .. +0.07
+    }
+
+    const stations = [];
+    for (let i = 0; i < 3; i++) {
+      const brand = brands[(seedBase + i * 13) % brands.length];
+      const price = basePrice + offset(i);
+      const distance = 0.4 + ((seedBase % 7) * 0.1) + i * 0.3;
+      const postcode = generateFakePostcode(lat, lon, i);
+      stations.push({
+        name: brand,
+        price: parseFloat(price.toFixed(2)),
+        postcode,
+        distance: parseFloat(distance.toFixed(1))
+      });
+    }
+
+    const avg = stations.reduce((sum, s) => sum + s.price, 0) / stations.length;
+    return { price: parseFloat(avg.toFixed(2)), stations };
+  }
+
+  function stationsSummary(stations) {
+    if (!stations || !stations.length) {
+      return 'Enable location to see live prices from nearby stations.';
+    }
+    const parts = stations.map(s => `${s.name} (£${s.price.toFixed(2)})`);
+    return `Data from ${parts.join(', ')}.`;
+  }
+
+  async function fetchLiveFuelPrice(forceRefresh = false) {
+      if (!state.permissionsGranted) {
+          return {
+              price: state.liveFuelPrice || state.fuelPrice,
+              stations: state.liveFuelStations || [],
+              detail: stationsSummary(state.liveFuelStations || [])
+          };
+      }
+
+      const basePos = lastPosition
+          ? { lat: lastPosition.lat, lon: lastPosition.lon }
+          : (state.liveFuelLat != null && state.liveFuelLon != null
+                ? { lat: state.liveFuelLat, lon: state.liveFuelLon }
+                : { ...DEFAULT_LOCATION });
+
+      // If we have cached live data and the user hasn't really moved, reuse it.
+      if (!forceRefresh &&
+          state.liveFuelLat != null &&
+          state.liveFuelLon != null &&
+          state.liveFuelStations &&
+          state.liveFuelStations.length) {
+
+          const moved = calculateDistance(
+              { lat: state.liveFuelLat, lon: state.liveFuelLon },
+              basePos
+          );
+
+          if (moved < LIVE_LOCATION_DISTANCE_THRESHOLD_MILES) {
+              return {
+                  price: state.liveFuelPrice,
+                  stations: state.liveFuelStations,
+                  detail: stationsSummary(state.liveFuelStations)
+              };
+          }
+      }
+
+      // Otherwise, generate new live data for the current location (per day, per coords)
+      const generated = generateFuelData(basePos.lat, basePos.lon);
+      state.liveFuelPrice = generated.price;
+      state.liveFuelStations = generated.stations;
+      state.liveFuelLat = basePos.lat;
+      state.liveFuelLon = basePos.lon;
+      state.liveFuelUpdatedAt = Date.now();
+
+      saveStateToLocalStorage();
 
       return {
-          price: parseFloat(price.toFixed(2)),
-          detail: `Data from ${detail}.`
+          price: state.liveFuelPrice,
+          stations: state.liveFuelStations,
+          detail: stationsSummary(state.liveFuelStations)
       };
   }
 
@@ -1650,12 +1797,44 @@
         state.fuelPrice = fixedPrice;
       }
     } else {
-        const livePriceData = await fetchLiveFuelPrice();
-        state.fuelPrice = livePriceData.price;
+      const livePriceData = await fetchLiveFuelPrice(true);
+      state.fuelPrice = livePriceData.price;
     }
     saveStateToLocalStorage();
     closeModal('modal-fuel-price');
     updateUI();
+  }
+
+  function openFuelStationsModal() {
+    const listEl = document.getElementById('fuelStationsList');
+    listEl.innerHTML = '';
+
+    const stations = state.liveFuelStations || [];
+
+    if (!stations.length) {
+      listEl.innerHTML = `
+        <div class="text-sm text-muted" style="padding:8px 0;">
+          Live stations will appear here once we can detect your location.
+        </div>
+      `;
+    } else {
+      stations.forEach((s) => {
+        const row = document.createElement('div');
+        row.className = 'fuel-station-row';
+        row.innerHTML = `
+          <div>
+            <div style="font-weight:600; font-size:14px;">${s.name}</div>
+            <div class="fuel-station-meta">
+              ${s.postcode}${s.distance ? ` • ${s.distance.toFixed(1)} mi` : ''}
+            </div>
+          </div>
+          <div class="text-mono" style="font-weight:600;">£${s.price.toFixed(2)}/L</div>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    document.getElementById('modal-fuel-stations').classList.add('open');
   }
 </script>
 </body>
