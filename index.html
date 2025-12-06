@@ -5,6 +5,8 @@
   <title>QuickTrip - Live Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByeD0iMjAlIiBmaWxsPSIjMGE4NGZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI3MCUiIGZvbnQtZmFtaWx5PSJJbnRlciwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSI3MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmZmZmYiPlE8L3RleHQ+Cjwvc3ZnPg==">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -366,7 +368,7 @@
           <div class="setting-icon-container">
             <div class="theme-icon-container">
               <svg id="icon-moon" class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 0 0 0 21 12.79z"></path>
               </svg>
               <svg id="icon-sun" class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
@@ -503,7 +505,7 @@
   let lastSignificantMotionTime = 0;
   let lastToastStatus = '';
   let toastTimeout = null;
-  let lastToastTime = 0;
+  let lastToastTime = 0; // The time the toast was LAST SHOWN (used for quick shake debounce)
 
 
   function loadStateFromLocalStorage() {
@@ -546,7 +548,7 @@
     initMotionDetection(); // Start motion detection if permissions are already granted
   });
 
-  // --- MOTION DETECTION LOGIC (UPDATED) ---
+  // --- MOTION DETECTION LOGIC (UPDATED FOR REPEATED TOAST) ---
 
   function initMotionDetection() {
     if (state.detectionEnabled && state.permissionsGranted && !isDetectingMotion) {
@@ -575,13 +577,15 @@
     if (magnitude > MOTION_THRESHOLD) {
       lastSignificantMotionTime = now;
       
-      // Debounce the 'Shaking' toast display (only show if status is different or toast time expired)
-      if (lastToastStatus !== 'Shaking' && (now - lastToastTime > 2000)) {
+      // FIX: Show 'Shaking' every time, but apply a quick 500ms debounce
+      if (now - lastToastTime > 500) { 
         updateMotionStatus('Shaking');
-        lastToastStatus = 'Shaking';
+        // lastToastTime is updated inside updateMotionStatus
+        lastToastStatus = 'Shaking'; // Update internal status
       }
 
       // 2. Check for sustained motion (Simulated 'Moving Car' after 5 seconds of continuous motion)
+      // This is independent of the 'Shaking' toast debounce
       if (now - lastSignificantMotionTime >= MOVING_CAR_THRESHOLD) {
         if (lastToastStatus !== 'Moving Car') {
           updateMotionStatus('Moving Car', 5000);
@@ -590,9 +594,8 @@
       }
     } else {
       // If motion has settled (or is light movement) and more than 5s since last major shake,
-      // reset the status and allow the next shake to trigger immediately.
+      // reset the status internally.
        if (now - lastSignificantMotionTime > 5000 && lastToastStatus !== 'Steady') {
-           // updateMotionStatus('Steady - Awaiting Trip Start', 2000); // Too noisy, leave off unless needed
            lastToastStatus = 'Steady'; 
        }
     }
@@ -614,7 +617,12 @@
     toastEl.textContent = statusText;
     
     toastEl.classList.add('show');
-    lastToastTime = Date.now();
+    
+    // Only update lastToastTime for the 'Shaking' status to enforce the 500ms debounce
+    // This allows the 'Shaking' status to immediately interrupt 'Moving Car' status.
+    if (status === 'Shaking') {
+        lastToastTime = Date.now(); 
+    }
     
     toastTimeout = setTimeout(() => {
       toastEl.classList.remove('show');
