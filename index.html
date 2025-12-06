@@ -445,9 +445,15 @@
           Start trip manually
       </button>
       
-      <div id="todayDetectionToggleContainer" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0 12px 0;">
-          <div class="text-sm font-bold" onclick="this.closest('#todayDetectionToggleContainer').querySelector('.toggle-switch').click();">Auto-Detect Trips</div>
-          <div class="toggle-switch" id="todayDetectionToggle" onclick="saveDetectionSetting(this)"></div>
+      <div class="card" id="todayDetectionCard" style="margin-top: 16px;">
+          <div class="setting-row" onclick="this.querySelector('.toggle-switch').click();" style="border-bottom:none; padding: 0;">
+              <div class="setting-icon-container" style="background:var(--success);"><span class="setting-icon-emoji">🧭</span></div>
+              <div style="flex:1;">
+                  <div class="text-sm font-bold">Auto-Detect Trips</div>
+                  <div style="font-size:11px;" class="text-muted" id="todayDetectionStatus">Motion & GPS sensors</div>
+              </div>
+              <div class="toggle-switch" id="todayDetectionToggle" onclick="saveDetectionSetting(this)"></div>
+          </div>
       </div>
       
       <div style="height: 60px;"></div> </div>
@@ -523,14 +529,13 @@
       </div>
 
       <div class="card">
-        <div class="setting-row" onclick="this.querySelector('.toggle-switch').classList.toggle('on');
-          saveDetectionSetting(this.querySelector('.toggle-switch'))">
+        <div class="setting-row" onclick="this.querySelector('.toggle-switch').click();">
           <div class="setting-icon-container"><span class="setting-icon-emoji">🧭</span></div>
           <div style="flex:1;">
             <div class="text-sm font-bold">Auto-Detect Trips</div>
             <div style="font-size:11px;" class="text-muted" id="detectionStatus">Motion & GPS sensors</div>
           </div>
-          <div class="toggle-switch" id="detectionToggle"></div>
+          <div class="toggle-switch" id="detectionToggle" onclick="saveDetectionSetting(this)"></div>
         </div>
         
         <div class="setting-row" onclick="toggleTheme(this.querySelector('.toggle-switch'))" style="border-bottom:none;">
@@ -549,7 +554,7 @@
             <div class="text-sm font-bold">Light Mode</div>
             <div style="font-size:11px;" class="text-muted">Appearance</div>
           </div>
-          <div class="toggle-switch" id="themeToggle"></div>
+          <div class="toggle-switch" id="themeToggle" onclick="toggleTheme(this)"></div>
         </div>
       </div>
     </div>
@@ -591,7 +596,7 @@
   <div class="modal-overlay" id="modal-permissions" onclick="if(event.target===this) closeModal('modal-permissions')">
     <div class="modal-sheet" style="padding-top: 12px;">
       <div class="modal-handle"></div>
-      <h3 style="margin-bottom: 8px;">Permissions Required</h3>
+      <h3>Permissions Required</h3>
       <p class="text-sm text-muted">QuickTrip needs permission to access your device's location and motion sensors.</p>
       <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main);">
         <li>**Location (GPS):** Required for route and distance calculation.</li>
@@ -684,10 +689,10 @@
     fuelPrice: 1.27,
     budget: 200,
     isLightMode: false,
-    detectionEnabled: true,
+    detectionEnabled: false, // UPDATED: Default is now OFF
     permissionsGranted: false,
     trips: [],
-    privacyAcknowledged: false, // NEW: For Change 1
+    privacyAcknowledged: false, 
   };
 
   // --- MANUAL TRIP STATE (NEW) ---
@@ -943,6 +948,8 @@
       toastEl.style.backgroundColor = 'var(--success)';
     } else if (status.includes('Permission')) {
       toastEl.style.backgroundColor = 'var(--danger)';
+    } else if (status.includes('technical error')) { // NEW: Handle the specific error message less alarmingly
+        toastEl.style.backgroundColor = 'var(--danger)';
     } else {
       toastEl.style.backgroundColor = 'var(--success)';
       statusText = status;
@@ -1000,7 +1007,6 @@
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Stop trip';
     button.classList.add('stop-active');
-    // REMOVED: document.getElementById('waitingCard').style.display = 'none';
 
     // Activate dot mesh animation and show toast
     screenArea.classList.add('motion-active');
@@ -1028,7 +1034,6 @@
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Start trip manually';
     button.classList.remove('stop-active');
-    // document.getElementById('waitingCard').style.display = 'block'; // Not needed anymore
     document.getElementById('headerRow').classList.remove('hidden'); // Show header again
 
     // 3. Calculate final distance and cost
@@ -1110,8 +1115,11 @@
                 updateUI();
               })
               .catch(error => {
-                console.error("Motion permission error:", error);
-                updateMotionStatus('Error requesting Motion permission.', 5000);
+                // FIX: Less alarming message for a technical error during the request
+                console.error("Motion permission request failed unexpectedly (browser restriction or internal error):", error);
+                updateMotionStatus('A technical error occurred during permission request.', 5000);
+                closeModal('modal-permissions');
+                updateUI();
               });
           } else {
             // Assume motion is implicitly available or not required if requestPermission is not available
@@ -1148,7 +1156,7 @@
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + tabId).classList.add('active');
     const header = document.getElementById('headerRow');
-    if(tabId === 'settings') {
+    if(tabId === 'settings' || tabId === 'insights') {
       header.classList.add('hidden');
     } else {
       header.classList.remove('hidden');
@@ -1211,18 +1219,21 @@
       document.getElementById('detectionStatus').innerText = "Detection is manually paused";
     }
 
-    // NEW: Today Toggle State & Visibility (for Change 3)
-    const todayToggleContainer = document.getElementById('todayDetectionToggleContainer');
+    // NEW/UPDATED: Today Toggle Card Visibility & State (for Change 3 & Mirroring)
+    const todayDetectionCard = document.getElementById('todayDetectionCard');
     const todayDetectionToggle = document.getElementById('todayDetectionToggle');
+    const todayDetectionStatus = document.getElementById('todayDetectionStatus');
 
     if (isManualTripActive) { 
-        todayToggleContainer.style.display = 'none'; // Hide when manual trip is active
+        todayDetectionCard.style.display = 'none'; // Hide when manual trip is active
     } else {
-        todayToggleContainer.style.display = 'flex'; // Show otherwise
+        todayDetectionCard.style.display = 'block'; // Show otherwise
         if (state.detectionEnabled) {
             todayDetectionToggle.classList.add('on');
+            todayDetectionStatus.innerText = state.permissionsGranted ? "Motion & GPS sensors active" : "Waiting for permissions";
         } else {
             todayDetectionToggle.classList.remove('on');
+            todayDetectionStatus.innerText = "Detection is manually paused";
         }
     }
 
@@ -1340,20 +1351,20 @@
   }
 
   function saveDetectionSetting(toggleEl) {
-    const isNowOn = toggleEl.classList.contains('on');
+    // Check the *target* state of the toggle, assuming this function is called on click
+    const isNowOn = !toggleEl.classList.contains('on');
 
     // Case 1: Toggling ON without permissions
     if (isNowOn && !state.permissionsGranted) {
-      // Revert the visual toggle and the internal state
-      toggleEl.classList.remove('on');
-      state.detectionEnabled = false; // It failed to turn on
+      // Revert the visual toggle (handled by updateUI later if permission fails)
       // Open the permission modal
       document.getElementById('modal-permissions').classList.add('open');
+      // Do not set state.detectionEnabled = true yet, as it's waiting for permission
       updateUI();
       return;
     }
     
-    // Case 2: Toggling OFF (isNowOn is false) OR Toggling ON with permissions (isNowOn is true)
+    // Case 2: Toggling OFF or Toggling ON with permissions
     state.detectionEnabled = isNowOn;
     saveStateToLocalStorage();
     initMotionDetection();
@@ -1413,7 +1424,7 @@
     initMotionDetection();
     updateUI();
     
-    // NEW: Show Privacy Modal on First Launch (for Change 1)
+    // NEW: Show Privacy Modal on First Launch (for Change 1 in previous request)
     if (!state.privacyAcknowledged) {
         document.getElementById('modal-privacy').classList.add('open');
     }
