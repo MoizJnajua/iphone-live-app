@@ -5,8 +5,7 @@
   <title>QuickTrip - Live Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByeD0iMjAlIiBmaWxsPSIjMGE4NDZmZiIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNzAlIiBmb250LWZhbWlseT0iSW50ZXIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIwIiBmb250LXdlaWdodD0iNzAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmZmZmIj5RPC90ZXh0Pgo8L3N2Zz4=">
-  
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByeD0iMjAlIiBmaWxsPSIjMGE4NDZmZiIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNzAlIiBmb250LWZhbWlseT0iSW50ZXIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIwIiBmb250LXdlaWdodD0iNzAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmZmZmIj5RPC90ZXh0Pgo8L3N2ZyA=">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -94,7 +93,6 @@
     .screen-area {
       width: 100vw;
       height: 100vh; /* Use 100% of the visual viewport */
-      background: var(--bg-app);
       position: fixed; /* Fixed position ensures it covers the whole viewport */
       top: 0; left: 0;
       overflow: hidden; 
@@ -401,6 +399,22 @@
         pointer-events: none;
         overflow: hidden;
     }
+    
+    /* NEW: iOS Share Icon Style for Tutorial (SVG-based) */
+    .ios-share-icon-container {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px; /* Slightly larger container */
+        height: 44px;
+        margin: 20px 0;
+    }
+    .ios-share-svg {
+        width: 32px; /* Size of the icon itself */
+        height: 32px;
+        stroke: var(--text-main);
+        stroke-width: 2; 
+    }
   </style>
 </head>
 <body class="">
@@ -467,7 +481,7 @@
       
       <div class="auto-detect-section" id="autoDetectSection">
         <div class="card">
-            <div class="setting-row" onclick="this.querySelector('.toggle-switch').classList.toggle('on'); saveDetectionSetting(this.querySelector('.toggle-switch'))" style="border-bottom:none; padding:0;">
+            <div class="setting-row" onclick="saveDetectionSetting(this.querySelector('.toggle-switch'))" style="border-bottom:none; padding:0;">
               <div class="setting-icon-container"><span class="setting-icon-emoji">🧭</span></div>
               <div style="flex:1;">
                 <div class="text-sm font-bold">Auto-Detect Trips</div>
@@ -590,6 +604,41 @@
 
 </div>
 
+<div class="modal-overlay" id="modal-install-tutorial" onclick="if(event.target===this) closeInstallTutorial()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;">
+        <span style="font-size:48px; display:block; margin-bottom:10px;">📲</span>
+        <h3 style="margin-top:0;">Get QuickTrip on your Home Screen!</h3>
+    </div>
+    <div class="text-sm text-muted" style="text-align:center;">
+        For the best performance, including seamless motion and GPS tracking, please install this web app to your Home Screen.
+    </div>
+    
+    <div style="text-align:center;">
+        <div class="ios-share-icon-container">
+            <svg class="ios-share-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        </div>
+    </div>
+    
+    <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main); text-align: left;">
+        <li>1. Tap the **Share icon** (<div style="display:inline-block; vertical-align:middle; width:20px; height:20px; margin:0 5px 0 0;">
+            <svg style="width:100%; height:100%; stroke-width:3;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        </div>) in your browser's toolbar.</li>
+        <li>2. Scroll down and select **"Add to Home Screen"**.</li>
+    </ul>
+    
+    <button class="btn-action" onclick="closeInstallTutorial()">I'll do it later</button>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-privacy" onclick="if(event.target===this) closeModal('modal-privacy')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -689,9 +738,10 @@
     fuelSource: 'live',
     trips: [], 
     permissionsGranted: false,
-    detectionEnabled: false, // OFF by default as requested
+    detectionEnabled: false, 
     isLightMode: false,
-    privacySeen: false, // NEW: Track if the privacy modal has been shown
+    privacySeen: false,
+    installPromptSeen: false, // NEW: Track if the install tutorial has been shown
   };
   
   let state = {};
@@ -748,6 +798,36 @@
     }
   }
   
+  // --- PWA/INSTALLATION LOGIC (NEW) ---
+  function isStandalonePWA() {
+      // Check for 'standalone' display mode (the primary indicator of an installed PWA)
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+      // Check for legacy iOS property (for older iPhones/iPads)
+      const isLegacyIOS = ('standalone' in window.navigator) && (window.navigator.standalone);
+
+      return isStandalone || isLegacyIOS;
+  }
+  
+  // NEW FUNCTION: Manages the display of the next modal (Privacy) in the sequence
+  function checkAndOpenNextModal() {
+      // 1. Show privacy modal if it hasn't been seen
+      if (!state.privacySeen) {
+          openPrivacyModal();
+          state.privacySeen = true; // Set state here as the modal is now presented
+          saveStateToLocalStorage();
+      }
+      
+      // No more modals to chain, so the sequence ends here.
+  }
+
+  function closeInstallTutorial() {
+      state.installPromptSeen = true;
+      saveStateToLocalStorage();
+      closeModal('modal-install-tutorial');
+      checkAndOpenNextModal(); // Chain to the next modal (Privacy)
+  }
+
   // --- DOT MESH C ANIMATION LOGIC (UPDATED FOR DYNAMIC COUNT) ---
   function initCornerMesh() {
     const meshEl = document.getElementById("cornerMesh");
@@ -805,7 +885,7 @@
     meshAnimationTimeout = requestAnimationFrame(animateCornerMesh);
   }
   
-  // --- INITIALIZATION ---
+  // --- INITIALIZATION (MODIFIED FOR MODAL CHAINING) ---
   document.addEventListener('DOMContentLoaded', () => {
     loadStateFromLocalStorage();
     if (state.isLightMode) {
@@ -818,12 +898,20 @@
     updateUI();
     initMotionDetection(); 
     
-    // NEW: Show privacy modal if it hasn't been seen
-    if (!state.privacySeen) {
-        openPrivacyModal();
-        state.privacySeen = true;
-        saveStateToLocalStorage();
+    // --- START INITIAL MODAL SEQUENCE ---
+    const installModalRequired = !isStandalonePWA() && !state.installPromptSeen;
+    
+    if (installModalRequired) {
+        // 1. Show Install Tutorial first (the info drawer)
+        setTimeout(() => {
+            document.getElementById('modal-install-tutorial').classList.add('open');
+        }, 500);
+        // The chain continues in closeInstallTutorial() -> checkAndOpenNextModal()
+    } else {
+        // 2. If install is not needed, proceed directly to the next modal (Privacy)
+        checkAndOpenNextModal();
     }
+    // --- END INITIAL MODAL SEQUENCE ---
   });
   
   // --- Function to fix the dynamic dot pattern background ---
@@ -1289,7 +1377,7 @@
   
   function saveDetectionSetting(toggleEl) {
     // The toggle has already been flipped by the inline onclick handler.
-    const isNowOn = toggleEl.classList.contains('on');
+    const isNowOn = toggleEl.classList.toggle('on'); // FIX: Added toggle here, as it was missing from the new button implementation!
     
     // Case 1: Toggling ON without permissions
     if (isNowOn && !state.permissionsGranted) {
@@ -1374,6 +1462,7 @@
   
   function openPrivacyModal() {
       document.getElementById('modal-privacy').classList.add('open');
+      // The state is set by the caller (checkAndOpenNextModal) only on initial open
   }
 
   function openCarModal() {
