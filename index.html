@@ -5,7 +5,7 @@
   <title>QuickTrip - Live Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByeD0iMjAlIiBmaWxsPSIjMGE4NGZmIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI3MCUiIGZvbnQtZmFtaWx5PSJJbnRlciwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMjAiIGZvbnQtd2VpZ2h0PSI3MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmZmZmYiPlE8L3RleHQ+Cjwvc3ZnPg==">
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiByeD0iMjAlIiBmaWxsPSIjMGE4NDZmZiIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNzAlIiBmb250LWZhbWlseT0iSW50ZXIsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIwIiBmb250LXdlaWdodD0iNzAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjZmZmZmZmIj5RPC90ZXh0Pgo8L3N2Zz4=">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,6 +43,10 @@
       --dotmesh-dot-color: #aef5d6;
       --dotmesh-glow-color-1: 16, 163, 127;
       --dotmesh-glow-color-2: 16, 163, 127;
+      
+      /* New UI Top Margin: Use env(safe-area-inset-top) for notch/status bar area */
+      --ui-top-offset: calc(14px + env(safe-area-inset-top, 0px));
+      --header-offset: calc(env(safe-area-inset-top, 0px));
     }
 
     /* --- LIGHT MODE VARIABLES --- */
@@ -81,13 +85,18 @@
       color: var(--text-main); 
       overflow: hidden; 
       transition: background 0.3s;
+      /* Enable edge-to-edge support for mobile devices */
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
-
+    
+    /* NEW: Adjust screen area for edge-to-edge and safe areas */
     .screen-area {
       width: 100vw;
-      height: 100vh;
+      height: 100vh; /* Use 100% of the visual viewport */
       background: var(--bg-app);
-      position: relative; 
+      position: fixed; /* Fixed position ensures it covers the whole viewport */
+      top: 0; left: 0;
       overflow: hidden; 
       transition: background 0.4s ease;
     }
@@ -112,8 +121,8 @@
     .mesh-anim-layer {
       position: absolute; inset: 0;
       /* Subtle gradient for the movement effect */
-      background: linear-gradient(135deg, rgba(var(--bg-mesh-1-rgb), 0.5) 0%, rgba(var(--bg-mesh-2-rgb), 0.5) 100%);
-      mix-blend-mode: overlay;
+      background: linear-gradient(135deg, rgba(var(--bg-mesh-1-rgb), 0.5) 0%, rgba(var(--bg-mesh-2-rgb), 0.5) 100%); 
+      mix-blend-mode: overlay; 
       animation: mesh-shift 40s linear infinite alternate; /* Default slow animation */
       opacity: 0.9;
       transition: animation-duration 0.5s, mix-blend-mode 0.5s;
@@ -122,812 +131,1284 @@
       --bg-mesh-1-rgb: 30, 27, 75; /* 1e1b4b */
       --bg-mesh-2-rgb: 15, 23, 42; /* 0f172a */
     }
+    
     body.light-mode .mesh-anim-layer {
-      --bg-mesh-1-rgb: 229, 229, 234; /* e5e5ea */
-      --bg-mesh-2-rgb: 255, 255, 255; /* ffffff */
-      mix-blend-mode: multiply;
-      opacity: 0.8;
+        --bg-mesh-1-rgb: 229, 229, 234; /* e5e5ea */
+        --bg-mesh-2-rgb: 255, 255, 255; /* ffffff */
     }
+
     @keyframes mesh-shift {
-      0% { background-position: 0% 0%; }
-      100% { background-position: 100% 100%; }
+      0% { transform: translate(0, 0) scale(1.0); }
+      100% { transform: translate(50px, 30px) scale(1.1); } /* Subtle translation and scale */
     }
     
-    /* --- Main App UI --- */
-    .app-main {
-      position: relative; 
-      z-index: 10;
-      height: 100%; width: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-    }
-    
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .app-title {
-      font-family: 'Gochi Hand', cursive;
-      font-size: 32px;
-      font-weight: 500;
-      color: var(--accent-primary);
-    }
-    
-    .settings-btn {
-      width: 44px; height: 44px;
-      background: var(--glass-surface);
-      border-radius: var(--radius-sm);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      transition: background 0.2s, transform 0.1s;
-    }
-    .settings-btn:active { transform: scale(0.95); background: var(--glass-surface-active); }
-    .settings-btn svg { width: 24px; height: 24px; color: var(--text-main); }
-    
-    /* --- Main Cards --- */
-    .card-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    
-    .card {
-      background: var(--glass-surface);
-      border-radius: var(--radius-card);
-      padding: 18px;
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      min-height: 120px;
-      transition: background 0.2s, transform 0.1s;
-    }
-    .card.active {
-      transform: scale(0.98);
-      background: var(--glass-surface-active);
+    /* --- Motion Active State --- */
+    .screen-area.motion-active .mesh-anim-layer {
+        animation-duration: 20s; /* Speed up the animation */
+        mix-blend-mode: color-dodge; /* More intense glowing effect */
+        opacity: 1;
     }
 
-    .card .icon {
-      width: 32px; height: 32px;
-      background: var(--accent-primary);
-      border-radius: 50%;
-      display: flex; justify-content: center; align-items: center;
-      margin-bottom: 10px;
-      flex-shrink: 0;
-    }
-    .card.fuel .icon { background: var(--success); }
-    .card.map .icon { background: var(--warning); }
-    .card.motion .icon { background: var(--danger); }
-
-    .card .label {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 4px;
+    /* --- Dot Mesh C STYLES (Corner Effect) --- */
+    .dotmesh-canvas {
+      position: fixed; inset: 0; 
+      pointer-events: none;
+      z-index: 100; /* Above all content, but below toast/modals */
+      opacity: 0; /* Initially hidden */
+      transition: opacity 0.3s ease-out;
     }
 
-    .card .value {
-      font-size: 24px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-
-    .card .unit {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-top: 4px;
+    .screen-area.motion-active .dotmesh-canvas {
+        opacity: 1; /* Visible on motion detection */
     }
     
-    /* Budget Card specific */
-    .card.budget {
-      grid-column: span 2;
-    }
-    .budget-gauge {
-      height: 8px;
-      background: var(--input-bg);
-      border-radius: 4px;
-      margin-top: 10px;
-      overflow: hidden;
-      position: relative;
-    }
-    .budget-fill {
-      height: 100%;
-      background: var(--success);
-      width: 50%; /* Default */
-      border-radius: 4px;
-      transition: width 0.3s ease, background 0.3s ease;
-    }
-
-    /* Map Card */
-    .map-card {
-      grid-column: span 2;
-      height: 200px;
-      padding: 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .map-header {
-      padding: 18px 18px 0;
-    }
-    .map-area {
-      flex-grow: 1;
-      position: relative;
-      margin: 18px;
-      margin-top: 0;
-      background: var(--map-bg);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      border: 1px solid var(--glass-border);
-    }
-    .road {
+    .dot {
       position: absolute;
-      background: var(--map-road);
-      border-radius: 4px;
+      width: 2px; height: 2px;
+      background: var(--dotmesh-dot-color);
+      opacity: 0.15;
+      animation: flicker 1.8s infinite ease-in-out;
+      border-radius: 50%; /* Make them circles */
     }
-    .road-v1 { top: 0; left: 50%; width: 4px; height: 100%; transform: translateX(-50%); }
-    .road-h1 { top: 50%; left: 0; height: 4px; width: 100%; transform: translateY(-50%); }
-    .car-marker {
-      position: absolute;
-      width: 12px; height: 12px;
-      background: var(--accent-primary);
-      border-radius: 50%;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 10px 2px var(--accent-primary);
-      transition: transform 0.1s linear; /* Smooth motion */
+    @keyframes flicker {
+      0% {opacity:0.1;}
+      50% {opacity:0.6;}
+      100% {opacity:0.1;}
     }
+    /* UPDATED: Dot Mesh Glow for Bright Edges, Faded Center */
+    .dotmesh-glow {
+      position:absolute;
+      inset:0;
+      background: radial-gradient(circle at center, transparent 40%, 
+                  rgba(var(--dotmesh-glow-color-1), 0.35) 70%, 
+                  rgba(var(--dotmesh-glow-color-2), 0.5) 100%);
+      pointer-events:none;
+      opacity: 0.5; /* Reduce overall intensity */
+      mix-blend-mode: screen;
+    }
+    /* --- END DOT MESH C STYLES --- */
 
-    /* Sensor Data Card (Full Width) */
-    .sensor-card {
-        grid-column: span 2;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
+    /* --- Dynamic Island (MEASURING TRIP) (UPDATED FOR EDGE-TO-EDGE) --- */
+    .dynamic-island-area { 
+        position: absolute; 
+        top: 0; left: 0; right: 0; 
+        height: var(--ui-top-offset); /* Control space needed for island and status bar */
+        z-index: 50; 
+        padding-top: var(--header-offset); /* Push down by status bar height */
+        padding-left: env(safe-area-inset-left, 20px);
+        padding-right: env(safe-area-inset-right, 20px);
+        background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); 
     }
-    .sensor-card .value {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 32px;
-        margin-top: 5px;
+    .island-pill {
+      width: 124px; height: 36px; background: #000; margin: 0 auto;
+      border-radius: 20px; display: flex; align-items: center; justify-content: center;
+      transition: width 0.3s cubic-bezier(0.3, 1.3, 0.3, 1), opacity 0.2s;
+      z-index: 60; opacity: 0; 
     }
+    .island-pill.active { width: 220px; padding: 0 16px; justify-content: space-between; opacity: 1; }
 
-    /* --- Modals --- */
-    .modal-overlay {
+    .island-content {
+      font-size: 12px; font-weight: 600; color: var(--success);
+      display: none; align-items: center; gap: 8px; width: 100%;
+    }
+    .island-pill.active .island-content { display: flex; justify-content: space-between; }
+    
+    .header-row { 
+        display: flex; justify-content: space-between; align-items: center; 
+        margin-top: 16px; 
+        padding: 0 20px; 
+        transition: opacity 0.3s ease, transform 0.3s ease; 
+        /* Position relative to the top of the viewport, under the dynamic-island-area */
+        position: absolute;
+        top: var(--ui-top-offset); 
+        left: 0; right: 0;
+        z-index: 50;
+    }
+    .header-row.hidden { opacity: 0; transform: translateY(-10px); pointer-events: none; }
+
+    .status-badge {
+      font-size: 13px; font-weight: 500; background: var(--glass-surface);
+      border: 1px solid var(--glass-border); color: var(--text-main);
+      padding: 6px 14px; border-radius: 99px; backdrop-filter: blur(12px);
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.2s;
+    }
+    .status-badge:active { transform: scale(0.95); }
+
+    /* --- Content (UPDATED for Edge-to-Edge) --- */
+    .content-scroll { 
+      position: absolute; 
+      top: 0; 
+      bottom: 85px; 
+      left: 0; 
+      right: 0; 
+      overflow-y: auto; 
+      padding: calc(var(--ui-top-offset) + 60px) 20px 20px; /* Adjust padding to clear header and island area */
+      scrollbar-width: none; 
+      z-index: 10; 
+    }
+    .content-scroll::-webkit-scrollbar { display: none; }
+    
+    /* --- TOASTER Notification --- */
+    .toast-message {
       position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(5px);
-      z-index: 100;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      top: calc(var(--ui-top-offset) + 30px); /* Position below the header area */
+      left: 50%;
+      transform: translate(-50%, 0);
+      background: rgba(48, 209, 88, 0.95); 
+      color: var(--text-inv);
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 1000;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.3s, transform 0.3s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      max-width: 90vw; 
+      white-space: nowrap;
     }
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    
-    .modal-content {
-      background: var(--bg-app);
-      border-radius: var(--radius-card);
-      width: 90%;
-      max-width: 400px;
-      padding: 25px;
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-      transform: translateY(20px);
-      opacity: 0;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      border: 1px solid var(--glass-border);
-    }
-    .modal-overlay.open .modal-content {
-      transform: translateY(0);
+    .toast-message.show {
       opacity: 1;
     }
 
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .modal-header h2 {
-      font-size: 20px;
-      font-weight: 700;
-      margin: 0;
-    }
-    .modal-header .close-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 24px;
-      cursor: pointer;
-      line-height: 1;
-      padding: 0;
-    }
-    
-    .modal-body {
-      color: var(--text-muted);
-      font-size: 15px;
-    }
-    
-    /* Input Styles */
-    .input-group {
-      margin-bottom: 15px;
-    }
-    .input-group label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-main);
-      margin-bottom: 8px;
-    }
-    .input-group input[type="number"],
-    .input-group input[type="range"] {
-      width: 100%;
-      padding: 10px 15px;
-      border: 1px solid var(--glass-border);
-      background: var(--input-bg);
-      color: var(--text-main);
-      border-radius: var(--radius-sm);
-      font-size: 16px;
-      box-shadow: none;
+    /* --- Slider UX Fix (New/Updated) --- */
+    .ios-slider {
       -webkit-appearance: none;
-      appearance: none;
-      transition: border-color 0.2s;
-    }
-    .input-group input[type="number"]:focus {
-      outline: none;
-      border-color: var(--accent-primary);
-    }
-    
-    /* Range slider custom styles (webkit) */
-    input[type=range] {
-      height: 30px;
-      -webkit-appearance: none;
-      margin: 10px 0;
-      width: 100%;
-    }
-    input[type=range]:focus {
-      outline: none;
-    }
-    input[type=range]::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 8px;
-      cursor: pointer;
+      width: 100%; 
+      height: 4px; 
       background: var(--input-bg);
       border-radius: 4px;
-      border: 1px solid var(--glass-border);
+      margin: 10px 0;
     }
-    input[type=range]::-webkit-slider-thumb {
-      box-shadow: 0px 0px 0px #000000;
-      border: 2px solid var(--text-main);
-      height: 20px;
-      width: 20px;
-      border-radius: 50%;
-      background: var(--accent-primary);
-      cursor: pointer;
+    .ios-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      margin-top: -7px;
-    }
-    
-    /* Toggle Switch */
-    .toggle-switch-group {
-      display: flex;
-      background: var(--input-bg);
-      border-radius: var(--radius-sm);
-      padding: 5px;
-      gap: 5px;
-      margin-bottom: 15px;
-    }
-    .toggle-option {
-      flex-grow: 1;
-      text-align: center;
-      padding: 8px 12px;
-      border-radius: var(--radius-sm);
-      color: var(--text-muted);
-      font-weight: 500;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.4); 
       cursor: pointer;
-      transition: background 0.2s, color 0.2s;
+      margin-top: -12px; 
     }
-    .toggle-option.active {
-      background: var(--glass-surface-active);
-      color: var(--text-main);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    .light-mode .ios-slider::-webkit-slider-thumb {
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(0,0,0,0.1); 
+    }
+    /* --- Other Styles (retained) --- */
+    .text-mono { font-family: "JetBrains Mono", monospace; }
+    .text-hand { font-family: "Gochi Hand", cursive; }
+    .text-muted { color: var(--text-muted); }
+    .text-sm { font-size: 14px; }
+    .font-bold { font-weight: 700; }
+    .card {
+      background: var(--glass-surface); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border); border-radius: var(--radius-card);
+      padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s, background 0.3s;
+    }
+    .card:active { transform: scale(0.98); background: var(--glass-surface-active); }
+    .trip-section-header {
+      font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 24px; margin-bottom: 8px;
+    }
+    .trip-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 10px; transition: transform 0.2s, background 0.3s; }
+    .trip-item:active { transform: scale(0.98); background: var(--glass-surface-active); }
+    .mini-map-preview { width: 60px; height: 60px; border-radius: 14px; background: var(--map-bg); position: relative; overflow: hidden; flex-shrink: 0; }
+    .map-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--map-road) 1px, transparent 1px), linear-gradient(90deg, var(--map-road) 1px, transparent 1px); background-size: 15px 15px; opacity: 0.3; }
+    .map-route { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%, -50%); border: 3px solid var(--accent-primary); border-radius: 99px; border-left-color: transparent; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; }
+    .setting-row:not(:last-child) { border-bottom: 1px solid var(--glass-border); }
+    .setting-icon-container { width: 34px; height: 34px; background: var(--input-bg); border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 12px; flex-shrink: 0;}
+    .setting-icon-emoji { font-size: 18px; line-height: 1; }
+    .theme-icon-container { position: relative; width: 24px; height: 24px; }
+    .theme-icon { position: absolute; inset: 0; stroke-width: 2; transition: opacity 0.3s, transform 0.5s; }
+    .theme-icon-moon { color: #fcc419; } 
+    .theme-icon-sun { color: #ff9f0a; } 
+    #icon-moon { opacity: 0; }
+    #icon-sun { opacity: 1; }
+    .light-mode #icon-moon { opacity: 1; }
+    .light-mode #icon-sun { opacity: 0; }
+    .toggle-switch { width: 50px; height: 30px; background: rgba(120, 120, 128, 0.2); border-radius: 99px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+    .toggle-switch::after {
+      content: ''; position: absolute; left: 2px; top: 2px;
+      width: 26px; height: 26px; background: #fff; border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.4); 
+      transition: transform 0.3s cubic-bezier(0.3, 1.3, 0.3, 1);
+    }
+    .toggle-switch.on { background: var(--success); }
+    .toggle-switch.on::after { transform: translateX(20px); }
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .bar-label { width: 80px; font-size: 12px; color: var(--text-muted); }
+    .bar-track { flex: 1; height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+    .bar-val { width: 40px; text-align: right; font-size: 12px; font-family: var(--font-mono); }
+    .input-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); margin-top: 8px; border: 1px solid transparent; transition: border-color 0.2s; }
+    .input-group:focus-within { border-color: var(--accent-primary); }
+    .input-group span { padding: 14px; color: var(--text-muted); }
+    .input-group input { flex: 1; padding: 14px 0; background: none; border: none; color: var(--text-main); font-size: 16px; outline: none; font-family: var(--font-mono); }
+    .fuel-option-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 16px; }
+    .fuel-option { flex: 1; text-align: center; padding: 8px 12px; border-radius: var(--radius-sm) }
+    .fuel-option.active { background: var(--glass-surface); font-weight: 600; color: var(--accent-primary); }
+    .tab-bar { 
+        position: absolute; bottom: 0; left: 0; right: 0; 
+        height: calc(80px + env(safe-area-inset-bottom, 0px)); /* Account for safe area */
+        padding: 0 20px calc(20px + env(safe-area-inset-bottom, 0px)); /* Pad contents up */
+        background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(30px); 
+        display: flex; justify-content: space-around; align-items: flex-start; 
+        z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+        border-top: 0.5px solid rgba(255,255,255,0.15); transition: background 0.3s; 
+    }
+    body.light-mode .tab-bar { background: rgba(255, 255, 255, 0.85); border-top: 0.5px solid rgba(0,0,0,0.1); }
+    .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; width: 60px; padding-top: 10px;}
+    .tab-btn.active { color: var(--accent-primary); }
+    .tab-btn svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .screen { display: none; animation: fadeUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .screen.active { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; align-items: flex-end; }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-sheet { 
+        width: 100%; background: var(--bg-app); 
+        border-radius: 36px 36px 0 0; 
+        padding: 30px 24px calc(40px + env(safe-area-inset-bottom, 0px)); /* Pad content */
+        transform: translateY(100%); 
+        transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1); 
+        box-shadow: 0 -10px 40px rgba(0,0,0,0.3); 
+        border-top: 1px solid var(--glass-border); 
+    }
+    .modal-overlay.open .modal-sheet { transform: translateY(0); }
+    .modal-handle { width: 40px; height: 5px; background: var(--text-muted); opacity: 0.3; border-radius: 99px; margin: 0 auto 20px; }
+    .btn-action { width: 100%; padding: 16px; background: var(--accent-primary); color: #fff; border: none; border-radius: 18px; font-size: 16px; font-weight: 600; margin-top: 20px; }
+    
+    /* NEW: Style for Stop Trip button */
+    .btn-action.stop-active {
+        background: var(--danger); 
+        transition: background 0.3s ease;
     }
     
-    .btn-primary {
-      width: 100%;
-      padding: 12px;
-      background: var(--accent-primary);
-      color: var(--text-inv);
-      border: none;
-      border-radius: var(--radius-sm);
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      margin-top: 10px;
-    }
-    .btn-primary:active { transform: scale(0.98); background: #007aff; }
+    #modal-permissions .modal-sheet { padding-top: 12px; }
 
-    /* Live Detail for Fuel Modal */
-    .description {
-      font-size: 13px;
-      margin-bottom: 15px;
-      line-height: 1.4;
+    /* NEW: Style for Auto-Detect Section */
+    .auto-detect-section {
+        margin-top: 24px;
+        transition: opacity 0.3s ease, transform 0.3s ease;
     }
-    .fuel-type-selector {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
+    .auto-detect-section.hidden {
+        opacity: 0;
+        height: 0;
+        margin-top: 0;
+        pointer-events: none;
+        overflow: hidden;
     }
-    .fuel-type-selector .pill {
-        padding: 8px 15px;
-        border-radius: 20px;
-        background: var(--input-bg);
-        color: var(--text-muted);
-        font-size: 14px;
-        font-weight: 500;
-        border: none;
-        cursor: pointer;
-        transition: background 0.2s, color 0.2s;
-    }
-    .fuel-type-selector .pill.active {
-        background: var(--accent-primary);
-        color: var(--text-inv);
-    }
-
-    .price-display {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--glass-border);
-      margin-bottom: 10px;
-    }
-    .price-label {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-    .price-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-    .station-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    .station-row {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr;
-        align-items: center;
-        font-size: 15px;
-        padding: 5px 0;
-    }
-    .station-name {
-        font-weight: 500;
-        color: var(--text-main);
-    }
-    .station-price, .station-distance {
-        text-align: right;
-        font-weight: 400;
-        color: var(--text-muted);
-    }
-    .data-source-note {
-        font-size: 12px;
-        color: var(--text-muted);
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    /* Motion detail */
-    .motion-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 0;
-      gap: 10px;
-    }
-    .motion-group .status {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-    .motion-group .status-value {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .motion-group .detail-row {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      padding: 5px 0;
-      border-top: 1px solid var(--glass-border);
-      font-size: 15px;
-    }
-    .motion-group .detail-row span:first-child {
-      color: var(--text-muted);
-    }
-    .motion-group .detail-row span:last-child {
-      color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    
-    .footer {
-      text-align: center;
-      margin-top: auto;
-      padding-top: 20px;
-    }
-    .footer-text {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    
   </style>
 </head>
-<body>
+<body class="">
 
 <div class="screen-area">
-  <div class="screen-bg"></div>
-  <div class="mesh-pattern"></div>
-  <div class="mesh-anim-layer" id="mesh-anim-layer"></div>
-
-  <div class="app-main">
+  <div class="screen-bg">
+    <div class="mesh-pattern">
+      <div class="mesh-anim-layer"></div>
+    </div>
+  </div>
+  
+  <div class="dotmesh-canvas">
+    <div class="dotmesh-glow"></div>
+    <div id="cornerMesh"></div>
+  </div>
+  
+  <div id="motionToast" class="toast-message"></div>
+  
+  <div class="dynamic-island-area">
+    <div class="island-pill" id="dynamicPill">
+      <div class="island-content">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:8px;height:8px;background:var(--success);border-radius:50%;box-shadow:0 0 8px var(--success);"></div>
+          <span id="islandStatusText">TRIP IN PROCESS</span>
+        </div>
+        <span class="text-mono" id="recTimer">00:00</span>
+      </div>
+    </div>
     
-    <div class="header">
-      <div class="app-title">QuickTrip</div>
-      <button class="settings-btn" onclick="openFuelModal()">
-        <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.505 8.243a3.75 3.75 0 0 0-1.802 2.213c-.044.136-.067.28-.067.424 0 .143.023.288.067.424a3.75 3.75 0 0 0 1.802 2.213 3.75 3.75 0 0 0 2.213 1.802c.136.044.28.067.424.067.143 0 .288-.023.424-.067a3.75 3.75 0 0 0 2.213-1.802c.044-.136.067-.28.067-.424s-.023-.288-.067-.424a3.75 3.75 0 0 0-1.802-2.213c-.136-.044-.28-.067-.424-.067s-.288.023-.424.067Z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-5.407 0-9.75 4.343-9.75 9.75S6.593 21.75 12 21.75s9.75-4.343 9.75-9.75S17.407 2.25 12 2.25Zm0 17.5a7.75 7.75 0 1 1 0-15.5 7.75 7.75 0 0 1 0 15.5Z" />
-        </svg>
+  </div> 
+  <div class="header-row" id="headerRow">
+    <div class="status-badge" onclick="openCarModal()">
+      <span id="headerCarName">Audi A3</span> 
+      <span style="opacity:0.5">•</span> 
+      <span class="text-mono" id="headerMPG">44</span> <span style="font-size:10px;opacity:0.7">MPG</span>
+    </div>
+    <div class="status-badge" onclick="openFuelModal()">
+      <span>⛽</span> <span class="text-mono" id="headerFuelPrice">£1.27/L</span>
+    </div>
+  </div>
+
+  <div class="content-scroll">
+    
+    <div id="screen-today" class="screen active">
+      <div style="text-align:center; padding: 20px 0;">
+        <div style="font-size:13px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Estimated Spend</div>
+        <div style="font-size:76px; line-height:1; position:relative; display:inline-block;" class="text-hand">
+          <span style="font-size:30px; position:absolute; top:10px; left:-20px; color:var(--text-muted); font-family:var(--font-ui);">£</span>
+          <span id="todayTotal">0.00</span>
+        </div>
+      </div>
+
+      <div class="card" style="border:1px dashed var(--glass-border); background:rgba(120,120,128,0.05);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span class="text-sm text-muted">LAST TRIP</span>
+          <span class="text-mono font-bold" id="lastTripCost">£--</span>
+        </div>
+        <div class="text-sm" id="lastTripTitle">No recent trips</div>
+      </div>
+      
+      <button class="btn-action" id="manualTripButton" onclick="toggleManualTrip()" style="margin-top: 20px;">
+          Start trip manually
       </button>
-    </div>
-    
-    <div class="card-grid">
       
-      <div class="card distance" onclick="openTargetModal()">
-        <div class="icon">
-          <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-4.5H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-        </div>
-        <div class="details">
-          <div class="label">Target Distance</div>
-          <div class="value" id="ui-distance">50</div>
-          <div class="unit">miles</div>
-        </div>
-      </div>
-      
-      <div class="card fuel" onclick="openFuelModal()">
-        <div class="icon">
-          <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6.417 13.526A7.5 7.5 0 0 1 12 5.25c4.787 0 8.587 3.01 8.847 7.275a3.75 3.75 0 0 1-.418 2.526l-.427.602c-1.395 1.954-2.845 3.047-3.666 3.707a2.25 2.25 0 0 1-2.915 0l-1.096-.917a1.125 1.125 0 0 0-1.328 0l-1.096.917a2.25 2.25 0 0 1-2.915 0c-.82-.66-2.271-1.753-3.666-3.707l-.427-.602a3.75 3.75 0 0 1-.418-2.526Z" /></svg>
-        </div>
-        <div class="details">
-          <div class="label">Fuel Price (<span id="ui-fuel-source">Fixed</span>)</div>
-          <div class="value" id="ui-fuel-price">£1.50</div>
-          <div class="unit">per litre</div>
-        </div>
-      </div>
-      
-      <div class="card budget" onclick="openBudgetModal()">
-        <div class="icon">
-          <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-        </div>
-        <div class="details">
-          <div class="label">Trip Budget</div>
-          <div class="value" id="ui-budget">£50.00</div>
-          <div class="unit">remaining</div>
-          <div class="budget-gauge"><div class="budget-fill" id="budget-fill"></div></div>
-        </div>
-      </div>
-
-    </div>
-    
-    <div class="card-grid">
-      
-      <div class="card map">
-        <div class="map-header">
-          <div class="label">Location</div>
-          <div class="value">Current Position</div>
-        </div>
-        <div class="map-area">
-          <div class="road road-v1"></div>
-          <div class="road road-h1"></div>
-          <div class="car-marker" id="car-marker"></div>
-        </div>
-      </div>
-
-      <div class="card motion">
-        <div class="icon">
-          <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
-        </div>
-        <div class="details">
-          <div class="label">Motion</div>
-          <div class="value" id="ui-motion-status">Calm</div>
-          <div class="unit">Motion sensor status</div>
-        </div>
-      </div>
-
-      <div class="card motion sensor-card">
-        <div class="label">Acceleration Magnitude</div>
-        <div class="value" id="ui-acceleration">0.00</div>
-        <div class="unit">m/s²</div>
-      </div>
-
-    </div>
-    
-    <div class="footer">
-      <p class="footer-text">Motion & Location data (Simulated) · QuickTrip Live Edition</p>
-    </div>
-
-  </div>
-
-</div>
-
-
-<div class="modal-overlay" id="modal-target">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Set Target Distance</h2>
-      <button class="close-btn" onclick="closeModal('modal-target')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="input-group">
-        <label for="sliderDistance">Target Distance: <span id="distance-value">50</span> miles</label>
-        <input type="range" id="sliderDistance" min="10" max="500" step="5" value="50" oninput="updateRangeLabel('distance-value', this.value)">
-      </div>
-      <button class="btn-primary" onclick="saveDistanceSettings()">Set Distance</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-budget">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Set Trip Budget</h2>
-      <button class="close-btn" onclick="closeModal('modal-budget')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="input-group">
-        <label for="sliderBudget">Total Budget: <span id="budget-value">£50</span></label>
-        <input type="range" id="sliderBudget" min="10" max="500" step="10" value="50" oninput="updateRangeLabel('budget-value', '£' + this.value)">
-      </div>
-      <button class="btn-primary" onclick="saveBudgetSettings()">Set Budget</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-fuel-price">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Fuel Price Source</h2>
-      <button class="close-btn" onclick="closeModal('modal-fuel-price')">&times;</button>
-    </div>
-    <div class="modal-body">
-      
-      <div class="toggle-switch-group">
-        <div id="option-live" class="toggle-option" onclick="setFuelSource('live')">Live Stations (Avg)</div>
-        <div id="option-fixed" class="toggle-option" onclick="setFuelSource('fixed')">Fixed Price</div>
-      </div>
-      
-      <div id="live-detail" style="display: none; padding: 10px 0;">
-          <p class="description">Live prices are sourced from the three nearest stations (within a 5-mile radius) to your current GPS location, providing a dynamic local average. Location: London, UK (Simulated)</p>
-          
-          <div class="fuel-type-selector" id="fuel-type-selector">
-              <button id="fuel-type-petrol" class="pill active" onclick="setLiveFuelType('Petrol')">Petrol</button>
-              <button id="fuel-type-diesel" class="pill" onclick="setLiveFuelType('Diesel')">Diesel</button>
-          </div>
-          
-          <div class="price-display">
-              <span class="price-label">Local Average for <span id="live-average-fuel-type">Petrol</span></span>
-              <span class="price-value" id="live-average-price">£1.35</span>
-          </div>
-          <div class="station-list" id="live-station-list">
+      <div class="auto-detect-section" id="autoDetectSection">
+        <div class="card">
+            <div class="setting-row" onclick="this.querySelector('.toggle-switch').classList.toggle('on'); saveDetectionSetting(this.querySelector('.toggle-switch'))" style="border-bottom:none; padding:0;">
+              <div class="setting-icon-container"><span class="setting-icon-emoji">🧭</span></div>
+              <div style="flex:1;">
+                <div class="text-sm font-bold">Auto-Detect Trips</div>
+                <div style="font-size:11px;" class="text-muted" id="detectionStatusToday">Motion & GPS sensors</div>
               </div>
-          
-          <p class="data-source-note">Data updated daily from CMA road fuel price scheme participants (Tesco, Esso, Morrisons, etc.)</p>
-      </div>
-
-      <div id="fixed-input" style="display: none;">
-        <div class="input-group">
-          <label for="inputFixedPrice">Price per litre (GBP)</label>
-          <input type="number" id="inputFixedPrice" step="0.01" min="0.50" value="1.50">
+              <div class="toggle-switch" id="detectionToggleToday"></div>
+            </div>
         </div>
       </div>
       
-      <button class="btn-primary" onclick="saveFuelSettings()">Save Settings</button>
+      <div style="height: 60px;"></div> </div>
+
+    <div id="screen-trips" class="screen">
+      <h2 style="font-size:22px; margin-bottom:16px;">History</h2>
+      <div id="tripsList">
+        </div>
     </div>
+
+    <div id="screen-insights" class="screen">
+      <h2 style="font-size:22px; margin-bottom:16px;">Insights</h2>
+      
+      <div class="card" onclick="openBudgetModal()">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+          <span class="text-muted text-sm">Monthly Budget</span>
+          <span class="text-sm font-bold" style="color:var(--accent-primary);">Edit</span>
+        </div>
+        
+        <div style="display:flex; align-items:baseline; gap:6px;">
+          <span class="text-hand" style="font-size:32px;" id="insightSpent">£0</span>
+          <span class="text-muted">/ £<span id="insightLimit">200</span></span>
+        </div>
+        
+        <div style="margin-top:10px; height:8px; background:var(--glass-border); border-radius:4px; overflow:hidden;">
+          <div id="budgetBar" style="width:0%; height:100%;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0; font-size:16px; margin-bottom:16px;">Cost Breakdown</h3>
+        <div class="bar-row">
+          <div class="bar-label">Commute</div>
+          <div class="bar-track"><div class="bar-fill" style="width:57%; background:#0a84ff;"></div></div>
+          <div class="bar-val">£120</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">School Run</div>
+          <div class="bar-track"><div class="bar-fill" style="width:21%; background:#ff9f0a;"></div></div>
+          <div class="bar-val">£45</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Other</div>
+          <div class="bar-track"><div class="bar-fill" style="width:22%; background:#30d158;"></div></div>
+          <div class="bar-val">£45</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="screen-settings" class="screen">
+      <h2 style="font-size:22px; margin-bottom:16px;">Settings</h2>
+      
+      <div class="card" onclick="openCarModal()">
+        <div class="setting-row" style="border:none;">
+          <div class="setting-icon-container" style="background:var(--accent-primary);"><span class="setting-icon-emoji">🚗</span></div>
+          <div style="flex:1;">
+            <div class="font-bold">Car Profile</div>
+            <div class="text-sm text-muted" id="settingsCarDetail">Audi A3 • 44 MPG</div>
+          </div>
+          <span style="color:var(--text-muted)">›</span>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="setting-row" onclick="openPrivacyModal()">
+          <div class="setting-icon-container" style="background:var(--success);"><span class="setting-icon-emoji">🔒</span></div>
+          <div style="flex:1;">
+            <div class="text-sm font-bold">On-Device Privacy</div>
+            <div style="font-size:11px;" class="text-muted">Security and Data Policy</div>
+          </div>
+          <span style="color:var(--text-muted)">›</span>
+        </div>
+        
+        <div class="setting-row" onclick="toggleTheme(this.querySelector('.toggle-switch'))" style="border-bottom:none;">
+          <div class="setting-icon-container">
+            <div class="theme-icon-container">
+              <svg id="icon-moon" class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 0 0 0 21 12.79z"></path>
+              </svg>
+              <svg id="icon-sun" class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <div class="text-sm font-bold">Light Mode</div>
+            <div style="font-size:11px;" class="text-muted">Appearance</div>
+          </div>
+          <div class="toggle-switch" id="themeToggle"></div>
+        </div>
+      </div>
+    </div>
+    
+  </div> <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('today', this)">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+      <span style="font-size:10px; font-weight:600;">Today</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('trips', this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+      <span style="font-size:10px; font-weight:600;">Trips</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('insights', this)">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+      <span style="font-size:10px; font-weight:600;">Insights</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('settings', this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <span style="font-size:10px; font-weight:600;">Settings</span>
+    </button>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modal-privacy" onclick="if(event.target===this) closeModal('modal-privacy')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;">
+        <span style="font-size:48px; display:block; margin-bottom:10px;">🔒</span>
+        <h3 style="margin-top:0;">On-Device Privacy</h3>
+    </div>
+    <div class="text-sm text-muted">This is an on-device app. All calculation, tracking, and information always stay on your phone. We do not save your data anywhere, so once you delete the QuickTrip webapp, the information is not recoverable.</div>
+    <button class="btn-action" onclick="closeModal('modal-privacy')">Got it!</button>
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-permissions">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;">
+        <span style="font-size:48px; display:block; margin-bottom:10px;">📍</span>
+        <h3 style="margin-top:0;">Enable Trip Detection</h3>
+    </div>
+    <p class="text-sm text-muted">To automatically detect your car trips or manually track your route, we need permission to access your device's location and motion sensors.</p>
+    <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main);">
+        <li>**Location (GPS):** Required for route and distance calculation.</li>
+        <li>**Motion/Accelerometer:** Required to start/stop tracking based on driving movement.</li>
+    </ul>
+    <p class="text-sm text-muted">Tap "Enable" to trigger the browser's permission prompts.</p>
+    <button class="btn-action" onclick="grantPermissions()">Enable Tracking</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-car-edit" onclick="if(event.target===this) closeModal('modal-car-edit')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Edit Car Profile</h3>
+    <label class="text-sm text-muted">Car Name</label>
+    <div class="input-group"><input type="text" id="inputCarName" value="Audi A3"></div>
+    <div style="margin-top:20px;">
+      <div style="display:flex; justify-content:space-between;">
+        <label class="text-sm text-muted">Efficiency (MPG)</label>
+        <span class="text-mono font-bold" id="labelMPG">44</span>
+      </div>
+      <input type="range" id="sliderMPG" class="ios-slider" min="10" max="80" value="44" oninput="updateCarPreview(this.value)">
+    </div>
+    <button class="btn-action" onclick="saveCar()">Save Changes</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-budget" onclick="if(event.target===this) closeModal('modal-budget')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Monthly Budget</h3>
+    <p class="text-sm text-muted">Set a target to track your fuel spending.</p>
+    <div style="text-align:center; padding:20px 0;">
+      <span style="font-size:48px;" class="text-hand">£<span id="labelBudget">200</span></span>
+    </div>
+    <input type="range" id="sliderBudget" class="ios-slider" min="50" max="500" step="10" value="200" oninput="updateBudgetPreview(this.value)">
+    <button class="btn-action" onclick="saveBudget()">Set Budget</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-fuel-price" onclick="if(event.target===this) closeModal('modal-fuel-price')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Fuel Price Source</h3>
+    <p class="text-sm text-muted">Choose how QuickTrip calculates your trip costs.</p>
+    <div class="fuel-option-group">
+      <div id="option-live" class="fuel-option active" onclick="setFuelSource('live')">Live Fuel Prices</div>
+      <div id="option-fixed" class="fuel-option" onclick="setFuelSource('fixed')">Fixed Price</div>
+    </div>
+    <div id="live-detail">
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <span class="text-sm text-muted">Local Average (<span id="live-radius">5</span> mile radius)</span>
+        <span class="text-mono font-bold" style="color:var(--accent-primary);" id="live-price-display">£1.27/L</span>
+      </div>
+      <div class="text-sm text-muted" style="border-top:1px solid var(--glass-border); padding-top:10px;">
+        <span id="live-station-detail">Data from Shell (£1.30), BP (£1.28), Esso (£1.23).</span>
+      </div>
+    </div>
+    <div id="fixed-input" style="display:none;">
+      <label class="text-sm text-muted">Enter Price per Litre</label>
+      <div class="input-group">
+        <span>£</span>
+        <input type="number" id="inputFixedPrice" value="1.27" min="0.5" step="0.01">
+        <span>/L</span>
+      </div>
+    </div>
+    <button class="btn-action" onclick="saveFuelSettings()">Apply</button>
+  </div>
+</div>
 
 <script>
-  
-  // --- STATE MANAGEMENT ---
+  // --- STATE & PERSISTENCE (Local Storage Implementation) ---
   const DEFAULT_STATE = {
-    targetDistance: 50, // miles
-    tripBudget: 50.00, // GBP
-    fuelSource: 'fixed', // 'live' or 'fixed'
-    fuelPrice: 1.50, // GBP per litre
-    fuelType: 'Petrol', // New: Track current fuel type for live data
-    // Simulated location: Central London area
-    mockLatitude: 51.52, 
-    mockLongitude: -0.10,
-    // Mock motion/acceleration data
-    accelerationX: 0,
-    accelerationY: 0,
-    accelerationZ: 0,
-    accelerationMagnitude: 0.0,
-    motionStatus: 'Calm',
+    carName: "Audi A3",
+    mpg: 44,
+    budget: 200,
+    fuelPrice: 1.27,
+    fuelSource: 'live',
+    trips: [], 
+    permissionsGranted: false,
+    detectionEnabled: false, // OFF by default as requested
+    isLightMode: false,
+    privacySeen: false, // NEW: Track if the privacy modal has been shown
   };
+  
+  let state = {};
+  const screenArea = document.querySelector('.screen-area'); 
 
-  // NEW: Dynamic Fuel Prices structure simulating a location-based lookup
-  // Prices in GBP per litre (based on public UK/London fuel data)
-  const DYNAMIC_FUEL_PRICES = {
-    'Petrol': {
-      average: 1.3517, // 135.17 pence/litre
-      stations: [
-        { name: 'Tesco (Local)', price: 1.335, distance: '0.4 mi' },
-        { name: 'Esso (High Rd)', price: 1.375, distance: '1.1 mi' },
-        { name: 'Morrisons (Sup)', price: 1.345, distance: '2.5 mi' },
-      ],
-    },
-    'Diesel': {
-      average: 1.4403, // 144.03 pence/litre
-      stations: [
-        { name: 'Tesco (Local)', price: 1.425, distance: '0.4 mi' },
-        { name: 'Sainsbury\'s (Sup)', price: 1.430, distance: '2.0 mi' },
-        { name: 'Esso (High Rd)', price: 1.466, distance: '1.1 mi' },
-      ],
-    },
-  };
+  // --- MOTION DETECTION VARIABLES ---
+  let isDetectingMotion = false;
+  const MOTION_THRESHOLD = 15; // m/s^2, acceleration threshold for a shake
+  const MOVING_CAR_THRESHOLD = 5000; // 5 seconds of sustained motion to suggest 'Moving Car'
+  let lastSignificantMotionTime = 0;
+  let lastToastStatus = '';
+  let toastTimeout = null;
+  let meshAnimationTimeout = null;
+  let lastToastTime = 0; 
+  
+  // --- MANUAL TRIP STATE (NEW) ---
+  let isManualTripActive = false;
+  let manualTripStartTime = 0;
+  let tripTimerInterval = null;
+  let geolocationWatchId = null;
+  let tripDistance = 0;
+  let lastPosition = null; // Store last GPS coordinates for fuel price lookup
 
-  let state = loadStateFromLocalStorage();
+  // --- DOT MESH CONFIG ---
+  const DOT_COUNT_BASE = 80; 
+  const DOT_COUNT_ACTIVE = DOT_COUNT_BASE * 2; // Doubled count when active
+  let dots = [];
+
 
   function loadStateFromLocalStorage() {
     try {
-      const storedState = localStorage.getItem('quicktripState');
-      if (storedState) {
-        return { ...DEFAULT_STATE, ...JSON.parse(storedState) };
+      const serializedState = localStorage.getItem('quicktripState');
+      let savedState = serializedState ? JSON.parse(serializedState) : {};
+      if (savedState.trips) {
+        savedState.trips = savedState.trips.map(t => ({
+          ...t,
+          date: new Date(t.date)
+        }));
       }
-    } catch (e) {
-      console.error("Could not load state from localStorage:", e);
+      state = { ...DEFAULT_STATE, ...savedState };
+    } catch (err) {
+      console.error("Error loading state, using defaults:", err);
+      state = DEFAULT_STATE;
     }
-    return DEFAULT_STATE;
   }
 
   function saveStateToLocalStorage() {
     try {
-      localStorage.setItem('quicktripState', JSON.stringify(state));
-    } catch (e) {
-      console.error("Could not save state to localStorage:", e);
+      const stateToSave = { ...state };
+      const serializedState = JSON.stringify(stateToSave);
+      localStorage.setItem('quicktripState', serializedState);
+    } catch (err) {
+      console.error("Error saving state:", err);
+    }
+  }
+  
+  // --- DOT MESH C ANIMATION LOGIC (UPDATED FOR DYNAMIC COUNT) ---
+  function initCornerMesh() {
+    const meshEl = document.getElementById("cornerMesh");
+    meshEl.innerHTML = ""; // Clear existing dots
+    dots = [];
+    
+    const count = screenArea.classList.contains('motion-active') ? DOT_COUNT_ACTIVE : DOT_COUNT_BASE;
+
+    // Create dots with random positions and velocities
+    for(let i = 0; i < count; i++){
+      const d = document.createElement("div");
+      d.className = "dot";
+      
+      // Calculate random position within the viewport
+      let x = Math.random() * window.innerWidth;
+      let y = Math.random() * window.innerHeight;
+      
+      d.style.left = x + 'px';
+      d.style.top = y + 'px';
+      d.style.animationDelay = (Math.random() * 2) + "s";
+      
+      meshEl.appendChild(d);
+      
+      // Store dot properties for drift animation
+      dots.push({
+        el: d, 
+        x, 
+        y, 
+        dx: (Math.random() - 0.5) * 0.15, 
+        dy: (Math.random() - 0.5) * 0.15
+      });
+    }
+
+    // Ensure the animation loop is running once
+    if (!meshAnimationTimeout) {
+        animateCornerMesh(); 
     }
   }
 
-  // Helper to get the current live average price
-  function getLiveAveragePrice(fuelType) {
-    const type = fuelType || state.fuelType;
-    const price = DYNAMIC_FUEL_PRICES[type]?.average;
-    return price !== undefined ? price : DEFAULT_STATE.fuelPrice; 
-  }
-
-
-  // --- UI UPDATE FUNCTIONS ---
-  function updateUI() {
-    // 1. Target Distance
-    document.getElementById('ui-distance').textContent = state.targetDistance;
-
-    // 2. Fuel Price
-    document.getElementById('ui-fuel-source').textContent = state.fuelSource === 'live' ? `${state.fuelType} (Live)` : 'Fixed';
-    document.getElementById('ui-fuel-price').textContent = `£${state.fuelPrice.toFixed(2)}`;
-
-    // 3. Trip Budget
-    document.getElementById('ui-budget').textContent = `£${state.tripBudget.toFixed(2)}`;
-    const budgetFill = document.getElementById('budget-fill');
-    
-    // In a real app, 'used' budget would be calculated. Here, we mock a 50% usage for visual
-    const budgetPercentUsed = 50; 
-    
-    budgetFill.style.width = `${100 - budgetPercentUsed}%`;
-    budgetFill.style.background = budgetPercentUsed > 80 ? 'var(--danger)' : budgetPercentUsed > 50 ? 'var(--warning)' : 'var(--success)';
-    
-    // 4. Motion Status
-    document.getElementById('ui-motion-status').textContent = state.motionStatus;
-    document.getElementById('ui-acceleration').textContent = state.accelerationMagnitude.toFixed(2);
-    
-    // 5. Theme
-    document.body.classList.toggle('light-mode', state.darkMode === false);
-    updateMeshPattern();
+  function animateCornerMesh() {
+    // Only animate if the mesh is visible (i.e., motion-active is set)
+    if (screenArea.classList.contains('motion-active')) {
+        for(const p of dots){
+            p.x += p.dx;
+            p.y += p.dy;
+            
+            // Bounce off edges
+            if(p.x < 0 || p.x > window.innerWidth) p.dx *= -1;
+            if(p.y < 0 || p.y > window.innerHeight) p.dy *= -1;
+            
+            p.el.style.left = p.x + 'px';
+            p.el.style.top = p.y + 'px';
+        }
+    }
+    meshAnimationTimeout = requestAnimationFrame(animateCornerMesh);
   }
   
-  // Update motion status on the map (simulated)
-  function updateCarMarker(alpha, beta, gamma) {
-    // Simplified: Use gamma (left/right tilt) and beta (front/back tilt) for map movement
-    // Gamma (Z axis): tilt left/right. Range -90 to 90.
-    // Beta (X axis): tilt front/back. Range -180 to 180.
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', () => {
+    loadStateFromLocalStorage();
+    if (state.isLightMode) {
+      document.body.classList.add('light-mode');
+      document.getElementById('themeToggle').classList.add('on');
+    }
     
-    // Map bounds: -10px to +10px from center. Max tilt is ~45deg for comfortable movement.
-    const maxTilt = 45; 
-    const maxOffset = 15; // Max offset in pixels
-
-    const xOffset = (gamma / maxTilt) * maxOffset;
-    const yOffset = (beta / maxTilt) * maxOffset;
-
-    // Clamp offsets to prevent marker going too far
-    const clampedX = Math.max(-maxOffset, Math.min(maxOffset, xOffset));
-    const clampedY = Math.max(-maxOffset, Math.min(maxOffset, yOffset));
-
-    const marker = document.getElementById('car-marker');
-    // We adjust the car-marker's center position relative to the map's center
-    marker.style.transform = `translate(calc(-50% + ${clampedX}px), calc(-50% + ${clampedY}px))`;
-  }
+    updateDotPattern(); 
+    initCornerMesh(); // Initialize the new corner mesh with base dot count
+    updateUI();
+    initMotionDetection(); 
+    
+    // NEW: Show privacy modal if it hasn't been seen
+    if (!state.privacySeen) {
+        openPrivacyModal();
+        state.privacySeen = true;
+        saveStateToLocalStorage();
+    }
+  });
   
-  // --- MODAL FUNCTIONS ---
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
+  // --- Function to fix the dynamic dot pattern background ---
+  function updateDotPattern() {
+    const isLight = document.body.classList.contains('light-mode');
+    
+    // Choose solid color for the dots in the SVG, opacity is handled by the wrapper element
+    const dotColor = isLight ? 'rgb(0,0,0)' : 'rgb(255,255,255)';
+    const opacityLevel = isLight ? '0.05' : '0.04'; // Adjust opacity for better visibility
+    
+    // Create the SVG data URI
+    const svgContent = `<svg width='2' height='2' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'><circle cx='1' cy='1' r='0.5' fill='${dotColor}'/></svg>`;
+    const encodedSvg = encodeURIComponent(svgContent).replace(/'/g, '%27').replace(/"/g, '%22');
+
+    const meshPatternEl = document.querySelector('.mesh-pattern');
+    meshPatternEl.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodedSvg}")`;
+    meshPatternEl.style.opacity = opacityLevel;
+    
+    initCornerMesh(); // Re-initialize the corner mesh on theme change to update dot colors
   }
 
-  function updateRangeLabel(id, value) {
-    document.getElementById(id).textContent = value;
-  }
-  
-  // Target Distance Modal
-  function openTargetModal() {
-    document.getElementById('sliderDistance').value = state.targetDistance;
-    document.getElementById('distance-value').textContent = state.targetDistance;
-    document.getElementById('modal-target').classList.add('open');
+  // --- MOTION DETECTION LOGIC (UPDATED FOR MANUAL CHECK) ---
+
+  function initMotionDetection() {
+    // Only start if detection is enabled AND permissions are granted
+    if (state.detectionEnabled && state.permissionsGranted && !isDetectingMotion) {
+      if (window.DeviceMotionEvent) {
+        window.addEventListener('devicemotion', handleMotion);
+        isDetectingMotion = true;
+        console.log('DeviceMotion listener started.');
+      } else {
+        console.warn('DeviceMotionEvent not supported on this browser.');
+      }
+    } else if (isDetectingMotion && (!state.detectionEnabled || !state.permissionsGranted)) {
+      // Stop detection if state changes to disabled or permissions revoked
+      window.removeEventListener('devicemotion', handleMotion);
+      isDetectingMotion = false;
+      screenArea.classList.remove('motion-active'); // Ensure mesh is off
+      initCornerMesh(); // Reset dot count
+      console.log('DeviceMotion listener stopped.');
+    }
   }
 
-  function saveDistanceSettings() {
-    state.targetDistance = parseInt(document.getElementById('sliderDistance').value);
+  function handleMotion(event) {
+    if (isManualTripActive) return; // Prevent auto-detect interference during manual trip
+
+    const { x, y, z } = event.accelerationIncludingGravity;
+    const magnitude = Math.sqrt(x * x + y * y + z * z);
+    const now = Date.now();
+
+    // 1. Check for significant motion (Shaking)
+    if (magnitude > MOTION_THRESHOLD) {
+      lastSignificantMotionTime = now;
+      
+      if (now - lastToastTime > 500) { 
+        updateMotionStatus('Shaking');
+        lastToastStatus = 'Shaking'; 
+      }
+
+      // 2. Check for sustained motion (Simulated 'Moving Car')
+      if (now - lastSignificantMotionTime >= MOVING_CAR_THRESHOLD) {
+        if (lastToastStatus !== 'Moving Car') {
+          updateMotionStatus('Moving Car', 5000);
+          lastToastStatus = 'Moving Car';
+        }
+      }
+    } else {
+       if (now - lastSignificantMotionTime > 5000 && lastToastStatus !== 'Steady') {
+           // If we are steady for a while, clear the active status
+           screenArea.classList.remove('motion-active');
+           initCornerMesh(); // Reset dot count
+           lastToastStatus = 'Steady'; 
+       }
+    }
+  }
+
+  function updateMotionStatus(status, duration = 3000) {
+    const toastEl = document.getElementById('motionToast');
+    clearTimeout(toastTimeout);
+    
+    let statusText = status; // Keeping this simple for new feature clarity
+    
+    if (status.includes('Shaking')) {
+        toastEl.style.backgroundColor = 'var(--warning)';
+        statusText = `Detecting motion: ${status}`;
+    } else if (status.includes('Moving Car')) {
+        toastEl.style.backgroundColor = 'var(--accent-primary)';
+        statusText = `Detecting motion: ${status}`;
+    } else if (status.includes('Trip Ended')) {
+        toastEl.style.backgroundColor = 'var(--success)';
+    } else if (status.includes('Permission')) {
+        toastEl.style.backgroundColor = 'var(--danger)';
+    } else {
+        toastEl.style.backgroundColor = 'var(--success)';
+        statusText = `Motion Detected: ${status}`;
+    }
+    
+    toastEl.textContent = statusText;
+    
+    toastEl.classList.add('show');
+    
+    // Activate dynamic background effect and corner mesh
+    if (status.includes('Shaking') || status.includes('Moving Car') || status.includes('Trip Started')) {
+      screenArea.classList.add('motion-active');
+      initCornerMesh(); // Set active dot count
+    }
+    
+    if (status.includes('Shaking')) {
+        lastToastTime = Date.now(); 
+    }
+    
+    toastTimeout = setTimeout(() => {
+      toastEl.classList.remove('show');
+    }, duration);
+  }
+
+
+  // --- MANUAL TRIP FUNCTIONS (UPDATED FOR TOGGLE) ---
+
+  function toggleManualTrip() {
+    if (isManualTripActive) {
+      stopManualTrip();
+    } else {
+      startManualTrip();
+    }
+  }
+
+  function startManualTrip() {
+    // 1. Check permissions
+    if (!state.permissionsGranted) {
+        // Open the permissions modal instead of starting the trip
+        document.getElementById('modal-permissions').classList.add('open');
+        return; 
+    }
+
+    isManualTripActive = true;
+    manualTripStartTime = Date.now();
+    tripDistance = 0;
+    lastPosition = null;
+
+    // 2. Start GPS Tracking
+    geolocationWatchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const currentPosition = {
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        };
+        
+        if (lastPosition) {
+          const dist = calculateDistance(lastPosition, currentPosition); 
+          tripDistance += dist;
+        }
+        lastPosition = currentPosition;
+      },
+      (error) => {
+        console.error("GPS error:", error);
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+    
+    // 3. Update UI
+    const button = document.getElementById('manualTripButton');
+    button.textContent = 'Stop trip';
+    button.classList.add('stop-active');
+    document.getElementById('autoDetectSection').classList.add('hidden'); 
+    
+    // Activate dot mesh animation and show toast
+    screenArea.classList.add('motion-active'); 
+    initCornerMesh(); // Set active dot count
+    updateMotionStatus('Trip Started Manually!', 2000);
+    
+    // 4. Start Timer and Dynamic Island
+    updateTripTimer(); 
+    tripTimerInterval = setInterval(updateTripTimer, 1000);
+    document.getElementById('dynamicPill').classList.add('active');
+    document.getElementById('islandStatusText').textContent = 'TRIP IN PROCESS';
+  }
+
+  function stopManualTrip() {
+    isManualTripActive = false;
+
+    // 1. Stop Timer & GPS
+    clearInterval(tripTimerInterval);
+    if (geolocationWatchId !== null) {
+      navigator.geolocation.clearWatch(geolocationWatchId);
+    }
+
+    // 2. Update button UI immediately
+    const button = document.getElementById('manualTripButton');
+    button.textContent = 'Start trip manually';
+    button.classList.remove('stop-active');
+    document.getElementById('autoDetectSection').classList.remove('hidden'); 
+
+    // 3. Calculate Trip Data
+    const durationMs = Date.now() - manualTripStartTime;
+    const durationMins = durationMs / (1000 * 60);
+
+    let finalDistance = tripDistance > 0 ? tripDistance : Math.max(1.0, durationMins * 0.1); 
+    if (finalDistance < 0.1) finalDistance = 0.1;
+
+    const cost = calculateTripCost(finalDistance); 
+
+    // 4. Record Trip
+    const newTrip = {
+      id: state.trips.length + 1,
+      date: new Date(manualTripStartTime),
+      title: 'Manual Trip',
+      dist: finalDistance.toFixed(1), 
+      cost: cost,
+    };
+    state.trips.push(newTrip);
+    
+    // Show a success toaster
+    updateMotionStatus(`Trip Ended. Cost: £${cost.toFixed(2)}.`, 5000);
+
+    // 5. Save and Refresh
     saveStateToLocalStorage();
-    closeModal('modal-target');
+    updateUI();
+    
+    // 6. Smoothly hide the Dynamic Island and Dot Mesh after a slight delay (0.5s)
+    setTimeout(() => {
+        document.getElementById('dynamicPill').classList.remove('active');
+        screenArea.classList.remove('motion-active'); 
+        initCornerMesh(); // Reset dot count
+    }, 500); 
+  }
+
+  function updateTripTimer() {
+    if (!isManualTripActive) return;
+    
+    const durationMs = Date.now() - manualTripStartTime;
+    const totalSeconds = Math.floor(durationMs / 1000);
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+    const seconds = String(totalSeconds % 60).padStart(2, '0');
+    
+    document.getElementById('recTimer').textContent = `${minutes}:${seconds}`;
+  }
+
+  // Haversine formula for distance calculation (in miles)
+  function calculateDistance(p1, p2) {
+    const R = 3958.8; // Radius of Earth in miles
+    const lat1 = p1.lat * (Math.PI / 180);
+    const lat2 = p2.lat * (Math.PI / 180);
+    const deltaLat = (p2.lat - p1.lat) * (Math.PI / 180);
+    const deltaLon = (p2.lon - p1.lon) * (Math.PI / 180);
+
+    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+              Math.cos(lat1) * Math.cos(lat2) *
+              Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distance in miles
+  }
+
+  function calculateTripCost(distanceMiles) {
+    const litersPerGallon = 4.54609;
+    const milesPerLiter = state.mpg / litersPerGallon;
+    const fuelUsedLiters = distanceMiles / milesPerLiter;
+    return fuelUsedLiters * state.fuelPrice;
+  }
+  
+  // --- NEW: Simulate dynamic fuel price fetching based on last known GPS ---
+  async function fetchLiveFuelPrice() {
+      // Check if permissions are granted and we have a location
+      if (!state.permissionsGranted) {
+          return { price: 1.27, detail: "Cannot get live price: Permissions missing." };
+      }
+      
+      const lat = lastPosition ? lastPosition.lat : 51.5074; // London fallback
+      const lon = lastPosition ? lastPosition.lon : 0.1278; // London fallback
+      
+      // Simple hash function for reproducible, yet dynamic, prices
+      const seed = Math.floor(lat * 100) + Math.floor(lon * 100);
+      const basePrice = 1.20 + (seed % 100) / 1000; // Base price between 1.20 and 1.299
+      const price = basePrice + Math.random() * 0.10; // Add up to 10p variation
+
+      const stations = [
+          { name: "Shell", p: price + 0.03 },
+          { name: "BP", p: price + 0.01 },
+          { name: "Esso", p: price - 0.04 }
+      ];
+      
+      const detail = stations.map(s => `${s.name} (£${s.p.toFixed(2)})`).join(', ');
+
+      return {
+          price: parseFloat(price.toFixed(2)),
+          detail: `Data from ${detail}.`
+      };
+  }
+
+
+  // --- PERMISSION LOGIC ---
+  function grantPermissions() {
+    // 1. Ask for Geolocation (GPS)
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { 
+            console.log("GPS permission granted."); 
+            // Store initial position
+            lastPosition = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        },
+        (err) => { console.error("GPS permission denied:", err.message); }
+      );
+    }
+
+    // 2. Ask for DeviceMotion/Orientation (iOS Safari requirement)
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      DeviceMotionEvent.requestPermission().then(response => {
+        if (response === 'granted') {
+           updateMotionStatus('Motion Sensor Granted!', 2000);
+           state.permissionsGranted = true;
+           saveStateToLocalStorage();
+           initMotionDetection(); 
+           // If permission was granted, and detection was meant to be on, turn it on now.
+           if (state.detectionEnabled) {
+               document.getElementById('detectionToggleToday').classList.add('on');
+           }
+        } else {
+           updateMotionStatus('Motion Sensor Denied. Detection compromised.', 4000);
+        }
+        updateUI();
+      }).catch(console.error);
+    } else {
+      state.permissionsGranted = true;
+      saveStateToLocalStorage();
+      initMotionDetection();
+      // If permission was granted, and detection was meant to be on, turn it on now.
+      if (state.detectionEnabled) {
+          document.getElementById('detectionToggleToday').classList.add('on');
+      }
+      updateUI();
+    }
+
+    closeModal('modal-permissions');
+  }
+  
+  // --- NAVIGATION ---
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + tabId).classList.add('active');
+    
+    const header = document.getElementById('headerRow');
+    if(tabId === 'settings') {
+      header.classList.add('hidden');
+    } else {
+      header.classList.remove('hidden');
+    }
+  }
+
+  // --- THEME ---
+  function toggleTheme(el) {
+    el.classList.toggle('on');
+    document.body.classList.toggle('light-mode');
+    
+    state.isLightMode = document.body.classList.contains('light-mode');
+    saveStateToLocalStorage(); 
+    updateDotPattern(); 
+    
+    const isLightMode = state.isLightMode;
+    const iconMoon = document.getElementById('icon-moon');
+    const iconSun = document.getElementById('icon-sun');
+
+    if (isLightMode) {
+        iconMoon.style.opacity = 1;
+        iconSun.style.opacity = 0;
+    } else {
+        iconMoon.style.opacity = 0;
+        iconSun.style.opacity = 1;
+    }
+  }
+
+  // --- UTILITY: Date Formatting for Grouping ---
+  function getGroupHeader(date) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const y = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+
+    if (d.getTime() === t.getTime()) {
+      return "Today";
+    } else if (d.getTime() === y.getTime()) {
+      return "Yesterday";
+    } else {
+      const options = { weekday: 'long', month: 'short', day: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+    }
+  }
+
+  // --- UI UPDATER ---
+  async function updateUI() {
+    // Header & Settings
+    document.getElementById('headerCarName').innerText = state.carName;
+    document.getElementById('headerMPG').innerText = state.mpg;
+    document.getElementById('settingsCarDetail').innerText = `${state.carName} • ${state.mpg} MPG`;
+    document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L`;
+    
+    // Fuel Modal Live Price Update (Asynchronous)
+    const livePriceData = await fetchLiveFuelPrice();
+    document.getElementById('live-price-display').innerText = `£${livePriceData.price.toFixed(2)}/L`;
+    document.getElementById('live-station-detail').innerText = livePriceData.detail;
+
+    // Apply the live price if the source is 'live'
+    if (state.fuelSource === 'live' && state.permissionsGranted) {
+        state.fuelPrice = livePriceData.price;
+        document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L`;
+    }
+
+    // Detection Toggle State (Updated to use the new ID)
+    const detectionToggleToday = document.getElementById('detectionToggleToday');
+    const autoDetectSection = document.getElementById('autoDetectSection');
+    
+    // Check if a manual trip is active (Hides the section)
+    if (isManualTripActive) {
+        autoDetectSection.classList.add('hidden');
+    } else {
+        autoDetectSection.classList.remove('hidden');
+    }
+    
+    // Update the visual toggle and status text
+    if (state.detectionEnabled) {
+        detectionToggleToday.classList.add('on');
+        document.getElementById('detectionStatusToday').innerText = state.permissionsGranted ? "Motion & GPS sensors active" : "Waiting for permissions";
+    } else {
+        detectionToggleToday.classList.remove('on');
+        document.getElementById('detectionStatusToday').innerText = "Detection is manually paused";
+    }
+
+    // Today Calculation
+    const todayCost = state.trips
+      .filter(t => (new Date() - t.date) < 24 * 60 * 60 * 1000)
+      .reduce((acc, t) => acc + t.cost, 0);
+    document.getElementById('todayTotal').innerText = todayCost.toFixed(2);
+
+    // Last Trip
+    if(state.trips.length > 0) {
+      const recent = [...state.trips].sort((a, b) => b.date.getTime() - a.date.getTime())[0];
+      document.getElementById('lastTripCost').innerText = `£${recent.cost.toFixed(2)}`;
+      document.getElementById('lastTripTitle').innerText = `${recent.title} (${recent.dist} mi) - ${timeAgo(recent.date)}`;
+    } else {
+      document.getElementById('lastTripCost').innerText = `£0.00`;
+      document.getElementById('lastTripTitle').innerText = `No recorded trips`;
+    }
+
+    // Insights
+    const totalSpent = state.trips.reduce((acc, t) => acc + t.cost, 0);
+    document.getElementById('insightSpent').innerText = `£${Math.floor(totalSpent)}`;
+    document.getElementById('insightLimit').innerText = state.budget;
+    
+    const pct = Math.min((totalSpent / state.budget) * 100, 100);
+    const budgetBar = document.getElementById('budgetBar');
+    budgetBar.style.width = pct + "%";
+    budgetBar.style.background = pct > 90 ? "var(--danger)" : pct > 75 ? "var(--warning)" : "var(--success)";
+
+    renderTrips();
+    saveStateToLocalStorage(); // Save any price updates
+  }
+  
+  function saveDetectionSetting(toggleEl) {
+    // The toggle has already been flipped by the inline onclick handler.
+    const isNowOn = toggleEl.classList.contains('on');
+    
+    // Case 1: Toggling ON without permissions
+    if (isNowOn && !state.permissionsGranted) {
+        // Revert the visual toggle and the internal state
+        toggleEl.classList.remove('on');
+        state.detectionEnabled = false; // It failed to turn on
+        
+        // Open the permission modal
+        document.getElementById('modal-permissions').classList.add('open');
+        updateUI(); 
+        return;
+    }
+
+    // Case 2: Toggling OFF (isNowOn is false) OR Toggling ON with permissions (isNowOn is true)
+    state.detectionEnabled = isNowOn;
+    saveStateToLocalStorage();
+    initMotionDetection(); 
+    updateUI(); 
+  }
+
+  // --- RENDER TRIPS (UPDATED for empty state) ---
+  function renderTrips() {
+    const list = document.getElementById('tripsList');
+    list.innerHTML = "";
+    
+    if(state.trips.length === 0) {
+      list.innerHTML = `
+        <div class="card" style="text-align:center; padding: 40px 20px;">
+            <div style="font-size:20px; color:var(--text-muted); margin-bottom:10px;">No Trips Recorded Yet</div>
+            <div class="text-sm text-muted">Please ensure Auto-Detect is enabled on the Today tab, then use a car to drive and calculate the cost of your trips.</div>
+        </div>
+      `;
+      return;
+    }
+    
+    state.trips.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+    let currentDateGroup = null;
+
+    state.trips.forEach(t => {
+      const header = getGroupHeader(t.date);
+
+      if (header !== currentDateGroup) {
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'trip-section-header';
+        headerDiv.textContent = header;
+        list.appendChild(headerDiv);
+        currentDateGroup = header;
+      }
+
+      const rotate = (t.id * 55) % 360; 
+      
+      const div = document.createElement('div');
+      div.className = 'trip-item';
+      div.innerHTML = `
+        <div class="mini-map-preview">
+          <div class="map-grid"></div>
+          <div class="map-route" style="transform: translate(-50%, -50%) rotate(${rotate}deg);"></div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:600; font-size:15px;">${t.title}</div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+            ${t.dist} mi • ${t.date.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}
+          </div>
+        </div>
+        <div class="text-mono font-bold">£${t.cost.toFixed(2)}</div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+
+  function timeAgo(date) {
+    const mins = Math.floor((new Date() - date) / 60000);
+    if(mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    return `${hrs}h ago`;
+  }
+
+  // --- MODALS (Car, Budget, Fuel, Privacy) ---
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  
+  function openPrivacyModal() {
+      document.getElementById('modal-privacy').classList.add('open');
+  }
+
+  function openCarModal() {
+    document.getElementById('inputCarName').value = state.carName;
+    document.getElementById('sliderMPG').value = state.mpg;
+    document.getElementById('labelMPG').innerText = state.mpg;
+    document.getElementById('modal-car-edit').classList.add('open');
+  }
+  function updateCarPreview(val) { document.getElementById('labelMPG').innerText = val; }
+  function saveCar() {
+    state.carName = document.getElementById('inputCarName').value;
+    state.mpg = parseInt(document.getElementById('sliderMPG').value);
+    saveStateToLocalStorage();
+    closeModal('modal-car-edit');
     updateUI();
   }
 
-  // Budget Modal
   function openBudgetModal() {
-    document.getElementById('sliderBudget').value = state.tripBudget.toFixed(0);
-    document.getElementById('budget-value').textContent = `£${state.tripBudget.toFixed(0)}`;
+    document.getElementById('sliderBudget').value = state.budget;
+    document.getElementById('labelBudget').innerText = state.budget;
     document.getElementById('modal-budget').classList.add('open');
   }
-
-  function saveBudgetSettings() {
-    state.tripBudget = parseInt(document.getElementById('sliderBudget').value);
+  function updateBudgetPreview(val) { document.getElementById('labelBudget').innerText = val; }
+  function saveBudget() {
+    state.budget = parseInt(document.getElementById('sliderBudget').value);
     saveStateToLocalStorage();
     closeModal('modal-budget');
     updateUI();
   }
 
-  // Fuel Price Modal
   function openFuelModal() {
     setFuelSource(state.fuelSource);
-    // Ensure the fixed price input shows the current price, regardless of source
     document.getElementById('inputFixedPrice').value = state.fuelPrice.toFixed(2);
-    
-    // New: Initialize live fuel type selector and details
-    setLiveFuelType(state.fuelType);
-    
+    // Refresh live price details on open
+    updateUI();
     document.getElementById('modal-fuel-price').classList.add('open');
   }
 
@@ -936,16 +1417,11 @@
     document.getElementById('option-fixed').classList.remove('active');
     document.getElementById('live-detail').style.display = 'none';
     document.getElementById('fixed-input').style.display = 'none';
-    
-    // New: Separate fuel type selector visibility
-    document.getElementById('fuel-type-selector').style.display = 'none';
 
     if (source === 'live') {
       document.getElementById('option-live').classList.add('active');
       document.getElementById('live-detail').style.display = 'block';
-      document.getElementById('fuel-type-selector').style.display = 'flex'; // Show fuel type selector for live
       state.fuelSource = 'live';
-      updateLiveFuelDetail(); // Update details immediately
     } else {
       document.getElementById('option-fixed').classList.add('active');
       document.getElementById('fixed-input').style.display = 'block';
@@ -953,135 +1429,21 @@
     }
   }
 
-  // NEW: Function to switch between Petrol and Diesel for live data
-  function setLiveFuelType(type) {
-    state.fuelType = type;
-    document.getElementById('fuel-type-petrol').classList.remove('active');
-    document.getElementById('fuel-type-diesel').classList.remove('active');
-    document.getElementById('fuel-type-' + type.toLowerCase()).classList.add('active');
-    updateLiveFuelDetail();
-  }
-
-  // NEW: Function to update the live fuel price display and station list
-  function updateLiveFuelDetail() {
-    const fuelData = DYNAMIC_FUEL_PRICES[state.fuelType];
-    const avgPrice = fuelData.average;
-    
-    document.getElementById('live-average-price').textContent = `£${avgPrice.toFixed(2)}`;
-    document.getElementById('live-average-fuel-type').textContent = state.fuelType;
-    
-    // Update the station list dynamically
-    document.getElementById('live-station-list').innerHTML = fuelData.stations.map(station => `
-      <div class="station-row">
-        <span class="station-name">${station.name}</span>
-        <span class="station-price">£${station.price.toFixed(2)}</span>
-        <span class="station-distance">${station.distance}</span>
-      </div>
-    `).join('');
-
-    // Also update the fixed input field with the live price for user clarity
-    document.getElementById('inputFixedPrice').value = avgPrice.toFixed(2);
-  }
-
-  function saveFuelSettings() {
+  async function saveFuelSettings() {
     if (state.fuelSource === 'fixed') {
       const fixedPrice = parseFloat(document.getElementById('inputFixedPrice').value);
       if (!isNaN(fixedPrice) && fixedPrice > 0) {
         state.fuelPrice = fixedPrice;
       }
     } else {
-      // DYNAMIC: Set the live fuel price based on the selected fuel type
-      state.fuelPrice = getLiveAveragePrice(state.fuelType); 
+        // Fetch and set the live price when saving in live mode
+        const livePriceData = await fetchLiveFuelPrice();
+        state.fuelPrice = livePriceData.price;
     }
     saveStateToLocalStorage();
     closeModal('modal-fuel-price');
     updateUI();
   }
-  
-  
-  // --- MOTION SIMULATION ---
-  let accelerationCounter = 0;
-  
-  function simulateMotion() {
-    // Generate simulated acceleration data (e.g., a subtle random walk)
-    const randomOffset = () => (Math.random() - 0.5) * 0.1; // -0.05 to +0.05
-    
-    state.accelerationX = state.accelerationX * 0.9 + randomOffset();
-    state.accelerationY = state.accelerationY * 0.9 + randomOffset();
-    state.accelerationZ = state.accelerationZ * 0.9 + randomOffset();
-    
-    // Simulate a hard brake or turn every ~10 seconds (1000 frames)
-    accelerationCounter++;
-    if (accelerationCounter > 1000) {
-      // Introduce a spike in X or Y for a turn/brake
-      const spikeAxis = Math.random() > 0.5 ? 'X' : 'Y';
-      const spikeValue = Math.random() > 0.5 ? 2.5 : -1.5; // High acceleration/deceleration
-      if (spikeAxis === 'X') {
-        state.accelerationX += spikeValue;
-      } else {
-        state.accelerationY += spikeValue;
-      }
-      accelerationCounter = 0;
-    }
-    
-    // Calculate magnitude
-    state.accelerationMagnitude = Math.sqrt(
-      state.accelerationX ** 2 + state.accelerationY ** 2 + state.accelerationZ ** 2
-    );
-    
-    // Update motion status based on magnitude
-    if (state.accelerationMagnitude > 2.0) {
-      state.motionStatus = 'Aggressive';
-      document.querySelector('.card.motion').style.borderColor = 'var(--danger)';
-      document.getElementById('mesh-anim-layer').style.animationDuration = '5s';
-    } else if (state.accelerationMagnitude > 0.5) {
-      state.motionStatus = 'Moderate';
-      document.querySelector('.card.motion').style.borderColor = 'var(--warning)';
-      document.getElementById('mesh-anim-layer').style.animationDuration = '15s';
-    } else {
-      state.motionStatus = 'Calm';
-      document.querySelector('.card.motion').style.borderColor = 'var(--glass-border)';
-      document.getElementById('mesh-anim-layer').style.animationDuration = '40s';
-    }
-    
-    // Update map marker based on motion (simulated device orientation)
-    // We'll use X and Y acceleration for simulated tilt
-    updateCarMarker(0, -state.accelerationY * 50, state.accelerationX * 50); 
-    
-    updateUI();
-  }
-
-  // Set the dot mesh pattern dynamically for theme switching
-  function updateMeshPattern() {
-    const patternLayer = document.querySelector('.mesh-pattern');
-    const color = getComputedStyle(document.body).getPropertyValue('--dotmesh-dot-color').trim();
-    
-    // Create a tiny SVG dot pattern encoded as a CSS URL
-    const svgDot = `<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><circle cx='1' cy='1' r='.5' fill='${color}'/></svg>`;
-    const encodedSvg = encodeURIComponent(svgDot);
-    
-    patternLayer.style.backgroundImage = `url("data:image/svg+xml;charset=utf8,${encodedSvg}")`;
-  }
-  
-
-  // --- INITIALIZATION ---
-  document.addEventListener('DOMContentLoaded', () => {
-    updateUI();
-    
-    // Start the motion simulation loop
-    setInterval(simulateMotion, 50); 
-  });
-  
-  // Set up initial theme mesh on load
-  updateMeshPattern(); 
-  
-  // Optional: Listen for Dark/Light mode change if this were a real PWA on a phone
-  // window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-  //   state.darkMode = event.matches;
-  //   updateUI();
-  // });
-
 </script>
-
 </body>
 </html>
