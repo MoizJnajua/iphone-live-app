@@ -946,10 +946,8 @@
       statusText = `Detecting motion: ${status.split(':')[1]}`;
     } else if (status.includes('Trip Ended')) {
       toastEl.style.backgroundColor = 'var(--success)';
-    } else if (status.includes('Permission')) {
+    } else if (status.includes('Permission Denied') || status.includes('blocked')) { // UPDATED: Catch the new error message
       toastEl.style.backgroundColor = 'var(--danger)';
-    } else if (status.includes('technical error')) { // NEW: Handle the specific error message less alarmingly
-        toastEl.style.backgroundColor = 'var(--danger)';
     } else {
       toastEl.style.backgroundColor = 'var(--success)';
       statusText = status;
@@ -1115,10 +1113,13 @@
                 updateUI();
               })
               .catch(error => {
-                // FIX: Less alarming message for a technical error during the request
+                // *** FIX: Changed the message for external prompt failure/blocking ***
                 console.error("Motion permission request failed unexpectedly (browser restriction or internal error):", error);
-                updateMotionStatus('A technical error occurred during permission request.', 5000);
+                updateMotionStatus('Motion prompt failed or was blocked. Please check iOS/Android settings manually.', 7000);
+                state.permissionsGranted = false; // Assume blocked/denied
+                saveStateToLocalStorage();
                 closeModal('modal-permissions');
+                initMotionDetection();
                 updateUI();
               });
           } else {
