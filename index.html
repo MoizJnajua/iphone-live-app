@@ -75,40 +75,6 @@
       box-shadow: inset 0 0 0 1px rgba(15,23,42,0.9);
     }
 
-    /* --- New Dynamic Detection Background Style --- */
-    .detection-overlay {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 300ms ease-out;
-      z-index: 0; /* Behind all content */
-      /* Mimic the dotted, active background from the user's screenshot */
-      background-image:
-        radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.1), transparent 10px),
-        radial-gradient(circle at 90% 90%, rgba(129, 140, 248, 0.1), transparent 10px),
-        radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.08), transparent 8px),
-        radial-gradient(circle at 20% 80%, rgba(129, 140, 248, 0.08), transparent 8px);
-      background-size: 100% 100%;
-      animation: detect-pulse 4s infinite alternate ease-in-out;
-    }
-
-    .detection-overlay.active {
-      opacity: 1;
-    }
-
-    @keyframes detect-pulse {
-      0% {
-        background-position: 0% 0%;
-        transform: scale(1);
-      }
-      100% {
-        background-position: 100% 100%;
-        transform: scale(1.03);
-      }
-    }
-    /* ----------------------------------------------- */
-
     .status-bar {
       height: 24px;
       padding: 8px 18px 4px;
@@ -119,15 +85,13 @@
       color: var(--text-soft);
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      position: relative; /* Ensure it stays above the overlay */
-      z-index: 1;
     }
 
     .pill-tag {
       padding: 2px 8px;
       border-radius: 999px;
       border: 1px solid rgba(148,163,184,0.5);
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15,23,42,0.9);
       display: inline-flex;
       align-items: center;
       gap: 4px;
@@ -139,6 +103,7 @@
       border-radius: 50%;
       background: var(--success);
       box-shadow: 0 0 8px rgba(34,197,94,0.8);
+      animation: pulseDot 1.5s infinite ease-in-out; /* ADDED */
     }
 
     .top-bar {
@@ -146,8 +111,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: relative; /* Ensure it stays above the overlay */
-      z-index: 1;
     }
 
     .app-title {
@@ -218,8 +181,6 @@
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: rgba(148,163,184,0.8) transparent;
-      position: relative; /* Ensure content is above the overlay */
-      z-index: 1;
     }
 
     .screen-container::-webkit-scrollbar {
@@ -242,6 +203,14 @@
       from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    
+    /* ADDED */
+    @keyframes pulseDot {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.5; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    /* END ADDED */
 
     .section-label {
       font-size: 11px;
@@ -698,7 +667,6 @@
       align-items: center;
       box-shadow: 0 18px 40px rgba(0,0,0,0.9);
       padding: 0 6px;
-      z-index: 10;
     }
     .tab-btn {
       flex: 1;
@@ -873,39 +841,11 @@
     .mono {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
-
-    /* Fuel modal specific styles for a better look */
-    .fuel-modal-content {
-      padding-top: 4px;
-    }
-    .station-row, .avg-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 0;
-      font-size: 13px;
-    }
-    .station-name {
-      color: var(--text-main);
-    }
-    .station-price {
-      font-weight: 500;
-      color: var(--accent-strong);
-    }
-    .avg-row {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid rgba(148,163,184,0.4);
-      font-weight: 600;
-      color: var(--text-main);
-    }
   </style>
 </head>
 <body>
   <div class="phone">
     <div class="phone-inner">
-      <div class="detection-overlay active" id="detectionOverlay"></div>
-
       <div class="status-bar">
         <div class="pill-tag">
           <div class="pill-dot"></div>
@@ -1319,7 +1259,6 @@
       mpg: 44.2,
       fuelPrice: 1.27,
       autoFuel: true,
-      detectionActive: true, // NEW state variable to control overlay
       trips: [
         {
           id: 1,
@@ -1368,16 +1307,6 @@
     // --- Helpers ---
     function formatMoney(value) {
       return value.toFixed(2);
-    }
-
-    // NEW: Function to update the background overlay based on state
-    function updateDetectionOverlay() {
-      const overlay = document.getElementById("detectionOverlay");
-      if (state.detectionActive) {
-        overlay.classList.add("active");
-      } else {
-        overlay.classList.remove("active");
-      }
     }
 
     function recalcTodaySummary() {
@@ -1531,18 +1460,6 @@
       };
       state.trips.push(trip);
       document.getElementById("simState").textContent = "Car motion detected • trip saved";
-
-      // NEW: Temporary activation of the detection overlay for the simulated trip
-      const overlay = document.getElementById("detectionOverlay");
-      overlay.classList.add("active-sim");
-      setTimeout(() => {
-        overlay.classList.remove("active-sim");
-        // Re-apply based on detection switch, in case it was toggled off during simulation
-        if (document.getElementById("switchAutoDetect").classList.contains("on")) {
-          overlay.classList.add("active");
-        }
-      }, 3000);
-
       showToast("New trip detected • £" + formatMoney(cost) + " added");
       recalcTodaySummary();
       renderTripsList();
@@ -1595,17 +1512,12 @@
       renderTripsList();
       document.getElementById("simState").textContent = "Idle • waiting for motion";
       showToast("Demo data reset");
-      // Ensure overlay state is correct after reset (assuming Auto-detect is still ON)
-      state.detectionActive = true;
-      document.getElementById("switchAutoDetect").classList.add("on"); // Ensure switch is ON visually
-      updateDetectionOverlay();
     }
 
     // --- Event wiring ---
     window.addEventListener("DOMContentLoaded", () => {
       recalcTodaySummary();
       renderTripsList();
-      updateDetectionOverlay(); // Initial call to set the overlay state
 
       // Tabs
       const tabButtons = document.querySelectorAll(".tab-btn");
@@ -1648,9 +1560,6 @@
         document.getElementById("screenOnboarding").classList.remove("active");
         document.getElementById("screenToday").classList.add("active");
         showToast("Demo ready • live data mocked for preview");
-        // Ensure detection is active when starting the demo
-        state.detectionActive = true;
-        updateDetectionOverlay();
       });
 
       // MPG suggest
@@ -1686,9 +1595,6 @@
       document.getElementById("switchAutoDetect").addEventListener("click", (e) => {
         e.currentTarget.classList.toggle("on");
         const enabled = e.currentTarget.classList.contains("on");
-        state.detectionActive = enabled; // Update state
-        updateDetectionOverlay(); // Update visual overlay
-
         document.getElementById("statusText").textContent = enabled
           ? "Auto-detecting car trips"
           : "Detection paused";
