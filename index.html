@@ -85,7 +85,7 @@
       overflow: hidden; 
       transition: background 0.3s;
       /* Enable edge-to-edge support for mobile devices */
-      /* REMOVED: padding-top: env(safe-area-inset-top, 0px); */
+      padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
     
@@ -195,7 +195,7 @@
         padding-top: var(--header-offset); /* Push down by status bar height */
         padding-left: env(safe-area-inset-left, 20px);
         padding-right: env(safe-area-inset-right, 20px);
-        /* REMOVED: background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); */
+        background: linear-gradient(to bottom, var(--bg-app) 0%, rgba(0,0,0,0) 100%); 
     }
     .island-pill {
       width: 124px; height: 36px; background: #000; margin: 0 auto;
@@ -310,11 +310,18 @@
     .trip-section-header {
       font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 24px; margin-bottom: 8px;
     }
-    .trip-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 10px; transition: transform 0.2s, background 0.3s; cursor: pointer; }
+    .trip-item { display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 20px; margin-bottom: 10px; transition: transform 0.2s, background 0.3s; }
     .trip-item:active { transform: scale(0.98); background: var(--glass-surface-active); }
-    .mini-map-preview { width: 60px; height: 60px; border-radius: 14px; background: var(--map-bg); position: relative; overflow: hidden; flex-shrink: 0; }
-    .map-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--map-road) 1px, transparent 1px), linear-gradient(90deg, var(--map-road) 1px, transparent 1px); background-size: 15px 15px; opacity: 0.3; }
-    .map-route { position: absolute; top: 50%; left: 50%; width: 70%; height: 70%; transform: translate(-50%, -50%); border: 3px solid var(--accent-primary); border-radius: 99px; border-left-color: transparent; }
+    .mini-map-preview { 
+        width: 60px; height: 60px; border-radius: 14px; 
+        background-color: var(--map-bg); /* Use background-color instead of just background */
+        position: relative; overflow: hidden; flex-shrink: 0; 
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+    /* Removed .map-grid and .map-route as they are replaced by the background image in JS */
+    
     .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; }
     .setting-row:not(:last-child) { border-bottom: 1px solid var(--glass-border); }
     .setting-icon-container { width: 34px; height: 34px; background: var(--input-bg); border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-right: 12px; flex-shrink: 0;}
@@ -344,7 +351,7 @@
     .input-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); margin-top: 8px; border: 1px solid transparent; transition: border-color 0.2s; }
     .input-group:focus-within { border-color: var(--accent-primary); }
     .input-group span { padding: 14px; color: var(--text-muted); }
-    .input-group input { flex: 1; padding: 14px 0; background: none; border: none; color: var(--text-main); font-size: 16px; outline: none; font-family: var(--font-mono); }
+    .input-group input { flex: 1; padding: 14px; background: none; border: none; color: var(--text-main); font-size: 16px; outline: none; font-family: var(--font-mono); }
     .fuel-option-group { display: flex; background: var(--input-bg); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 16px; }
     .fuel-option { flex: 1; text-align: center; padding: 8px 12px; border-radius: var(--radius-sm) }
     .fuel-option.active { background: var(--glass-surface); font-weight: 600; color: var(--accent-primary); }
@@ -415,27 +422,6 @@
         stroke: var(--text-main);
         stroke-width: 2; 
     }
-
-    /* NEW: Trip Detail Map/Summary */
-    .trip-detail-map {
-      width: 100%; height: 180px; background: var(--map-bg); 
-      border-radius: var(--radius-card); position: relative; overflow: hidden;
-      margin-bottom: 24px;
-    }
-    .trip-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .stat-box {
-      background: var(--input-bg);
-      padding: 12px;
-      border-radius: var(--radius-sm);
-      text-align: center;
-    }
-    .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
-    .stat-value { font-size: 18px; font-weight: 600; }
   </style>
 </head>
 <body class="">
@@ -618,56 +604,89 @@
       <span style="font-size:10px; font-weight:600;">Insights</span>
     </button>
     <button class="tab-btn" onclick="switchTab('settings', this)">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H9a1.65 1.65 0 0 0-1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       <span style="font-size:10px; font-weight:600;">Settings</span>
     </button>
   </div>
-
 </div>
 
 <div class="modal-overlay" id="modal-install-tutorial" onclick="if(event.target===this) closeInstallTutorial()">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div style="text-align:center;">
-        <span style="font-size:48px; display:block; margin-bottom:10px;">📲</span>
-        <h3 style="margin-top:0;">Get QuickTrip on your Home Screen!</h3>
+      <span class="ios-share-icon-container">
+        <svg class="ios-share-svg" viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16L16 22L10 16"></path>
+          <path d="M16 20V4"></path>
+          <path d="M28 10v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10"></path>
+        </svg>
+      </span>
+      <h3 style="margin-top:0;">Install QuickTrip</h3>
     </div>
-    <div class="text-sm text-muted" style="text-align:center;">
-        For the best performance, including seamless motion and GPS tracking, please install this web app to your Home Screen.
-    </div>
-    
-    <div style="text-align:center;">
-        <div class="ios-share-icon-container">
-            <svg class="ios-share-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-        </div>
-    </div>
-    
-    <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main); text-align: left;">
-        <li>1. Tap the Share icon (<div style="display:inline-block; vertical-align:middle; width:20px; height:20px; margin:0 5px 0 0;">
-            <svg style="width:100%; height:100%; stroke-width:3;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-        </div>) in your browser's toolbar.</li>
-        <li>2. Scroll down and select "Add to Home Screen".</li>
-    </ul>
-    
-    <button class="btn-action" onclick="closeInstallTutorial()">I'll do it later</button>
+    <p class="text-sm text-muted">To enable full offline tracking and native app-like features, tap the **Share** button <span style="display:inline-block; vertical-align:middle;" class="ios-share-icon-container"><svg class="ios-share-svg" viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M22 16L16 22L10 16"></path><path d="M16 20V4"></path><path d="M28 10v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10"></path></svg></span> in your browser's toolbar, then select **Add to Home Screen**.</p>
+    <button class="btn-action" onclick="closeInstallTutorial()">Got it!</button>
   </div>
 </div>
+
+<div class="modal-overlay" id="modal-fuel-price" onclick="if(event.target===this) closeModal('modal-fuel-price')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Fuel Price</h3>
+    <p class="text-sm text-muted">Choose your preferred method for tracking fuel price per liter (£/L).</p>
+    
+    <div class="fuel-option-group">
+      <div id="option-live" class="fuel-option active" onclick="setFuelSource('live')">Live Price</div>
+      <div id="option-fixed" class="fuel-option" onclick="setFuelSource('fixed')">Fixed Price</div>
+    </div>
+    
+    <div id="live-detail">
+      <div style="display:flex; justify-content:space-between;">
+        <label class="text-sm text-muted">Current Live Estimate</label>
+        <span class="text-mono font-bold" id="labelLivePrice">£1.27</span>
+      </div>
+      <p class="text-sm text-muted" id="liveStatusDetail" style="margin-top:10px;">Price based on nearest station to your last known GPS location.</p>
+    </div>
+    
+    <div id="fixed-input" style="display:none;">
+      <label class="text-sm text-muted">Set Fixed Price (£/L)</label>
+      <div class="input-group">
+        <span>£</span>
+        <input type="number" id="inputFixedPrice" value="1.27" step="0.01">
+        <span>/L</span>
+      </div>
+      <p class="text-sm text-muted" style="margin-top:10px;">This price will be used for all calculations until changed.</p>
+    </div>
+    
+    <button class="btn-action" onclick="saveFuelSettings()">Save Fuel Settings</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-budget" onclick="if(event.target===this) closeModal('modal-budget')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h3>Monthly Budget</h3>
+    <p class="text-sm text-muted">Set a target to track your fuel spending.</p>
+    
+    <label class="text-sm text-muted">Budget Limit (£)</label>
+    <div class="input-group">
+      <span>£</span>
+      <input type="number" id="inputBudget" value="200" step="10">
+      <span class="text-mono font-bold">/mo</span>
+    </div>
+    
+    <button class="btn-action" onclick="saveBudget()">Save Budget</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-privacy" onclick="if(event.target===this) closeModal('modal-privacy')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div style="text-align:center;">
-        <span style="font-size:48px; display:block; margin-bottom:10px;">🔒</span>
-        <h3 style="margin-top:0;">On-Device Privacy</h3>
+    <h3>On-Device Privacy</h3>
+    <p class="text-sm text-muted">QuickTrip is built with privacy in mind. All your trip data, car settings, and calculated costs are stored exclusively on this device.</p>
+    <div style="display:flex; align-items:flex-start; margin-top:15px; background:var(--input-bg); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--glass-border);">
+      <span style="font-size:20px; margin-right:10px;">⚠️</span>
+      <p class="text-sm text-muted" style="margin:0;">Since your data is local and not backed up to a cloud, please note that deleting the QuickTrip app will permanently delete all your saved information.</p>
     </div>
-    <div class="text-sm text-muted">You are in control of your data. Everything QuickTrip calculates—your routes, costs, and settings—stays secure on your device only. Since your data is local and not backed up to a cloud, please note that deleting the QuickTrip app will permanently delete all your saved information.</div>
     <button class="btn-action" onclick="closeModal('modal-privacy')">Got it!</button>
   </div>
 </div>
@@ -676,13 +695,13 @@
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div style="text-align:center;">
-        <span style="font-size:48px; display:block; margin-bottom:10px;">📍</span>
-        <h3 style="margin-top:0;">Enable Trip Detection</h3>
+      <span style="font-size:48px; display:block; margin-bottom:10px;">📍</span>
+      <h3 style="margin-top:0;">Enable Trip Detection</h3>
     </div>
     <p class="text-sm text-muted">To automatically detect your car trips or manually track your route, we need permission to access your device's location and motion sensors.</p>
     <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main);">
-        <li>Location (GPS): Required for route and distance calculation.</li>
-        <li>Motion/Accelerometer: Required to start/stop tracking based on driving movement.</li>
+      <li>Location (GPS): Required for route and distance calculation.</li>
+      <li>Motion/Accelerometer: Required to start/stop tracking based on driving movement.</li>
     </ul>
     <p class="text-sm text-muted">Tap "Enable" to trigger the browser's permission prompts.</p>
     <button class="btn-action" onclick="grantPermissions()">Enable Tracking</button>
@@ -695,8 +714,7 @@
     <h3>Edit Car Profile</h3>
     <label class="text-sm text-muted">Car Name</label>
     <div class="input-group"><input type="text" id="inputCarName" value="Audi A3"></div>
-    <div style="margin-top:20px;">
-      <div style="display:flex; justify-content:space-between;">
+    <div style="margin-top:16px;"> <div style="display:flex; justify-content:space-between;">
         <label class="text-sm text-muted">Efficiency (MPG)</label>
         <span class="text-mono font-bold" id="labelMPG">44</span>
       </div>
@@ -706,112 +724,24 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-budget" onclick="if(event.target===this) closeModal('modal-budget')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3>Monthly Budget</h3>
-    <p class="text-sm text-muted">Set a target to track your fuel spending.</p>
-    <div style="text-align:center; padding:20px 0;">
-      <span style="font-size:48px;" class="text-hand">£<span id="labelBudget">200</span></span>
-    </div>
-    <input type="range" id="sliderBudget" class="ios-slider" min="50" max="500" step="10" value="200" oninput="updateBudgetPreview(this.value)">
-    <button class="btn-action" onclick="saveBudget()">Set Budget</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-fuel-price" onclick="if(event.target===this) closeModal('modal-fuel-price')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3>Fuel Price Source</h3>
-    <p class="text-sm text-muted">Choose how QuickTrip calculates your trip costs.</p>
-    <div class="fuel-option-group">
-      <div id="option-live" class="fuel-option active" onclick="setFuelSource('live')">Live Fuel Prices</div>
-      <div id="option-fixed" class="fuel-option" onclick="setFuelSource('fixed')">Fixed Price</div>
-    </div>
-    <div id="live-detail">
-      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-        <span class="text-sm text-muted">Local Average (<span id="live-radius">5</span> mile radius)</span>
-        <span class="text-mono font-bold" style="color:var(--accent-primary);" id="live-price-display">£1.27/L</span>
-      </div>
-      <div class="text-sm text-muted" style="border-top:1px solid var(--glass-border); padding-top:10px;">
-        <span id="live-station-detail">Data from Shell (£1.30), BP (£1.28), Esso (£1.23).</span>
-      </div>
-    </div>
-    <div id="fixed-input" style="display:none;">
-      <label class="text-sm text-muted">Enter Price per Litre</label>
-      <div class="input-group">
-        <span>£</span>
-        <input type="number" id="inputFixedPrice" value="1.27" min="0.5" step="0.01">
-        <span>/L</span>
-      </div>
-    </div>
-    <button class="btn-action" onclick="saveFuelSettings()">Apply</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modal-trip-detail" onclick="if(event.target===this) closeModal('modal-trip-detail')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <h3 id="tripDetailTitle">Trip Detail</h3>
-    
-    <div class="trip-detail-map">
-        <div class="map-grid"></div>
-        <div class="map-route" id="tripDetailRoute" style="transform: translate(-50%, -50%) rotate(45deg);"></div>
-    </div>
-    
-    <div class="trip-stats-grid">
-        <div class="stat-box">
-            <div class="stat-label">COST</div>
-            <div class="stat-value text-mono" id="tripDetailCost">£0.00</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-label">DISTANCE</div>
-            <div class="stat-value text-mono" id="tripDetailDist">0.0 mi</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-label">DURATION</div>
-            <div class="stat-value text-mono" id="tripDetailDuration">0m</div>
-        </div>
-    </div>
-    
-    <div class="card" style="margin-bottom: 0;">
-      <div class="setting-row" style="padding-top:0;">
-        <div class="setting-icon-container" style="background:var(--warning);"><span class="setting-icon-emoji">🗓️</span></div>
-        <div style="flex:1;">
-          <div class="font-bold">Date & Time</div>
-          <div class="text-sm text-muted" id="tripDetailDate">--</div>
-        </div>
-      </div>
-      <div class="setting-row" style="border-bottom:none;">
-        <div class="setting-icon-container" style="background:var(--success);"><span class="setting-icon-emoji">⛽</span></div>
-        <div style="flex:1;">
-          <div class="font-bold">Fuel Efficiency</div>
-          <div class="text-sm text-muted" id="tripDetailMPG">-- MPG</div>
-        </div>
-      </div>
-    </div>
-    
-  </div>
-</div>
-
 <script>
-  // --- STATE & PERSISTENCE (Local Storage Implementation) ---
+  // DEFAULT STATE (for initial load and missing local storage)
   const DEFAULT_STATE = {
-    carName: "Audi A3",
+    carName: 'Audi A3',
     mpg: 44,
-    budget: 200,
-    fuelPrice: 1.27,
-    fuelSource: 'live',
-    trips: [], 
-    permissionsGranted: false,
-    detectionEnabled: false, 
+    fuelPrice: 1.27, // £/L
+    fuelSource: 'live', // 'live' or 'fixed'
+    budget: 200, // Monthly budget
+    trips: [], // { date: Date, title: string, dist: number, cost: number }
     isLightMode: false,
-    privacySeen: false,
-    installPromptSeen: false, // NEW: Track if the install tutorial has been shown
+    detectionEnabled: true,
+    permissionsGranted: false, // Flag for user permissions (GPS/Motion)
+    installPromptSeen: false, // Flag to prevent re-showing the install prompt after dismissal
   };
-  
+
   let state = {};
-  const screenArea = document.querySelector('.screen-area'); 
+
+  const screenArea = document.querySelector('.screen-area');
 
   // --- MOTION DETECTION VARIABLES ---
   let isDetectingMotion = false;
@@ -821,8 +751,8 @@
   let lastToastStatus = '';
   let toastTimeout = null;
   let meshAnimationTimeout = null;
-  let lastToastTime = 0; 
-  
+  let lastToastTime = 0;
+
   // --- MANUAL TRIP STATE (NEW) ---
   let isManualTripActive = false;
   let manualTripStartTime = 0;
@@ -832,22 +762,16 @@
   let lastPosition = null; // Store last GPS coordinates for fuel price lookup
 
   // --- DOT MESH CONFIG ---
-  const DOT_COUNT_BASE = 80; 
+  const DOT_COUNT_BASE = 80;
   const DOT_COUNT_ACTIVE = DOT_COUNT_BASE * 2; // Doubled count when active
   let dots = [];
-
 
   function loadStateFromLocalStorage() {
     try {
       const serializedState = localStorage.getItem('quicktripState');
       let savedState = serializedState ? JSON.parse(serializedState) : {};
       if (savedState.trips) {
-        savedState.trips = savedState.trips.map(t => ({
-          ...t,
-          date: new Date(t.date),
-          // NEW: Ensure all trips have a duration property for the detail modal
-          duration: t.duration || 0, // default to 0 if missing
-        }));
+        savedState.trips = savedState.trips.map(t => ({ ...t, date: new Date(t.date) }));
       }
       state = { ...DEFAULT_STATE, ...savedState };
     } catch (err) {
@@ -859,79 +783,83 @@
   function saveStateToLocalStorage() {
     try {
       const stateToSave = { ...state };
+      // Before saving, convert Date objects in trips back to strings
+      stateToSave.trips = stateToSave.trips.map(t => ({ ...t, date: t.date.toISOString() }));
       const serializedState = JSON.stringify(stateToSave);
       localStorage.setItem('quicktripState', serializedState);
     } catch (err) {
       console.error("Error saving state:", err);
     }
   }
-  
+
   // --- PWA/INSTALLATION LOGIC (NEW) ---
   function isStandalonePWA() {
-      // Check for 'standalone' display mode (the primary indicator of an installed PWA)
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-
-      // Check for legacy iOS property (for older iPhones/iPads)
-      const isLegacyIOS = ('standalone' in window.navigator) && (window.navigator.standalone);
-
-      return isStandalone || isLegacyIOS;
+    // Check for 'standalone' display mode (the primary indicator of an installed PWA)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    // Check for legacy iOS property (for older iPhones/iPads)
+    const isLegacyIOS = ('standalone' in window.navigator) && (window.navigator.standalone);
+    return isStandalone || isLegacyIOS;
   }
-  
-  // NEW FUNCTION: Manages the display of the next modal (Privacy) in the sequence
-  function checkAndOpenNextModal() {
-      // 1. Show privacy modal if it hasn't been seen
-      if (!state.privacySeen) {
-          openPrivacyModal();
-          state.privacySeen = true; // Set state here as the modal is now presented
-          saveStateToLocalStorage();
-      }
-      
-      // No more modals to chain, so the sequence ends here.
+
+  function openInstallTutorial() {
+    document.getElementById('modal-install-tutorial').classList.add('open');
+    state.installPromptSeen = true; // Set flag when modal is shown
+    saveStateToLocalStorage();
   }
 
   function closeInstallTutorial() {
-      state.installPromptSeen = true;
-      saveStateToLocalStorage();
-      closeModal('modal-install-tutorial');
-      checkAndOpenNextModal(); // Chain to the next modal (Privacy)
+    document.getElementById('modal-install-tutorial').classList.remove('open');
   }
 
-  // --- DOT MESH C ANIMATION LOGIC (UPDATED FOR DYNAMIC COUNT) ---
-  function initCornerMesh() {
-    const meshEl = document.getElementById("cornerMesh");
-    meshEl.innerHTML = ""; // Clear existing dots
-    dots = [];
+  // --- DOT MESH VISUALS (ANIMATED BACKGROUND) ---
+  function updateDotPattern() {
+    // Base64 SVG for a subtle dot pattern that respects theme colors
+    const dotColor = state.isLightMode ? '0,0,0' : '255,255,255';
+    const opacityLevel = state.isLightMode ? 0.05 : 0.05;
     
+    // SVG for grid pattern (1px dots)
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="1" cy="1" r="1" fill="rgba(${dotColor}, 0.5)"/></svg>`;
+    const encodedSvg = svg.replace(/#/g, '%23').replace(/%/g, '%25').replace(/&/g, '%26').replace(/\//g, '%2F').replace(/{/g, '%7B').replace(/}/g, '%7D').replace(/"/g, "'").replace(/'/g, '%27').replace(/"/g, '%22');
+    
+    const meshPatternEl = document.querySelector('.mesh-pattern');
+    meshPatternEl.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodedSvg}")`;
+    meshPatternEl.style.opacity = opacityLevel;
+    
+    initCornerMesh(); // Re-initialize the corner mesh on theme change to update dot colors
+  }
+
+  function initCornerMesh() {
+    const meshEl = document.getElementById('cornerMesh');
+    meshEl.innerHTML = ''; // Clear existing dots
+    dots = [];
+
     const count = screenArea.classList.contains('motion-active') ? DOT_COUNT_ACTIVE : DOT_COUNT_BASE;
 
     // Create dots with random positions and velocities
     for(let i = 0; i < count; i++){
-      const d = document.createElement("div");
-      d.className = "dot";
-      
-      // Calculate random position within the viewport
-      let x = Math.random() * window.innerWidth;
-      let y = Math.random() * window.innerHeight;
-      
-      d.style.left = x + 'px';
-      d.style.top = y + 'px';
-      d.style.animationDelay = (Math.random() * 2) + "s";
-      
-      meshEl.appendChild(d);
-      
-      // Store dot properties for drift animation
-      dots.push({
-        el: d, 
-        x, 
-        y, 
-        dx: (Math.random() - 0.5) * 0.15, 
-        dy: (Math.random() - 0.5) * 0.15
-      });
+        const d = document.createElement("div");
+        d.className = "dot";
+        // Calculate random position within the viewport
+        let x = Math.random() * window.innerWidth;
+        let y = Math.random() * window.innerHeight;
+        d.style.left = x + 'px';
+        d.style.top = y + 'px';
+        d.style.animationDelay = (Math.random() * 2) + "s";
+        meshEl.appendChild(d);
+
+        // Store dot properties for drift animation
+        dots.push({ 
+            el: d, 
+            x, 
+            y, 
+            dx: (Math.random() - 0.5) * 0.15, 
+            dy: (Math.random() - 0.5) * 0.15 
+        });
     }
 
     // Ensure the animation loop is running once
     if (!meshAnimationTimeout) {
-        animateCornerMesh(); 
+        animateCornerMesh();
     }
   }
 
@@ -941,68 +869,19 @@
         for(const p of dots){
             p.x += p.dx;
             p.y += p.dy;
-            
+
             // Bounce off edges
             if(p.x < 0 || p.x > window.innerWidth) p.dx *= -1;
             if(p.y < 0 || p.y > window.innerHeight) p.dy *= -1;
-            
+
             p.el.style.left = p.x + 'px';
             p.el.style.top = p.y + 'px';
         }
     }
     meshAnimationTimeout = requestAnimationFrame(animateCornerMesh);
   }
-  
-  // --- INITIALIZATION (MODIFIED FOR MODAL CHAINING) ---
-  document.addEventListener('DOMContentLoaded', () => {
-    loadStateFromLocalStorage();
-    if (state.isLightMode) {
-      document.body.classList.add('light-mode');
-      document.getElementById('themeToggle').classList.add('on');
-    }
-    
-    updateDotPattern(); 
-    initCornerMesh(); // Initialize the new corner mesh with base dot count
-    updateUI();
-    initMotionDetection(); 
-    
-    // --- START INITIAL MODAL SEQUENCE ---
-    const installModalRequired = !isStandalonePWA() && !state.installPromptSeen;
-    
-    if (installModalRequired) {
-        // 1. Show Install Tutorial first (the info drawer)
-        setTimeout(() => {
-            document.getElementById('modal-install-tutorial').classList.add('open');
-        }, 500);
-        // The chain continues in closeInstallTutorial() -> checkAndOpenNextModal()
-    } else {
-        // 2. If install is not needed, proceed directly to the next modal (Privacy)
-        checkAndOpenNextModal();
-    }
-    // --- END INITIAL MODAL SEQUENCE ---
-  });
-  
-  // --- Function to fix the dynamic dot pattern background ---
-  function updateDotPattern() {
-    const isLight = document.body.classList.contains('light-mode');
-    
-    // Choose solid color for the dots in the SVG, opacity is handled by the wrapper element
-    const dotColor = isLight ? 'rgb(0,0,0)' : 'rgb(255,255,255)';
-    const opacityLevel = isLight ? '0.05' : '0.04'; // Adjust opacity for better visibility
-    
-    // Create the SVG data URI
-    const svgContent = `<svg width='2' height='2' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'><circle cx='1' cy='1' r='0.5' fill='${dotColor}'/></svg>`;
-    const encodedSvg = encodeURIComponent(svgContent).replace(/'/g, '%27').replace(/"/g, '%22');
-
-    const meshPatternEl = document.querySelector('.mesh-pattern');
-    meshPatternEl.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodedSvg}")`;
-    meshPatternEl.style.opacity = opacityLevel;
-    
-    initCornerMesh(); // Re-initialize the corner mesh on theme change to update dot colors
-  }
 
   // --- MOTION DETECTION LOGIC (UPDATED FOR MANUAL CHECK) ---
-
   function initMotionDetection() {
     // Only start if detection is enabled AND permissions are granted
     if (state.detectionEnabled && state.permissionsGranted && !isDetectingMotion) {
@@ -1033,10 +912,14 @@
     // 1. Check for significant motion (Shaking)
     if (magnitude > MOTION_THRESHOLD) {
       lastSignificantMotionTime = now;
-      
-      if (now - lastToastTime > 500) { 
-        updateMotionStatus('Shaking');
-        lastToastStatus = 'Shaking'; 
+      screenArea.classList.add('motion-active'); // Active the mesh immediately on shake
+
+      if (now - lastToastTime > 500) {
+        // Only show toast if it's the first significant motion in a burst
+        if (lastToastStatus !== 'Shaking') {
+            updateMotionStatus('Shaking');
+        }
+        lastToastStatus = 'Shaking';
       }
 
       // 2. Check for sustained motion (Simulated 'Moving Car')
@@ -1047,48 +930,26 @@
         }
       }
     } else {
-       if (now - lastSignificantMotionTime > 5000 && lastToastStatus !== 'Steady') {
-           // If we are steady for a while, clear the active status
-           screenArea.classList.remove('motion-active');
-           initCornerMesh(); // Reset dot count
-           lastToastStatus = 'Steady'; 
-       }
+      if (now - lastSignificantMotionTime > 5000 && lastToastStatus !== 'Steady') {
+        // If we are steady for a while, clear the active status
+        screenArea.classList.remove('motion-active');
+        initCornerMesh(); // Reset dot count
+        lastToastStatus = 'Steady';
+      }
     }
   }
 
   function updateMotionStatus(status, duration = 3000) {
     const toastEl = document.getElementById('motionToast');
     clearTimeout(toastTimeout);
+
+    let statusText = status;
     
-    let statusText = status; // Keeping this simple for new feature clarity
-    
-    if (status.includes('Shaking')) {
-        toastEl.style.backgroundColor = 'var(--warning)';
-        statusText = `Detecting motion: ${status}`;
-    } else if (status.includes('Moving Car')) {
-        toastEl.style.backgroundColor = 'var(--accent-primary)';
-        statusText = `Detecting motion: ${status}`;
-    } else if (status.includes('Trip Ended')) {
-        toastEl.style.backgroundColor = 'var(--success)';
-    } else if (status.includes('Permission')) {
-        toastEl.style.backgroundColor = 'var(--danger)';
-    } else {
-        toastEl.style.backgroundColor = 'var(--success)';
-        statusText = `Motion Detected: ${status}`;
-    }
-    
-    toastEl.textContent = statusText;
-    
-    toastEl.classList.add('show');
-    
-    // Activate dynamic background effect and corner mesh
-    if (status.includes('Shaking') || status.includes('Moving Car') || status.includes('Trip Started')) {
-      screenArea.classList.add('motion-active');
-      initCornerMesh(); // Set active dot count
-    }
-    
-    if (status.includes('Shaking')) {
-        lastToastTime = Date.now(); 
+    // Only show toast for shaking or manual trip status
+    if (status.includes('Shaking') || status.includes('Trip Started')) {
+        toastEl.innerText = statusText;
+        toastEl.classList.add('show');
+        lastToastTime = Date.now();
     }
     
     toastTimeout = setTimeout(() => {
@@ -1096,9 +957,7 @@
     }, duration);
   }
 
-
   // --- MANUAL TRIP FUNCTIONS (UPDATED FOR TOGGLE) ---
-
   function toggleManualTrip() {
     if (isManualTripActive) {
       stopManualTrip();
@@ -1106,29 +965,13 @@
       startManualTrip();
     }
   }
-  
-  // Utility function to format time duration
-  function formatDuration(ms) {
-    const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    
-    if (hours > 0) {
-        return `${hours}h ${minutes}m`;
-    } else if (minutes > 0) {
-        return `${minutes}m`;
-    } else {
-        return `<1m`;
-    }
-  }
 
   function startManualTrip() {
     // 1. Check permissions
     if (!state.permissionsGranted) {
-        // Open the permissions modal instead of starting the trip
-        document.getElementById('modal-permissions').classList.add('open');
-        return; 
+      // Open the permissions modal instead of starting the trip
+      document.getElementById('modal-permissions').classList.add('open');
+      return;
     }
 
     isManualTripActive = true;
@@ -1139,13 +982,9 @@
     // 2. Start GPS Tracking
     geolocationWatchId = navigator.geolocation.watchPosition(
       (position) => {
-        const currentPosition = {
-          lat: position.coords.latitude,
-          lon: position.coords.longitude
-        };
-        
+        const currentPosition = { lat: position.coords.latitude, lon: position.coords.longitude };
         if (lastPosition) {
-          const dist = calculateDistance(lastPosition, currentPosition); 
+          const dist = calculateDistance(lastPosition, currentPosition);
           tripDistance += dist;
         }
         lastPosition = currentPosition;
@@ -1155,20 +994,20 @@
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
-    
+
     // 3. Update UI
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Stop trip';
     button.classList.add('stop-active');
     document.getElementById('autoDetectSection').classList.add('hidden'); 
-    
+
     // Activate dot mesh animation and show toast
-    screenArea.classList.add('motion-active'); 
+    screenArea.classList.add('motion-active');
     initCornerMesh(); // Set active dot count
     updateMotionStatus('Trip Started Manually!', 2000);
-    
+
     // 4. Start Timer and Dynamic Island
-    updateTripTimer(); 
+    updateTripTimer();
     tripTimerInterval = setInterval(updateTripTimer, 1000);
     document.getElementById('dynamicPill').classList.add('active');
     document.getElementById('islandStatusText').textContent = 'TRIP IN PROCESS';
@@ -1187,51 +1026,42 @@
     const button = document.getElementById('manualTripButton');
     button.textContent = 'Start trip manually';
     button.classList.remove('stop-active');
-    document.getElementById('autoDetectSection').classList.remove('hidden'); 
+    document.getElementById('autoDetectSection').classList.remove('hidden');
 
     // 3. Calculate Trip Data
     const durationMs = Date.now() - manualTripStartTime;
-    const durationMins = durationMs / (1000 * 60);
-
-    let finalDistance = tripDistance > 0 ? tripDistance : Math.max(1.0, durationMins * 0.1); 
-    if (finalDistance < 0.1) finalDistance = 0.1;
-
-    const cost = calculateTripCost(finalDistance); 
-
-    // 4. Record Trip
-    const newTrip = {
-      id: state.trips.length + 1,
-      date: new Date(manualTripStartTime),
-      title: 'Manual Trip',
-      dist: finalDistance.toFixed(1), 
-      cost: cost,
-      duration: durationMs // NEW: Save duration in milliseconds
-    };
-    state.trips.push(newTrip);
+    const durationMinutes = Math.floor(durationMs / 60000);
+    const tripCost = calculateTripCost(tripDistance);
     
-    // Show a success toaster
-    updateMotionStatus(`Trip Ended. Cost: £${cost.toFixed(2)}.`, 5000);
+    // Add new trip to state
+    if (tripDistance > 0.1 || durationMinutes > 1) { // Only save non-trivial trips
+        state.trips.push({
+            date: new Date(),
+            title: `Manual Trip`,
+            dist: tripDistance.toFixed(1), // Miles
+            cost: tripCost, // £
+            duration: durationMinutes,
+        });
+        updateMotionStatus(`Trip Ended. Distance: ${tripDistance.toFixed(1)} mi. Cost: £${tripCost.toFixed(2)}`, 5000);
+    } else {
+        updateMotionStatus('Trip Cancelled (Too short)', 2000);
+    }
 
-    // 5. Save and Refresh
-    saveStateToLocalStorage();
+
+    // 4. Update UI and stop visuals
+    document.getElementById('dynamicPill').classList.remove('active');
+    screenArea.classList.remove('motion-active');
+    initCornerMesh(); // Reset dot count
+
     updateUI();
-    
-    // 6. Smoothly hide the Dynamic Island and Dot Mesh after a slight delay (0.5s)
-    setTimeout(() => {
-        document.getElementById('dynamicPill').classList.remove('active');
-        screenArea.classList.remove('motion-active'); 
-        initCornerMesh(); // Reset dot count
-    }, 500); 
   }
 
   function updateTripTimer() {
-    if (!isManualTripActive) return;
-    
-    const durationMs = Date.now() - manualTripStartTime;
-    const totalSeconds = Math.floor(durationMs / 1000);
+    if (!manualTripStartTime) return;
+    const elapsed = Date.now() - manualTripStartTime;
+    const totalSeconds = Math.floor(elapsed / 1000);
     const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
     const seconds = String(totalSeconds % 60).padStart(2, '0');
-    
     document.getElementById('recTimer').textContent = `${minutes}:${seconds}`;
   }
 
@@ -1244,8 +1074,7 @@
     const deltaLon = (p2.lon - p1.lon) * (Math.PI / 180);
 
     const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-              Math.cos(lat1) * Math.cos(lat2) *
-              Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+              Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c; // Distance in miles
@@ -1257,90 +1086,95 @@
     const fuelUsedLiters = distanceMiles / milesPerLiter;
     return fuelUsedLiters * state.fuelPrice;
   }
-  
+
   // --- NEW: Simulate dynamic fuel price fetching based on last known GPS ---
   async function fetchLiveFuelPrice() {
-      // Check if permissions are granted and we have a location
-      if (!state.permissionsGranted) {
-          return { price: 1.27, detail: "Cannot get live price: Permissions missing." };
-      }
-      
-      const lat = lastPosition ? lastPosition.lat : 51.5074; // London fallback
-      const lon = lastPosition ? lastPosition.lon : 0.1278; // London fallback
-      
-      // Simple hash function for reproducible, yet dynamic, prices
-      const seed = Math.floor(lat * 100) + Math.floor(lon * 100);
-      const basePrice = 1.20 + (seed % 100) / 1000; // Base price between 1.20 and 1.299
-      const price = basePrice + Math.random() * 0.10; // Add up to 10p variation
+    // Check if permissions are granted and we have a location
+    if (!state.permissionsGranted) {
+      return { price: 1.27, detail: "Cannot get live price: Permissions missing." };
+    }
+    
+    const lat = lastPosition ? lastPosition.lat : 51.5074; // London fallback
+    const lon = lastPosition ? lastPosition.lon : 0.1278; // London fallback
 
-      const stations = [
-          { name: "Shell", p: price + 0.03 },
-          { name: "BP", p: price + 0.01 },
-          { name: "Esso", p: price - 0.04 }
-      ];
-      
-      const detail = stations.map(s => `${s.name} (£${s.p.toFixed(2)})`).join(', ');
+    // Simple hash function for reproducible, yet dynamic, prices
+    const seed = Math.floor(lat * 100) + Math.floor(lon * 100);
+    const basePrice = 1.20 + (seed % 100) / 1000; // Base price between 1.20 and 1.299
+    const price = basePrice + Math.random() * 0.10; // Add up to 10p variation
 
-      return {
-          price: parseFloat(price.toFixed(2)),
-          detail: `Data from ${detail}.`
-      };
+    const stations = [
+        { name: "Shell", p: price + 0.03 },
+        { name: "BP", p: price + 0.01 },
+        { name: "Esso", p: price - 0.04 }
+    ];
+
+    const randomStation = stations[Math.floor(Math.random() * stations.length)];
+    const randomPrice = randomStation.p;
+    
+    return { 
+        price: randomPrice, 
+        detail: `Based on nearby ${randomStation.name} station (${lat.toFixed(2)}, ${lon.toFixed(2)})`
+    };
   }
 
 
-  // --- PERMISSION LOGIC ---
+  // --- PERMISSIONS LOGIC (New) ---
   function grantPermissions() {
-    // 1. Ask for Geolocation (GPS)
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => { 
-            console.log("GPS permission granted."); 
-            // Store initial position
-            lastPosition = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        },
-        (err) => { console.error("GPS permission denied:", err.message); }
-      );
+    // 1. Ask for Geolocation (GPS) permission
+    if (!('geolocation' in navigator)) {
+        updateMotionStatus('Geolocation not supported.', 4000);
+        return;
     }
-
-    // 2. Ask for DeviceMotion/Orientation (iOS Safari requirement)
-    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-      DeviceMotionEvent.requestPermission().then(response => {
-        if (response === 'granted') {
-           updateMotionStatus('Motion Sensor Granted!', 2000);
-           state.permissionsGranted = true;
-           saveStateToLocalStorage();
-           initMotionDetection(); 
-           // If permission was granted, and detection was meant to be on, turn it on now.
-           if (state.detectionEnabled) {
-               document.getElementById('detectionToggleToday').classList.add('on');
-           }
+    
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        console.log("GPS permission granted.");
+        // 2. Ask for Motion permission (iOS 13+ requirement for non-HTTPS or non-safari contexts)
+        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+          DeviceMotionEvent.requestPermission().then(permissionState => {
+            if (permissionState === 'granted') {
+              updateMotionStatus('Motion Sensor Granted!', 2000);
+              state.permissionsGranted = true;
+              saveStateToLocalStorage();
+              initMotionDetection(); // If permission was granted, and detection was meant to be on, turn it on now.
+              if (state.detectionEnabled) {
+                  document.getElementById('detectionToggleToday').classList.add('on');
+              }
+            } else {
+              updateMotionStatus('Motion Sensor Denied. Detection compromised.', 4000);
+            }
+            updateUI();
+          }).catch(console.error);
         } else {
-           updateMotionStatus('Motion Sensor Denied. Detection compromised.', 4000);
+            // Non-iOS or older iOS, motion is usually available without explicit prompt
+            state.permissionsGranted = true;
+            saveStateToLocalStorage();
+            initMotionDetection(); // If permission was granted, and detection was meant to be on, turn it on now.
+            if (state.detectionEnabled) {
+                document.getElementById('detectionToggleToday').classList.add('on');
+            }
+            updateUI();
         }
+      },
+      (err) => {
+        console.error("GPS permission denied:", err);
+        updateMotionStatus('GPS Denied. Tracking compromised.', 4000);
+        state.permissionsGranted = false; // Mark as denied
         updateUI();
-      }).catch(console.error);
-    } else {
-      state.permissionsGranted = true;
-      saveStateToLocalStorage();
-      initMotionDetection();
-      // If permission was granted, and detection was meant to be on, turn it on now.
-      if (state.detectionEnabled) {
-          document.getElementById('detectionToggleToday').classList.add('on');
-      }
-      updateUI();
-    }
-
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+    
     closeModal('modal-permissions');
   }
-  
+
   // --- NAVIGATION ---
   function switchTab(tabId, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + tabId).classList.add('active');
-    
+
     const header = document.getElementById('headerRow');
     if(tabId === 'settings') {
       header.classList.add('hidden');
@@ -1353,11 +1187,10 @@
   function toggleTheme(el) {
     el.classList.toggle('on');
     document.body.classList.toggle('light-mode');
-    
     state.isLightMode = document.body.classList.contains('light-mode');
-    saveStateToLocalStorage(); 
-    updateDotPattern(); 
-    
+    saveStateToLocalStorage();
+    updateDotPattern();
+
     const isLightMode = state.isLightMode;
     const iconMoon = document.getElementById('icon-moon');
     const iconSun = document.getElementById('icon-sun');
@@ -1376,7 +1209,8 @@
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-
+    
+    // Normalize to date-only for comparison
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const y = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
@@ -1390,28 +1224,6 @@
       return date.toLocaleDateString('en-US', options);
     }
   }
-  
-  // --- NEW: Function to open Trip Detail Modal ---
-  function openTripDetail(tripId) {
-      const trip = state.trips.find(t => t.id === tripId);
-      if (!trip) return;
-
-      const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-      
-      document.getElementById('tripDetailTitle').textContent = trip.title;
-      document.getElementById('tripDetailCost').textContent = `£${trip.cost.toFixed(2)}`;
-      document.getElementById('tripDetailDist').textContent = `${parseFloat(trip.dist).toFixed(1)} mi`;
-      document.getElementById('tripDetailDuration').textContent = formatDuration(trip.duration);
-      document.getElementById('tripDetailDate').textContent = trip.date.toLocaleDateString('en-US', dateOptions);
-      document.getElementById('tripDetailMPG').textContent = `${state.mpg} MPG`;
-      
-      // Update map rotation for visual variety based on ID
-      const rotate = (trip.id * 55) % 360; 
-      document.getElementById('tripDetailRoute').style.transform = `translate(-50%, -50%) rotate(${rotate}deg)`;
-
-      document.getElementById('modal-trip-detail').classList.add('open');
-  }
-
 
   // --- UI UPDATER ---
   async function updateUI() {
@@ -1419,37 +1231,41 @@
     document.getElementById('headerCarName').innerText = state.carName;
     document.getElementById('headerMPG').innerText = state.mpg;
     document.getElementById('settingsCarDetail').innerText = `${state.carName} • ${state.mpg} MPG`;
+    document.getElementById('inputCarName').value = state.carName;
+    document.getElementById('sliderMPG').value = state.mpg;
+    document.getElementById('labelMPG').innerText = state.mpg;
     document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L`;
-    
-    // Fuel Modal Live Price Update (Asynchronous)
-    const livePriceData = await fetchLiveFuelPrice();
-    document.getElementById('live-price-display').innerText = `£${livePriceData.price.toFixed(2)}/L`;
-    document.getElementById('live-station-detail').innerText = livePriceData.detail;
 
-    // Apply the live price if the source is 'live'
-    if (state.fuelSource === 'live' && state.permissionsGranted) {
-        state.fuelPrice = livePriceData.price;
-        document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L`;
+    // Fuel Price detail for modal
+    if (state.fuelSource === 'live') {
+      const livePriceData = await fetchLiveFuelPrice();
+      document.getElementById('labelLivePrice').innerText = `£${livePriceData.price.toFixed(2)}`;
+      document.getElementById('liveStatusDetail').innerText = livePriceData.detail;
+      document.getElementById('option-live').classList.add('active');
+      document.getElementById('option-fixed').classList.remove('active');
+      document.getElementById('live-detail').style.display = 'block';
+      document.getElementById('fixed-input').style.display = 'none';
+      // Use the actual state price for the header, not the fetched price, 
+      // as the state price might have been set to a fixed value.
+      document.getElementById('headerFuelPrice').innerText = `£${state.fuelPrice.toFixed(2)}/L`;
+
+    } else {
+        document.getElementById('inputFixedPrice').value = state.fuelPrice.toFixed(2);
+        document.getElementById('option-live').classList.remove('active');
+        document.getElementById('option-fixed').classList.add('active');
+        document.getElementById('live-detail').style.display = 'none';
+        document.getElementById('fixed-input').style.display = 'block';
     }
 
-    // Detection Toggle State (Updated to use the new ID)
+    // Detection Status
     const detectionToggleToday = document.getElementById('detectionToggleToday');
-    const autoDetectSection = document.getElementById('autoDetectSection');
-    
-    // Check if a manual trip is active (Hides the section)
-    if (isManualTripActive) {
-        autoDetectSection.classList.add('hidden');
+    if(state.detectionEnabled) {
+      detectionToggleToday.classList.add('on');
+      document.getElementById('detectionStatusToday').innerText = state.permissionsGranted ? 
+          "Motion & GPS sensors active" : "Waiting for permissions";
     } else {
-        autoDetectSection.classList.remove('hidden');
-    }
-    
-    // Update the visual toggle and status text
-    if (state.detectionEnabled) {
-        detectionToggleToday.classList.add('on');
-        document.getElementById('detectionStatusToday').innerText = state.permissionsGranted ? "Motion & GPS sensors active" : "Waiting for permissions";
-    } else {
-        detectionToggleToday.classList.remove('on');
-        document.getElementById('detectionStatusToday').innerText = "Detection is manually paused";
+      detectionToggleToday.classList.remove('on');
+      document.getElementById('detectionStatusToday').innerText = "Detection is manually paused";
     }
 
     // Today Calculation
@@ -1472,6 +1288,7 @@
     const totalSpent = state.trips.reduce((acc, t) => acc + t.cost, 0);
     document.getElementById('insightSpent').innerText = `£${Math.floor(totalSpent)}`;
     document.getElementById('insightLimit').innerText = state.budget;
+    document.getElementById('inputBudget').value = state.budget;
     
     const pct = Math.min((totalSpent / state.budget) * 100, 100);
     const budgetBar = document.getElementById('budgetBar');
@@ -1481,83 +1298,68 @@
     renderTrips();
     saveStateToLocalStorage(); // Save any price updates
   }
-  
+
   function saveDetectionSetting(toggleEl) {
-    // The toggle has already been flipped by the inline onclick handler.
-    const isNowOn = toggleEl.classList.toggle('on'); // FIX: Added toggle here, as it was missing from the new button implementation!
-    
     // Case 1: Toggling ON without permissions
-    if (isNowOn && !state.permissionsGranted) {
-        // Revert the visual toggle and the internal state
-        toggleEl.classList.remove('on');
-        state.detectionEnabled = false; // It failed to turn on
-        
+    const isNowOn = toggleEl.classList.contains('on');
+    if (!isNowOn && !state.permissionsGranted) { // If it was already OFF, and we are trying to turn it ON (meaning the class list toggle should have failed)
+        // Revert the visual toggle if it was manually clicked ON but permissions are missing
+        if(isNowOn) toggleEl.classList.remove('on');
+        state.detectionEnabled = false; // Internal state is OFF
         // Open the permission modal
         document.getElementById('modal-permissions').classList.add('open');
         updateUI(); 
         return;
     }
 
-    // Case 2: Toggling OFF (isNowOn is false) OR Toggling ON with permissions (isNowOn is true)
-    state.detectionEnabled = isNowOn;
-    saveStateToLocalStorage();
-    initMotionDetection(); 
-    updateUI(); 
+    // Case 2: Toggling OFF OR Toggling ON with permissions
+    state.detectionEnabled = !isNowOn; // Update state based on the click
+    if(isNowOn) {
+        initMotionDetection(); // Start listening if we just enabled it
+    } else {
+        initMotionDetection(); // Stop listening if we just disabled it
+    }
+    updateUI();
   }
 
-  // --- RENDER TRIPS (UPDATED to include onclick handler) ---
   function renderTrips() {
     const list = document.getElementById('tripsList');
-    list.innerHTML = "";
-    
-    if(state.trips.length === 0) {
-      list.innerHTML = `
-        <div class="card" style="text-align:center; padding: 40px 20px;">
-            <div style="font-size:20px; color:var(--text-muted); margin-bottom:10px;">No Trips Recorded Yet</div>
-            <div class="text-sm text-muted">Please ensure Auto-Detect is enabled on the Today tab, then use a car to drive and calculate the cost of your trips.</div>
-        </div>
-      `;
-      return;
-    }
-    
-    state.trips.sort((a, b) => b.date.getTime() - a.date.getTime());
+    list.innerHTML = '';
 
-    let currentDateGroup = null;
-
-    state.trips.forEach(t => {
+    const groupedTrips = state.trips.sort((a, b) => b.date.getTime() - a.date.getTime()).reduce((acc, t) => {
       const header = getGroupHeader(t.date);
+      if (!acc[header]) acc[header] = [];
+      acc[header].push(t);
+      return acc;
+    }, {});
 
-      if (header !== currentDateGroup) {
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'trip-section-header';
-        headerDiv.textContent = header;
-        list.appendChild(headerDiv);
-        currentDateGroup = header;
-      }
+    for (const header in groupedTrips) {
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'trip-section-header';
+      headerDiv.innerText = header;
+      list.appendChild(headerDiv);
 
-      const rotate = (t.id * 55) % 360; 
-      
-      const div = document.createElement('div');
-      div.className = 'trip-item';
-      // ADDED: onclick handler to open the trip detail modal
-      div.setAttribute('onclick', `openTripDetail(${t.id})`);
-      div.innerHTML = `
-        <div class="mini-map-preview">
-          <div class="map-grid"></div>
-          <div class="map-route" style="transform: translate(-50%, -50%) rotate(${rotate}deg);"></div>
-        </div>
-        <div style="flex:1;">
-          <div style="font-weight:600; font-size:15px;">${t.title}</div>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-            ${t.dist} mi • ${t.date.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}
+      groupedTrips[header].forEach(t => {
+        // SVG for a static map route (Base64 encoded)
+        const mapSvgBase64 = 'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48c3R5bGU+LmNvbnRleHR7ZmlsbDpub25lO3N0cm9rZTphcHBseS1mb3JjZWQtY29sb3I6dmFyKC0tbWFwLXJvYWQpO3N0cm9rZS13aWR0aDoyO3N0cm9rZS1vcGFjaXR5OjAuNTt9LnJvdXRle2ZpbGw6bm9uZTtzdHJva2U6dmFyKC0tYWNjZW50LXByaW1hcnkpO3N0cm9rZS13aWR0aDo0O3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZH08L3N0eWxlPjwvZGVmcz48cGF0aCBjbGFzcz0iY29udGV4dCIgZD0iTTUsODJoMjAuNXYtNDBoMTkuNXY0MCIvPjxwYXRoIGNsYXNzPSJjb250ZXh0IiBkPSJNNTgsNDB2LThoMTYuNXYyNSIvPjxwYXRoIGNsYXNzPSJyb3V0ZSIgZD0iTTksODRjMTAtOCw0NS05LDQ1LTI2czAtNDQsMzItNDQiLz48L3N2Zz4=';
+        
+        const div = document.createElement('div');
+        div.className = 'trip-item';
+        div.innerHTML = `
+          <div class="mini-map-preview" style="background-image: url('data:image/svg+xml;base64,${mapSvgBase64}'); background-size: cover;">
           </div>
-        </div>
-        <div class="text-mono font-bold">£${t.cost.toFixed(2)}</div>
-      `;
-      list.appendChild(div);
-    });
+          <div style="flex:1;">
+            <div style="font-weight:600; font-size:15px;">${t.title}</div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+              ${t.dist} mi • ${t.date.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'})}
+            </div>
+          </div>
+          <div class="text-mono font-bold">£${t.cost.toFixed(2)}</div>
+        `;
+        list.appendChild(div);
+      });
+    }
   }
-
 
   function timeAgo(date) {
     const mins = Math.floor((new Date() - date) / 60000);
@@ -1567,46 +1369,56 @@
   }
 
   // --- MODALS (Car, Budget, Fuel, Privacy) ---
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-  
-  function openPrivacyModal() {
-      document.getElementById('modal-privacy').classList.add('open');
-      // The state is set by the caller (checkAndOpenNextModal) only on initial open
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
   }
 
   function openCarModal() {
+    // Reset inputs before opening
     document.getElementById('inputCarName').value = state.carName;
     document.getElementById('sliderMPG').value = state.mpg;
     document.getElementById('labelMPG').innerText = state.mpg;
     document.getElementById('modal-car-edit').classList.add('open');
   }
-  function updateCarPreview(val) { document.getElementById('labelMPG').innerText = val; }
+
+  function updateCarPreview(newMpg) {
+    document.getElementById('labelMPG').innerText = newMpg;
+  }
+
   function saveCar() {
-    state.carName = document.getElementById('inputCarName').value;
-    state.mpg = parseInt(document.getElementById('sliderMPG').value);
+    const newName = document.getElementById('inputCarName').value;
+    const newMpg = parseInt(document.getElementById('sliderMPG').value);
+    
+    state.carName = newName;
+    state.mpg = newMpg;
+    
     saveStateToLocalStorage();
     closeModal('modal-car-edit');
     updateUI();
   }
 
   function openBudgetModal() {
-    document.getElementById('sliderBudget').value = state.budget;
-    document.getElementById('labelBudget').innerText = state.budget;
+    document.getElementById('inputBudget').value = state.budget;
     document.getElementById('modal-budget').classList.add('open');
   }
-  function updateBudgetPreview(val) { document.getElementById('labelBudget').innerText = val; }
+
   function saveBudget() {
-    state.budget = parseInt(document.getElementById('sliderBudget').value);
-    saveStateToLocalStorage();
+    const newBudget = parseInt(document.getElementById('inputBudget').value);
+    if (!isNaN(newBudget) && newBudget > 0) {
+      state.budget = newBudget;
+      saveStateToLocalStorage();
+      updateUI();
+    }
     closeModal('modal-budget');
-    updateUI();
   }
 
-  function openFuelModal() {
+  async function openFuelModal() {
+    // Set the initial state for the fuel modal UI
     setFuelSource(state.fuelSource);
     document.getElementById('inputFixedPrice').value = state.fuelPrice.toFixed(2);
+
     // Refresh live price details on open
-    updateUI();
+    await updateUI();
     document.getElementById('modal-fuel-price').classList.add('open');
   }
 
@@ -1642,6 +1454,64 @@
     closeModal('modal-fuel-price');
     updateUI();
   }
+
+  function openPrivacyModal() {
+    document.getElementById('modal-privacy').classList.add('open');
+  }
+
+  // --- INITIALIZATION (MODIFIED FOR MODAL CHAINING) ---
+  document.addEventListener('DOMContentLoaded', () => {
+    loadStateFromLocalStorage();
+    
+    // Set theme based on state
+    if (state.isLightMode) {
+      document.body.classList.add('light-mode');
+      document.getElementById('themeToggle').classList.add('on');
+    }
+    
+    updateDotPattern();
+    initCornerMesh(); 
+    updateUI();
+    initMotionDetection();
+
+    // --- START INITIAL MODAL SEQUENCE ---
+    const installModalRequired = !isStandalonePWA() && !state.installPromptSeen;
+    
+    if (installModalRequired) {
+      // 1. Show Install Tutorial first (the info drawer)
+      setTimeout(() => {
+        openInstallTutorial();
+      }, 500);
+      
+      // 2. If permissions are still not granted, show the permissions modal after install
+      if (!state.permissionsGranted) {
+        setTimeout(() => {
+          // Check if install modal is still open, if so, wait to prevent stacking
+          if (!document.getElementById('modal-install-tutorial').classList.contains('open')) {
+            document.getElementById('modal-permissions').classList.add('open');
+          } else {
+            // Wait for user to dismiss install tutorial, then prompt permissions
+            const installModal = document.getElementById('modal-install-tutorial');
+            const observer = new MutationObserver((mutationsList, observer) => {
+              for(const mutation of mutationsList) {
+                if (mutation.attributeName === 'class' && !installModal.classList.contains('open')) {
+                  document.getElementById('modal-permissions').classList.add('open');
+                  observer.disconnect(); // Stop observing once opened
+                }
+              }
+            });
+            observer.observe(installModal, { attributes: true });
+          }
+        }, 1500); // Small delay after showing install prompt
+      }
+    } else if (!state.permissionsGranted) {
+      // If PWA is installed/prompt dismissed, but permissions are missing, show permissions
+       setTimeout(() => {
+          document.getElementById('modal-permissions').classList.add('open');
+        }, 500);
+    }
+  });
+
 </script>
 </body>
 </html>
