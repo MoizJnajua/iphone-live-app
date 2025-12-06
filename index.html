@@ -17,7 +17,6 @@
       --bg-app: #000000;
       --bg-mesh-1: #1e1b4b;
       --bg-mesh-2: #0f172a;
-      --bg-dot-color: rgba(255, 255, 255, 0.04); /* Light dots for dark mode */
       
       --glass-surface: rgba(30, 30, 30, 0.60);
       --glass-surface-active: rgba(50, 50, 50, 0.7);
@@ -46,7 +45,6 @@
       --bg-app: #f2f2f7;
       --bg-mesh-1: #e5e5ea;
       --bg-mesh-2: #ffffff;
-      --bg-dot-color: rgba(0, 0, 0, 0.05); /* Dark dots for light mode */
       
       --glass-surface: rgba(255, 255, 255, 0.75);
       --glass-surface-active: rgba(255, 255, 255, 0.95);
@@ -65,8 +63,8 @@
     
     body {
       margin: 0; 
-      height: 100vh; /* Full viewport height */
-      width: 100vw; /* Full viewport width */
+      height: 100vh; 
+      width: 100vw; 
       display: block; 
       background: var(--bg-app); 
       font-family: "Inter", -apple-system, sans-serif;
@@ -92,13 +90,12 @@
       opacity: 0.6; z-index: 0;
     }
     
-    /* --- NEW Dot Mesh Pattern Layer --- */
+    /* --- Dot Mesh Pattern Layer --- */
     .mesh-pattern {
       position: absolute; inset: 0;
-      /* Base dot pattern via SVG data URI - 2x2 grid with one dot */
-      background-image: url("data:image/svg+xml,%3Csvg width='2' height='2' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%23{encodeURIComponent(document.documentElement.style.getPropertyValue('--bg-dot-color').replace('rgba(', '').replace(')', '').split(',').slice(0, 3).map(c => parseInt(c).toString(16).padStart(2, '0')).join(''))}'/%3E%3C/svg%3E");
       background-size: 20px 20px; /* Adjust size for density */
-      opacity: 1; /* Always visible, animation will handle the subtle effect */
+      opacity: 1; 
+      /* The background-image and opacity are set by JavaScript for theme compatibility */
     }
     
     /* Animation layer for a dynamic feel using CSS blend-mode */
@@ -106,8 +103,11 @@
       position: absolute; inset: 0;
       /* Subtle gradient for the movement effect */
       background: linear-gradient(135deg, rgba(var(--bg-mesh-1-rgb), 0.5) 0%, rgba(var(--bg-mesh-2-rgb), 0.5) 100%); 
-      mix-blend-mode: overlay; /* Blends the color with the dots */
-      animation: mesh-shift 40s linear infinite alternate;
+      mix-blend-mode: overlay; 
+      animation: mesh-shift 40s linear infinite alternate; /* Default slow animation */
+      opacity: 0.9;
+      transition: animation-duration 0.5s, mix-blend-mode 0.5s;
+      
       /* Setting fallback RGB values for blend gradient. These are pulled from the colors in :root */
       --bg-mesh-1-rgb: 30, 27, 75; /* 1e1b4b */
       --bg-mesh-2-rgb: 15, 23, 42; /* 0f172a */
@@ -121,6 +121,13 @@
     @keyframes mesh-shift {
       0% { transform: translate(0, 0) scale(1.0); }
       100% { transform: translate(50px, 30px) scale(1.1); } /* Subtle translation and scale */
+    }
+    
+    /* --- NEW: Motion Active State --- */
+    .screen-area.motion-active .mesh-anim-layer {
+        animation-duration: 20s; /* Speed up the animation */
+        mix-blend-mode: color-dodge; /* More intense glowing effect */
+        opacity: 1;
     }
 
     /* --- Dynamic Island (MEASURING TRIP) --- */
@@ -172,7 +179,7 @@
       pointer-events: none;
       transition: opacity 0.3s, transform 0.3s;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      max-width: 90vw; /* Ensure it fits smaller screens */
+      max-width: 90vw; 
       white-space: nowrap;
     }
     .toast-message.show {
@@ -182,8 +189,8 @@
     /* --- Slider UX Fix (New/Updated) --- */
     .ios-slider {
       -webkit-appearance: none;
-      width: 100%; /* FIX: Set to full width */
-      height: 4px; /* Track height */
+      width: 100%; 
+      height: 4px; 
       background: var(--input-bg);
       border-radius: 4px;
       margin: 10px 0;
@@ -197,7 +204,7 @@
       border-radius: 50%;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(255,255,255,0.4); 
       cursor: pointer;
-      margin-top: -12px; /* Center the thumb on the track */
+      margin-top: -12px; 
     }
     .light-mode .ios-slider::-webkit-slider-thumb {
         box-shadow: 0 2px 5px rgba(0,0,0,0.2), inset 0 0 0 0.5px rgba(0,0,0,0.1); 
@@ -536,6 +543,7 @@
   };
   
   let state = {};
+  const screenArea = document.querySelector('.screen-area'); // Get the element once
 
   // --- MOTION DETECTION VARIABLES (NEW) ---
   let isDetectingMotion = false;
@@ -544,7 +552,7 @@
   let lastSignificantMotionTime = 0;
   let lastToastStatus = '';
   let toastTimeout = null;
-  let lastToastTime = 0; // The time the toast was LAST SHOWN (used for quick shake debounce)
+  let lastToastTime = 0; 
 
 
   function loadStateFromLocalStorage() {
@@ -582,10 +590,30 @@
       document.getElementById('themeToggle').classList.add('on');
     }
     
+    updateDotPattern(); // Initialize dot pattern with correct theme color
     updateUI();
     checkAndRequestPermissions();
-    initMotionDetection(); // Start motion detection if permissions are already granted
+    initMotionDetection(); 
   });
+  
+  // --- NEW: Function to fix the dynamic dot pattern background ---
+  function updateDotPattern() {
+    const isLight = document.body.classList.contains('light-mode');
+    
+    // Choose solid color for the dots in the SVG, opacity is handled by the wrapper element
+    const dotColor = isLight ? 'rgb(0,0,0)' : 'rgb(255,255,255)';
+    const opacityLevel = isLight ? '0.05' : '0.04'; // Adjust opacity for better visibility
+    
+    // Create the SVG data URI
+    const svgContent = `<svg width='2' height='2' viewBox='0 0 2 2' xmlns='http://www.w3.org/2000/svg'><circle cx='1' cy='1' r='0.5' fill='${dotColor}'/></svg>`;
+    const encodedSvg = encodeURIComponent(svgContent).replace(/'/g, '%27').replace(/"/g, '%22');
+
+    const meshPatternEl = document.querySelector('.mesh-pattern');
+    meshPatternEl.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodedSvg}")`;
+    meshPatternEl.style.opacity = opacityLevel;
+  }
+  // --- END NEW: Dot Pattern Fix ---
+
 
   // --- MOTION DETECTION LOGIC (UPDATED FOR REPEATED TOAST) ---
 
@@ -608,7 +636,6 @@
 
   function handleMotion(event) {
     const { x, y, z } = event.accelerationIncludingGravity;
-    // Calculate total magnitude of acceleration
     const magnitude = Math.sqrt(x * x + y * y + z * z);
     const now = Date.now();
 
@@ -616,15 +643,12 @@
     if (magnitude > MOTION_THRESHOLD) {
       lastSignificantMotionTime = now;
       
-      // FIX: Show 'Shaking' every time, but apply a quick 500ms debounce
       if (now - lastToastTime > 500) { 
         updateMotionStatus('Shaking');
-        // lastToastTime is updated inside updateMotionStatus
-        lastToastStatus = 'Shaking'; // Update internal status
+        lastToastStatus = 'Shaking'; 
       }
 
-      // 2. Check for sustained motion (Simulated 'Moving Car' after 5 seconds of continuous motion)
-      // This is independent of the 'Shaking' toast debounce
+      // 2. Check for sustained motion (Simulated 'Moving Car')
       if (now - lastSignificantMotionTime >= MOVING_CAR_THRESHOLD) {
         if (lastToastStatus !== 'Moving Car') {
           updateMotionStatus('Moving Car', 5000);
@@ -632,8 +656,6 @@
         }
       }
     } else {
-      // If motion has settled (or is light movement) and more than 5s since last major shake,
-      // reset the status internally.
        if (now - lastSignificantMotionTime > 5000 && lastToastStatus !== 'Steady') {
            lastToastStatus = 'Steady'; 
        }
@@ -657,14 +679,16 @@
     
     toastEl.classList.add('show');
     
-    // Only update lastToastTime for the 'Shaking' status to enforce the 500ms debounce
-    // This allows the 'Shaking' status to immediately interrupt 'Moving Car' status.
+    // NEW: Activate dynamic background effect
+    screenArea.classList.add('motion-active');
+    
     if (status === 'Shaking') {
         lastToastTime = Date.now(); 
     }
     
     toastTimeout = setTimeout(() => {
       toastEl.classList.remove('show');
+      screenArea.classList.remove('motion-active'); // Deactivate dynamic background effect
     }, duration);
   }
 
@@ -692,13 +716,12 @@
            updateMotionStatus('Motion Sensor Granted!', 2000);
            state.permissionsGranted = true;
            saveStateToLocalStorage();
-           initMotionDetection(); // Start the listener
+           initMotionDetection(); 
         } else {
            updateMotionStatus('Motion Sensor Denied. Detection compromised.', 4000);
         }
       }).catch(console.error);
     } else {
-      // For non-iOS/non-explicit permission browsers, assume granted for basic functionality
       state.permissionsGranted = true;
       saveStateToLocalStorage();
       initMotionDetection();
@@ -731,6 +754,7 @@
     
     state.isLightMode = document.body.classList.contains('light-mode');
     saveStateToLocalStorage(); 
+    updateDotPattern(); // FIX: Call to update dot pattern color
     
     const isLightMode = state.isLightMode;
     const iconMoon = document.getElementById('icon-moon');
@@ -815,7 +839,7 @@
   function saveDetectionSetting(toggleEl) {
     state.detectionEnabled = toggleEl.classList.contains('on');
     saveStateToLocalStorage();
-    initMotionDetection(); // Start/stop listener based on new setting
+    initMotionDetection(); 
     updateUI(); 
   }
 
