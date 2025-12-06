@@ -393,6 +393,12 @@
         <div class="text-sm" id="lastTripTitle">No recent trips</div>
       </div>
       
+      <div class="card" style="text-align:center; padding: 30px 20px; border:1px solid var(--success); background:rgba(48, 209, 88, 0.05);">
+          <span style="font-size:36px; display:block; margin-bottom:10px;">🔒</span>
+          <div style="font-size:16px; font-weight:600; margin-bottom:10px;">On-Device Privacy</div>
+          <div class="text-sm text-muted">This is an on-device app. All calculation, tracking, and information always stay on your phone. We do not save your data anywhere, so once you delete the QuickTrip webapp, the information is not recoverable.</div>
+      </div>
+
       <div class="card" id="waitingCard" style="text-align:center; padding: 40px 20px;">
           <div style="font-size:24px; color:var(--text-muted); margin-bottom:10px;">Waiting for a trip...</div>
           <div class="text-sm text-muted">Automatic trip detection requires **Auto-Detect** to be enabled in Settings.</div>
@@ -485,7 +491,7 @@
             </div>
           </div>
           <div style="flex:1;">
-            <div class="text-sm font-bold">Dark Mode</div>
+            <div class="text-sm font-bold">Light Mode</div>
             <div style="font-size:11px;" class="text-muted">Appearance</div>
           </div>
           <div class="toggle-switch" id="themeToggle"></div>
@@ -521,7 +527,7 @@
         <span style="font-size:48px; display:block; margin-bottom:10px;">📍</span>
         <h3 style="margin-top:0;">Enable Trip Detection</h3>
     </div>
-    <p class="text-sm text-muted">To automatically detect your car trips, we need permission to access your device's location and motion sensors when using the app.</p>
+    <p class="text-sm text-muted">To automatically detect your car trips or manually track your route, we need permission to access your device's location and motion sensors.</p>
     <ul style="padding: 0 0 0 20px; font-size: 14px; line-height: 1.6; color: var(--text-main);">
         <li>**Location (GPS):** Required for route and distance calculation.</li>
         <li>**Motion/Accelerometer:** Required to start/stop tracking based on driving movement.</li>
@@ -601,7 +607,7 @@
     fuelSource: 'live',
     trips: [], 
     permissionsGranted: false,
-    detectionEnabled: true,
+    detectionEnabled: false, // OFF by default as requested
     isLightMode: false,
   };
   
@@ -720,7 +726,7 @@
     updateDotPattern(); // Initialize dot pattern with correct theme color
     initCornerMesh(); // Initialize the new corner mesh
     updateUI();
-    checkAndRequestPermissions();
+    // Removed checkAndRequestPermissions() call to prevent modal on startup
     initMotionDetection(); 
   });
   
@@ -747,6 +753,7 @@
   // --- MOTION DETECTION LOGIC (UPDATED FOR MANUAL CHECK) ---
 
   function initMotionDetection() {
+    // Only start if detection is enabled AND permissions are granted
     if (state.detectionEnabled && state.permissionsGranted && !isDetectingMotion) {
       if (window.DeviceMotionEvent) {
         window.addEventListener('devicemotion', handleMotion);
@@ -754,11 +761,13 @@
         console.log('DeviceMotion listener started.');
       } else {
         console.warn('DeviceMotionEvent not supported on this browser.');
-        updateMotionStatus('Motion not supported on this device', 3000);
+        // updateMotionStatus('Motion not supported on this device', 3000); // Suppressed this message
       }
     } else if (isDetectingMotion && (!state.detectionEnabled || !state.permissionsGranted)) {
+      // Stop detection if state changes to disabled or permissions revoked
       window.removeEventListener('devicemotion', handleMotion);
       isDetectingMotion = false;
+      screenArea.classList.remove('motion-active'); // Ensure mesh is off
       console.log('DeviceMotion listener stopped.');
     }
   }
@@ -831,8 +840,6 @@
     
     toastTimeout = setTimeout(() => {
       toastEl.classList.remove('show');
-      // FIX: Removed the logic that prematurely removes 'motion-active' here, 
-      // as it was breaking the manual trip animation persistence.
     }, duration);
   }
 
@@ -848,11 +855,11 @@
   }
 
   function startManualTrip() {
-    // 1. Check permissions 
+    // 1. Check permissions (UPDATED LOGIC)
     if (!state.permissionsGranted) {
-        updateMotionStatus('Permission Required: Enable GPS and Motion first.', 5000);
+        // Open the permissions modal instead of starting the trip
         document.getElementById('modal-permissions').classList.add('open');
-        return;
+        return; 
     }
 
     isManualTripActive = true;
@@ -982,12 +989,6 @@
   }
 
   // --- PERMISSION LOGIC ---
-  function checkAndRequestPermissions() {
-      if (!state.permissionsGranted) {
-          document.getElementById('modal-permissions').classList.add('open');
-      }
-  }
-
   function grantPermissions() {
     // 1. Ask for Geolocation (GPS)
     if (navigator.geolocation) {
@@ -1005,18 +1006,27 @@
            state.permissionsGranted = true;
            saveStateToLocalStorage();
            initMotionDetection(); 
+           // If permission was granted, and detection was meant to be on, turn it on now.
+           if (state.detectionEnabled) {
+               document.getElementById('detectionToggle').classList.add('on');
+           }
         } else {
            updateMotionStatus('Motion Sensor Denied. Detection compromised.', 4000);
         }
+        updateUI();
       }).catch(console.error);
     } else {
       state.permissionsGranted = true;
       saveStateToLocalStorage();
       initMotionDetection();
+      // If permission was granted, and detection was meant to be on, turn it on now.
+      if (state.detectionEnabled) {
+          document.getElementById('detectionToggle').classList.add('on');
+      }
+      updateUI();
     }
 
     closeModal('modal-permissions');
-    updateUI();
   }
   
   // --- NAVIGATION ---
@@ -1125,7 +1135,23 @@
   }
   
   function saveDetectionSetting(toggleEl) {
-    state.detectionEnabled = toggleEl.classList.contains('on');
+    // The toggle has already been flipped by the inline onclick handler.
+    const isNowOn = toggleEl.classList.contains('on');
+    
+    // Case 1: Toggling ON without permissions
+    if (isNowOn && !state.permissionsGranted) {
+        // Revert the visual toggle and the internal state
+        toggleEl.classList.remove('on');
+        state.detectionEnabled = false; // It failed to turn on
+        
+        // Open the permission modal
+        document.getElementById('modal-permissions').classList.add('open');
+        updateUI(); 
+        return;
+    }
+
+    // Case 2: Toggling OFF (isNowOn is false) OR Toggling ON with permissions (isNowOn is true)
+    state.detectionEnabled = isNowOn;
     saveStateToLocalStorage();
     initMotionDetection(); 
     updateUI(); 
